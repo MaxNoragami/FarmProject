@@ -1,0 +1,28 @@
+name: CI
+
+# On the following event it triggers the workflow
+on: push
+
+jobs:
+  # The build job
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+          dotnet-version: |
+            9.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore FarmProject.sln
+
+    - name: Build with .NET
+      run: dotnet build --configuration Release --no-restore FarmProject.sln
+
+    
