@@ -643,6 +643,8 @@ node_modules
 
 *.sublime*
 
+.actrc
+
 psd
 thumb
 sketch
