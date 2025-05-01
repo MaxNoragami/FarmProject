@@ -1,11 +1,15 @@
+using FarmProject.Application.Rabbits.Create;
 using FarmProject.Application.Rabbits.Responses;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace FarmProject.Presentation.Pages
 {
-    public class AddRabbitModel : PageModel
+    public class AddRabbitModel(IMediator mediator) : PageModel
     {
+        private readonly IMediator _mediator = mediator;
+
         [BindProperty]
         public RabbitDto Rabbit { get; set; }
 
@@ -13,13 +17,21 @@ namespace FarmProject.Presentation.Pages
         {
         }
 
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPostAsync()
         {
             if(!ModelState.IsValid)
             {
                 return Page();
             }
-            return RedirectToPage("/Index");
+
+            var command = new CreateRabbit(
+                               Rabbit.Name, 
+                               Rabbit.Gender, 
+                               Rabbit.Breedable);
+
+            var result = await _mediator.Send(command);
+
+            return RedirectToPage("/RabbitDetails", new { id = result.Id });
         }
     }
 }

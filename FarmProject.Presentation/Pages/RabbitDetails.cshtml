@@ -1,0 +1,27 @@
+﻿@page
+@model FarmProject.Presentation.Pages.RabbitDetailsModel
+@{
+    ViewData["Title"] = "Rabbit Details";
+}
+
+<h1>Rabbit Details</h1>
+
+<div class="card mt-4">
+    <div class="card-header">
+        Rabbit #@Model.Rabbit.Id
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">@Model.Rabbit.Name</h5>
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <p><strong>Gender:</strong> @Model.Rabbit.Gender</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Breedable:</strong> @(Model.Rabbit.Breedable ? "Yes" : "No")</p>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <a asp-page="/AllRabbits" class="btn btn-primary">All Rabbits</a>
+    </div>
+</div>
