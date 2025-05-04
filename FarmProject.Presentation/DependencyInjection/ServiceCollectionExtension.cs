@@ -1,20 +1,24 @@
-﻿using FarmProject.Application.RabbitsService;
+﻿using FarmProject.Application;
+using FarmProject.Application.PairingService;
+using FarmProject.Application.RabbitsService;
+using FarmProject.Domain.Models;
 using FarmProject.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace FarmProject.Presentation.DependencyInjection;
 
 public static class ServiceCollectionExtension
 {
-    public static IServiceCollection AddInMemoryRabbitRepo(this IServiceCollection services)
+    public static IServiceCollection AddInMemoryRepository<T>(this IServiceCollection services)
+        where T : Entity
     {
-        services.AddSingleton<IRabbitRepository, RabbitRepository>();
+        services.AddSingleton<IRepository<T>, InMemoryRepository<T>>();
         return services;
     }
 
-    public static IServiceCollection AddRabbitService(this IServiceCollection services)
+    public static IServiceCollection AddFarmServices(this IServiceCollection services)
     {
-        services.AddScoped<IRabbitService, RabbitService>();
+        services.AddScoped<IRabbitService, RabbitService>()
+            .AddScoped<IPairingService, PairingService>();
         return services;
     }
 }

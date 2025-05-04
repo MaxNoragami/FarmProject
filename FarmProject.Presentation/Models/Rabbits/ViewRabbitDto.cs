@@ -13,5 +13,5 @@ public class ViewRabbitDto
 
     public Gender Gender { get; set; }
 
-    public bool Breedable { get; set; }
+    public BreedingStatus BreedingStatus { get; set; }
 }

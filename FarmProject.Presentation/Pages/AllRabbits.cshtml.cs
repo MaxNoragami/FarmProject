@@ -1,5 +1,4 @@
 using FarmProject.Application.RabbitsService;
-using FarmProject.Domain.Models;
 using FarmProject.Presentation.Models.Rabbits;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

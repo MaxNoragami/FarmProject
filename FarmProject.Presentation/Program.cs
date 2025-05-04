@@ -1,12 +1,13 @@
-using FarmProject.Application.RabbitsService;
+using FarmProject.Domain.Models;
 using FarmProject.Presentation.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddInMemoryRabbitRepo();
-builder.Services.AddRabbitService();
+builder.Services.AddInMemoryRepository<Rabbit>();
+builder.Services.AddInMemoryRepository<Pair>();
+builder.Services.AddFarmServices();
 
 var app = builder.Build();
 

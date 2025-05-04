@@ -11,5 +11,5 @@ public class CreateRabbitDto
 
     public Gender Gender { get; set; }
 
-    public bool Breedable { get; set; }
+    public BreedingStatus BreedingStatus { get; set; }
 }

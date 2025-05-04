@@ -10,7 +10,7 @@ public static class RabbitMapper
                 Id = rabbit.Id,
                 Name = rabbit.Name,
                 Gender = rabbit.Gender,
-                Breedable = rabbit.Breedable
+                BreedingStatus = rabbit.BreedingStatus
             };
 
     public static Rabbit ToRabbit(this ViewRabbitDto rabbitDto)
@@ -19,6 +19,6 @@ public static class RabbitMapper
             Id = rabbitDto.Id,
             Name = rabbitDto.Name,
             Gender = rabbitDto.Gender,
-            Breedable = rabbitDto.Breedable
+            BreedingStatus = rabbitDto.BreedingStatus
         };
 }

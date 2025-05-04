@@ -27,7 +27,7 @@ namespace FarmProject.Presentation.Pages
             var createdRabbit = await _rabbitService.CreateRabbit(
                                Rabbit.Name, 
                                Rabbit.Gender, 
-                               Rabbit.Breedable);
+                               Rabbit.BreedingStatus);
 
             var result = createdRabbit.ToViewRabbitDto();
 
