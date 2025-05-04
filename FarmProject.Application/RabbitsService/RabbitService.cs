@@ -7,14 +7,14 @@ public class RabbitService(IRabbitRepository rabbitRepository) : IRabbitService
 {
     private readonly IRabbitRepository _rabbitRepository = rabbitRepository;
 
-    public Task<Rabbit> CreateRabbit(string name, Gender gender, bool breedable)
+    public Task<Rabbit> CreateRabbit(string name, Gender gender, BreedingStatus breedingStatus)
     {
         var requestRabbit = new Rabbit()
         {
             Id = GetNextId(),
             Name = name,
             Gender = gender,
-            Breedable = breedable
+            BreedingStatus = breedingStatus
         };
 
         var createdRabbit = _rabbitRepository.Create(requestRabbit);
@@ -34,6 +34,17 @@ public class RabbitService(IRabbitRepository rabbitRepository) : IRabbitService
             ?? throw new ArgumentNullException("Rabbit not found.");
 
         return Task.FromResult(requestRabbit);
+    }
+
+    public Task<Rabbit> UpdateBreedingStatus(int rabbitId, BreedingStatus breedingStatus)
+    {
+        var requestRabbit = _rabbitRepository.GetById(rabbitId)
+            ?? throw new ArgumentException("Rabbit not found.");
+
+        requestRabbit.BreedingStatus = breedingStatus;
+
+        var updatedRabbit = _rabbitRepository.Update(requestRabbit);
+        return Task.FromResult(updatedRabbit);
     }
 
     private int GetNextId()

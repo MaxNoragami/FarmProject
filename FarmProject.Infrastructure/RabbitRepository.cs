@@ -23,4 +23,15 @@ public class RabbitRepository : IRabbitRepository
         => _rabbits.Any()
             ? _rabbits.Max(r => r.Id) + 1 
             : 1;
+
+    public Rabbit Update(Rabbit rabbit)
+    {
+        var requestRabbit = _rabbits.SingleOrDefault(r => r.Id == rabbit.Id);
+
+        if (requestRabbit == null)
+            throw new ArgumentException("Rabbit couldn't be found.");
+
+        requestRabbit = rabbit;
+        return requestRabbit;
+    }
 }
