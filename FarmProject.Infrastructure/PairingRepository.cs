@@ -26,12 +26,13 @@ public class PairingRepository : IPairingRepository
 
     public PairingProcess Update(PairingProcess pair)
     {
-        var requestPair = _pairs.SingleOrDefault(p => p.Id == pair.Id);
+        var index = _pairs.FindIndex(p => p.Id == pair.Id);
 
-        if (requestPair == null)
-            throw new ArgumentException("Rabbit couldn't be found.");
+        if (index < 0)
+            throw new ArgumentException("Pair could not be updated");
 
-        requestPair = pair;
-        return requestPair;
+        _pairs[index] = pair;
+
+        return pair;
     }
 }

@@ -55,6 +55,21 @@ public class PairingService(IPairingRepository pairingRepository, IRabbitService
 
         requestPair.PairingStatus = pairingStatus;
 
+        if(pairingStatus != PairingStatus.Active)
+        {
+            requestPair.EndDate = DateTime.Now;
+
+            if (pairingStatus == PairingStatus.Successful)
+                _ = _animalService.UpdateBreedingStatus(requestPair.FemaleId, 
+                                                        BreedingStatus.Pregnant);
+            else
+                _ = _animalService.UpdateBreedingStatus(requestPair.FemaleId,
+                                                        BreedingStatus.Available);
+
+            _ = _animalService.UpdateBreedingStatus(requestPair.MaleId,
+                                                        BreedingStatus.Available);
+        }
+
         var updatedPair = _pairingRepository.Update(requestPair);
         return Task.FromResult(updatedPair);
     }

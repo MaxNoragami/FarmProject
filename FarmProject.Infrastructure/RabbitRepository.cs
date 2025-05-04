@@ -26,12 +26,13 @@ public class RabbitRepository : IRabbitRepository
 
     public Rabbit Update(Rabbit rabbit)
     {
-        var requestRabbit = _rabbits.SingleOrDefault(r => r.Id == rabbit.Id);
+        var index = _rabbits.FindIndex(r => r.Id == rabbit.Id);
 
-        if (requestRabbit == null)
-            throw new ArgumentException("Rabbit couldn't be found.");
+        if (index < 0)
+            throw new ArgumentException("Rabbit could not be updated");
 
-        requestRabbit = rabbit;
-        return requestRabbit;
+        _rabbits[index] = rabbit;
+
+        return rabbit;
     }
 }
