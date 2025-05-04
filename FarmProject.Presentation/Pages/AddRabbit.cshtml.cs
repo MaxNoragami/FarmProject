@@ -1,17 +1,17 @@
-using FarmProject.Application.Rabbits.Create;
-using FarmProject.Application.Rabbits.Responses;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using FarmProject.Application.RabbitsService;
+using FarmProject.Presentation.Models.Rabbits;
+
 
 namespace FarmProject.Presentation.Pages
 {
-    public class AddRabbitModel(IMediator mediator) : PageModel
+    public class AddRabbitModel(IRabbitService rabbitService) : PageModel
     {
-        private readonly IMediator _mediator = mediator;
+        private readonly IRabbitService _rabbitService = rabbitService;
 
         [BindProperty]
-        public RabbitDto Rabbit { get; set; }
+        public CreateRabbitDto Rabbit { get; set; }
 
         public void OnGet()
         {
@@ -24,12 +24,12 @@ namespace FarmProject.Presentation.Pages
                 return Page();
             }
 
-            var command = new CreateRabbit(
+            var createdRabbit = await _rabbitService.CreateRabbit(
                                Rabbit.Name, 
                                Rabbit.Gender, 
                                Rabbit.Breedable);
 
-            var result = await _mediator.Send(command);
+            var result = createdRabbit.ToViewRabbitDto();
 
             return RedirectToPage("/RabbitDetails", new { id = result.Id });
         }

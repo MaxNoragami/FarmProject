@@ -1,24 +1,23 @@
-using FarmProject.Application.Rabbits.Queries;
-using FarmProject.Application.Rabbits.Responses;
-using MediatR;
+using FarmProject.Application.RabbitsService;
+using FarmProject.Presentation.Models.Rabbits;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace FarmProject.Presentation.Pages
 {
-    public class RabbitDetailsModel(IMediator mediator) : PageModel
+    public class RabbitDetailsModel(IRabbitService rabbitService) : PageModel
     {
-        private readonly IMediator _mediator = mediator;
+        private readonly IRabbitService _rabbitService = rabbitService;
 
-        public RabbitDto Rabbit { get; private set; }
+        public ViewRabbitDto Rabbit { get; private set; }
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
             try
             {
-                var query = new GetRabbitById(id);
-                Rabbit = await _mediator.Send(query);
-
+                var requestedRabbit =  await _rabbitService.GetRabbitById(id);
+                Rabbit = requestedRabbit.ToViewRabbitDto();
+                
                 return Page();
             }
             catch (ArgumentNullException)

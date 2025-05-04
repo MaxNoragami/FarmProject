@@ -1,14 +1,12 @@
-using FarmProject.Infrastructure;
-using FarmProject.Application.Rabbits;
-using MediatR;
+using FarmProject.Application.RabbitsService;
+using FarmProject.Presentation.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddRabbitRepo();
-builder.Services.AddMediatR(cfg => 
-    cfg.RegisterServicesFromAssembly(typeof(IRabbitRepository).Assembly));
+builder.Services.AddInMemoryRabbitRepo();
+builder.Services.AddRabbitService();
 
 var app = builder.Build();
 

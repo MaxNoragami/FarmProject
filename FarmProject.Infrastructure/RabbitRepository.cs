@@ -1,4 +1,4 @@
-﻿using FarmProject.Application.Rabbits;
+﻿using FarmProject.Application.RabbitsService;
 using FarmProject.Domain.Models;
 
 namespace FarmProject.Infrastructure;
