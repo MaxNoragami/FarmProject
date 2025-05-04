@@ -31,7 +31,7 @@ public class RabbitService(IRabbitRepository rabbitRepository) : IRabbitService
     public Task<Rabbit> GetRabbitById(int rabbitId)
     {
         var requestRabbit = _rabbitRepository.GetById(rabbitId)
-            ?? throw new ArgumentNullException("Rabbit not found.");
+            ?? throw new ArgumentException("Rabbit not found.");
 
         return Task.FromResult(requestRabbit);
     }
