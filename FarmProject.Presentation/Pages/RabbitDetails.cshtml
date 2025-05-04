@@ -1,4 +1,5 @@
 ﻿@page
+@using FarmProject.Domain.Constants
 @model FarmProject.Presentation.Pages.RabbitDetailsModel
 @{
     ViewData["Title"] = "Rabbit Details";
@@ -8,16 +9,16 @@
 
 <div class="card mt-4">
     <div class="card-header">
-        Rabbit #@Model.Rabbit.Id
+        Rabbit #@Model.RabbitDto.Id
     </div>
     <div class="card-body">
-        <h5 class="card-title">@Model.Rabbit.Name</h5>
+        <h5 class="card-title">@Model.RabbitDto.Name</h5>
         <div class="row mt-3">
             <div class="col-md-6">
-                <p><strong>Gender:</strong> @Model.Rabbit.Gender</p>
+                <p><strong>Gender:</strong> @Model.RabbitDto.Gender</p>
             </div>
             <div class="col-md-6">
-                <p><strong>Breeding Status:</strong> @Model.Rabbit.BreedingStatus</p>
+                <p><strong>Breeding Status:</strong> @Model.RabbitDto.BreedingStatus</p>
             </div>
         </div>
     </div>
@@ -25,3 +26,15 @@
         <a asp-page="/AllRabbits" class="btn btn-primary">All Rabbits</a>
     </div>
 </div>
+
+<h1>Update Rabbit</h1>
+<form method="post">
+    <select asp-for="UpdateRabbitDto.BreedingStatus" class="form-control">
+        <option value="">Select Breeding Status</option>
+        @foreach (var status in Enum.GetValues(typeof(BreedingStatus)))
+        {
+            <option value="@status">@status</option>
+        }
+    </select>
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>

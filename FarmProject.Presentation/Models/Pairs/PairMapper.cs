@@ -1,4 +1,5 @@
 ﻿using FarmProject.Domain.Models;
+using FarmProject.Domain.Constants;
 
 namespace FarmProject.Presentation.Models.Pairs;
 

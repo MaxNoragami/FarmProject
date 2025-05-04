@@ -4,5 +4,5 @@ public enum PairingStatus
 {
     Active,
     Successful,
-    
+    Failed
 }

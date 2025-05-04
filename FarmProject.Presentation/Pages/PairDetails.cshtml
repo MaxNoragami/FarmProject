@@ -1,5 +1,6 @@
 ﻿@page
 @model FarmProject.Presentation.Pages.PairDetailsModel
+@using FarmProject.Domain.Constants
 @{
     ViewData["Title"] = "Pair Details";
 }
@@ -29,3 +30,15 @@
         <a asp-page="/AllPairs" class="btn btn-primary">All Pairs</a>
     </div>
 </div>
+
+<h1>Update Pair</h1>
+<form method="post">
+    <select asp-for="UpdatePairDto.PairingStatus" class="form-control">
+        <option value="">Select Pairing Status</option>
+        @foreach (var status in Enum.GetValues(typeof(PairingStatus)))
+        {
+            <option value="@status">@status</option>
+        }
+    </select>
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>
