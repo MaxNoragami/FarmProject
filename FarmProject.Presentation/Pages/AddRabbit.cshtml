@@ -1,0 +1,30 @@
+﻿@page
+@model FarmProject.Presentation.Pages.AddRabbitModel
+@{
+    ViewData["Title"] = "Add Rabbit";
+}
+
+<h1>Add Rabbit</h1>
+
+<form method="post">
+    <input type="text" asp-for="Rabbit.Name" placeholder="Name of the rabbit"/>
+    
+    <select asp-for="Rabbit.Gender">
+        <option value="">Select Gender</option>
+        @foreach (var gender in Enum.GetValues(typeof(FarmProject.Domain.Constants.Gender)))
+        {
+            <option value="@gender">@gender</option>
+        }
+
+    </select>
+
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" asp-for="Rabbit.Breedable">
+        <label class="form-check-label" for="Rabbit_Breedable">
+            Breedable
+        </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+  
+</form>
