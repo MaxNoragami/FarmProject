@@ -4,12 +4,12 @@ using FarmProject.Domain.Models;
 
 namespace FarmProject.Application.PairingService;
 
-public class PairingService(IPairingRepository pairingRepository, IRabbitService animalService) : IPairingService
+public class PairingService(IRepository<Pair> pairingRepository, IRabbitService animalService) : IPairingService
 {
-    private readonly IPairingRepository _pairingRepository = pairingRepository;
+    private readonly IRepository<Pair> _pairingRepository = pairingRepository;
     private readonly IRabbitService _animalService = animalService;
 
-    public async Task<PairingProcess> CreatePair(int firstAnimalId, int secondAnimalId)
+    public async Task<Pair> CreatePair(int firstAnimalId, int secondAnimalId)
     {
         var firstAnimal = await _animalService.GetRabbitById(firstAnimalId);
         var secondAnimal = await _animalService.GetRabbitById(secondAnimalId);
@@ -20,7 +20,7 @@ public class PairingService(IPairingRepository pairingRepository, IRabbitService
         firstAnimal = await _animalService.UpdateBreedingStatus(firstAnimal.Id, BreedingStatus.Paired);
         secondAnimal = await _animalService.UpdateBreedingStatus(secondAnimal.Id, BreedingStatus.Paired);
 
-        var requestPair = new PairingProcess()
+        var requestPair = new Pair()
         {
             Id = GetNextId(),
             MaleId = (firstAnimal.Gender == Gender.Male)? firstAnimal.Id : secondAnimal.Id,
@@ -34,13 +34,13 @@ public class PairingService(IPairingRepository pairingRepository, IRabbitService
         return createdPair;
     }
 
-    public Task<List<PairingProcess>> GetAllPairs()
+    public Task<List<Pair>> GetAllPairs()
     {
         var requestPairs = _pairingRepository.GetAll();
         return Task.FromResult(requestPairs);
     }
 
-    public Task<PairingProcess> GetPairById(int pairId)
+    public Task<Pair> GetPairById(int pairId)
     {
         var requestPair = _pairingRepository.GetById(pairId)
             ?? throw new ArgumentException("Pair not found.");
@@ -48,7 +48,7 @@ public class PairingService(IPairingRepository pairingRepository, IRabbitService
         return Task.FromResult(requestPair);
     }
 
-    public Task<PairingProcess> UpdatePairingStatus(int pairId, PairingStatus pairingStatus)
+    public Task<Pair> UpdatePairingStatus(int pairId, PairingStatus pairingStatus)
     {
         var requestPair = _pairingRepository.GetById(pairId)
             ?? throw new ArgumentException("Pair not found.");

@@ -3,9 +3,9 @@ using FarmProject.Domain.Models;
 
 namespace FarmProject.Application.RabbitsService;
 
-public class RabbitService(IRabbitRepository rabbitRepository) : IRabbitService
+public class RabbitService(IRepository<Rabbit> rabbitRepository) : IRabbitService
 {
-    private readonly IRabbitRepository _rabbitRepository = rabbitRepository;
+    private readonly IRepository<Rabbit> _rabbitRepository = rabbitRepository;
 
     public Task<Rabbit> CreateRabbit(string name, Gender gender, BreedingStatus breedingStatus)
     {

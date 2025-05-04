@@ -2,9 +2,8 @@
 
 namespace FarmProject.Domain.Models;
 
-public class PairingProcess
+public class Pair : Entity
 {
-    public int Id { get; set; }
     public int MaleId { get; set; }
     public int FemaleId { get; set; }
     public DateTime StartDate { get; set; }
