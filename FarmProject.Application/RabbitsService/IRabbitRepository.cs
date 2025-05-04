@@ -1,6 +1,6 @@
 ﻿using FarmProject.Domain.Models;
 
-namespace FarmProject.Application.Rabbits;
+namespace FarmProject.Application.RabbitsService;
 
 public interface IRabbitRepository
 {
