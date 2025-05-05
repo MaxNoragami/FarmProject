@@ -14,7 +14,7 @@ public class PairingService(IRepository<Pair> pairingRepository, IRabbitService 
         var firstAnimal = await _animalService.GetRabbitById(firstAnimalId);
         var secondAnimal = await _animalService.GetRabbitById(secondAnimalId);
 
-        if (!ValidatePair(firstAnimal, secondAnimal))
+        if (!PairingValidator.ValidatePair(firstAnimal, secondAnimal))
             throw new ArgumentException("Those animals are not able to be paired.");
 
         firstAnimal = await _animalService.UpdateBreedingStatus(firstAnimal.Id, BreedingStatus.Paired);
@@ -72,18 +72,6 @@ public class PairingService(IRepository<Pair> pairingRepository, IRabbitService 
 
         var updatedPair = _pairingRepository.Update(requestPair);
         return Task.FromResult(updatedPair);
-    }
-
-    private bool ValidatePair(Rabbit firstAnimal, Rabbit secondAnimal)
-    {
-        if(firstAnimal.Gender != secondAnimal.Gender && 
-            firstAnimal.BreedingStatus == BreedingStatus.Available &&
-            secondAnimal.BreedingStatus == BreedingStatus.Available)
-        {
-            return true;
-        }
-
-        return false;
     }
 
     private int GetNextId()

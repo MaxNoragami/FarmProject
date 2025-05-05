@@ -1,5 +1,6 @@
 ﻿using FarmProject.Domain.Constants;
 using FarmProject.Domain.Models;
+using System.Reflection;
 
 namespace FarmProject.Application.RabbitsService;
 
@@ -9,6 +10,8 @@ public class RabbitService(IRepository<Rabbit> rabbitRepository) : IRabbitServic
 
     public Task<Rabbit> CreateRabbit(string name, Gender gender, BreedingStatus breedingStatus)
     {
+        RabbitValidator.ValidateMakeBreedingStatus(gender, breedingStatus);
+
         var requestRabbit = new Rabbit()
         {
             Id = GetNextId(),
@@ -40,6 +43,8 @@ public class RabbitService(IRepository<Rabbit> rabbitRepository) : IRabbitServic
     {
         var requestRabbit = _rabbitRepository.GetById(rabbitId)
             ?? throw new ArgumentException("Rabbit not found.");
+
+        RabbitValidator.ValidateMakeBreedingStatus(requestRabbit.Gender, breedingStatus);
 
         requestRabbit.BreedingStatus = breedingStatus;
 
