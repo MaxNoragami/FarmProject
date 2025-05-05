@@ -1,10 +1,9 @@
 ﻿using FarmProject.Domain.Constants;
 
 namespace FarmProject.Domain.Models;
-public class Rabbit
+public class Rabbit : Entity
 {
-    public int Id { get; set; }
     public string Name { get; set; }
     public Gender Gender { get; set; }
-    public bool Breedable { get; set; }
+    public BreedingStatus BreedingStatus { get; set; }
 }

@@ -1,30 +1,34 @@
 using FarmProject.Application.RabbitsService;
+using FarmProject.Application.Common;
 using FarmProject.Domain.Models;
 using FarmProject.Presentation.Models.Rabbits;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace FarmProject.Presentation.Pages
+namespace FarmProject.Presentation.Pages;
+
+public class AllRabbitsModel(IRabbitService rabbitService) : PageModel
 {
-    public class AllRabbitsModel(IRabbitService rabbitService) : PageModel
+    private readonly IRabbitService _rabbitService = rabbitService;
+
+    public List<ViewRabbitDto>? Rabbits { get; private set; }
+
+    public async Task<IActionResult> OnGetAsync()
     {
-        private readonly IRabbitService _rabbitService = rabbitService;
+        var result = await _rabbitService.GetAllRabbits();
 
-        public List<ViewRabbitDto> Rabbits { get; private set; }
-
-        public async Task<IActionResult> OnGetAsync()
-        {
-            try
+        return result.Match<IActionResult, List<Rabbit>>(
+            onSuccess: rabbits =>
             {
-                var requestedRabbits = await _rabbitService.GetAllRabbits();
-                Rabbits = requestedRabbits.Select(r => r.ToViewRabbitDto()).ToList();
+                Rabbits = rabbits.Select(r => r.ToViewRabbitDto()).ToList();
+                return Page();
+            },
+
+            onFailure: error =>
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
                 return Page();
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Error occurred when retrieving rabbits.");
-            }
-            
-        }
+        );
     }
 }

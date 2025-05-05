@@ -1,0 +1,47 @@
+﻿@page
+@model FarmProject.Presentation.Pages.PairDetailsModel
+@using FarmProject.Domain.Constants
+@{
+    ViewData["Title"] = "Pair Details";
+}
+
+@if(Model.PairDto != null)
+{
+    <h1>Pair Details</h1>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            Pair #@Model.PairDto.Id
+        </div>
+        <div class="card-body">
+            <h5 class="card-title"><strong>Female ID:</strong> @Model.PairDto.FemaleId</h5>
+            <h5 class="card-title"><strong>Male ID:</strong> @Model.PairDto.MaleId</h5>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <p><strong>Start Date:</strong> @Model.PairDto.StartDate</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>End Date:</strong> @((Model.PairDto.EndDate == null) ? "Ongoing" : @Model.PairDto.EndDate)</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Pairing Status:</strong> @Model.PairDto.PairingStatus</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a asp-page="/AllPairs" class="btn btn-primary">All Pairs</a>
+        </div>
+    </div>
+
+    <h1>Update Pair</h1>
+    <form method="post">
+        <select asp-for="UpdatePairDto.PairingStatus" class="form-control">
+            <option value="">Select Pairing Status</option>
+            @foreach (var status in Enum.GetValues(typeof(PairingStatus)))
+            {
+                <option value="@status">@status</option>
+            }
+        </select>
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+}

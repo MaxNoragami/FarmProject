@@ -1,34 +1,72 @@
+using FarmProject.Application.Common;
 using FarmProject.Application.RabbitsService;
+using FarmProject.Domain.Errors;
+using FarmProject.Domain.Models;
 using FarmProject.Presentation.Models.Rabbits;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace FarmProject.Presentation.Pages
+namespace FarmProject.Presentation.Pages;
+
+public class RabbitDetailsModel(IRabbitService rabbitService) : PageModel
 {
-    public class RabbitDetailsModel(IRabbitService rabbitService) : PageModel
+    private readonly IRabbitService _rabbitService = rabbitService;
+
+    [BindProperty]
+    public UpdateRabbitDto UpdateRabbitDto { get; set; }
+    public ViewRabbitDto RabbitDto { get; private set; }
+
+    public async Task<IActionResult> OnGetAsync(int id)
     {
-        private readonly IRabbitService _rabbitService = rabbitService;
+        var result =  await _rabbitService.GetRabbitById(id);
 
-        public ViewRabbitDto Rabbit { get; private set; }
-
-        public async Task<IActionResult> OnGetAsync(int id)
-        {
-            try
+        return result.Match<IActionResult, Rabbit>(
+            onSuccess: rabbit =>
             {
-                var requestedRabbit =  await _rabbitService.GetRabbitById(id);
-                Rabbit = requestedRabbit.ToViewRabbitDto();
-                
+                RabbitDto = rabbit.ToViewRabbitDto();
+                return Page();
+            },
+            
+            onFailure: error =>
+            {
+                if (error.Code == RabbitErrors.NotFound.Code)
+                    return NotFound();
+
+                RabbitDto = new ViewRabbitDto() { Id = id };
+                ModelState.AddModelError(string.Empty, error.Description);
                 return Page();
             }
-            catch (ArgumentNullException)
+        );
+    }
+
+    public async Task<IActionResult> OnPostAsync(int id)
+    {
+        var rabbitResult = await _rabbitService.GetRabbitById(id);
+        if (rabbitResult.IsSuccess)
+            RabbitDto = rabbitResult.Value.ToViewRabbitDto();
+        else
+            RabbitDto = new ViewRabbitDto() { Id = id };
+
+        if (!ModelState.IsValid)
+            return Page();
+
+        var result = await _rabbitService.UpdateBreedingStatus(id, UpdateRabbitDto.BreedingStatus);
+
+        return result.Match<IActionResult, Rabbit>(
+            onSuccess: updatedRabbit =>
             {
-                return NotFound();
-            }
-            catch (Exception ex)
+                RabbitDto = updatedRabbit.ToViewRabbitDto();
+                return RedirectToPage("./RabbitDetails", new { id = RabbitDto.Id });
+            },
+
+            onFailure: error =>
             {
-                return StatusCode(500, "Error occurred when trying to retrieve a rabbit.");
+                if (error.Code == RabbitErrors.NotFound.Code)
+                    return NotFound();
+
+                ModelState.AddModelError(string.Empty, error.Description);
+                return Page();
             }
-            
-        }
-    } 
-}
+        );
+    }
+} 
