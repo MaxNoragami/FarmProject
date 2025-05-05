@@ -1,9 +1,11 @@
 using FarmProject.Application.PairingService;
-using FarmProject.Application.RabbitsService;
+using FarmProject.Application.Common;
+using FarmProject.Domain.Errors;
+using FarmProject.Domain.Models;
 using FarmProject.Presentation.Models.Pairs;
-using FarmProject.Presentation.Models.Rabbits;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using FarmProject.Presentation.Models.Rabbits;
 namespace FarmProject.Presentation.Pages;
 
 public class PairDetailsModel(IPairingService pairingService) : PageModel
@@ -16,44 +18,54 @@ public class PairDetailsModel(IPairingService pairingService) : PageModel
 
     public async Task<IActionResult> OnGetAsync(int id)
     {
-        try
-        {
-            var requestedPair = await _pairingService.GetPairById(id);
-            PairDto = requestedPair.ToViewPairDto();
+        var result = await _pairingService.GetPairById(id); 
 
-            return Page();
-        }
-        catch (ArgumentNullException)
-        {
-            return NotFound();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, "Error occurred when trying to retrieve a pair.");
-        }
+        return result.Match<IActionResult, Pair>(
+            onSuccess: pair =>
+            {
+                PairDto = pair.ToViewPairDto();
+                return Page();
+            },
 
+            onFailure: error =>
+            {
+                if (error.Code == PairErrors.NotFound.Code)
+                    return NotFound();
+
+                ModelState.AddModelError(string.Empty, error.Description);
+                return Page();
+            }
+        );
     }
 
     public async Task<IActionResult> OnPostAsync(int id)
     {
+        var pairResult = await _pairingService.GetPairById(id);
+        if (pairResult.IsSuccess)
+            PairDto = pairResult.Value.ToViewPairDto();
+        else
+            PairDto = new ViewPairDto() { Id = id };
+
         if (!ModelState.IsValid)
             return Page();
 
-        try
-        {
-            var updatedPair = await _pairingService.UpdatePairingStatus(id, UpdatePairDto.PairingStatus);
-            PairDto = updatedPair.ToViewPairDto();
-            
-            return RedirectToPage("./PairDetails", new { id = PairDto.Id });
-        }
-        catch (ArgumentException)
-        {
-            return NotFound();
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError(string.Empty, "Update failed: " + ex.Message);
-            return Page();
-        }
+        var result = await _pairingService.UpdatePairingStatus(id, UpdatePairDto.PairingStatus);
+
+        return result.Match<IActionResult, Pair>(
+            onSuccess: updatedPair =>
+            {
+                PairDto = updatedPair.ToViewPairDto();
+                return RedirectToPage("./PairDetails", new { id = PairDto.Id });
+            },
+
+            onFailure: error =>
+            {
+                if (error.Code == PairErrors.NotFound.Code)
+                    return NotFound();
+
+                ModelState.AddModelError(string.Empty, error.Description);
+                return Page();
+            }
+        );
     }
 }

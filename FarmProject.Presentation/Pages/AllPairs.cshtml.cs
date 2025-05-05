@@ -1,7 +1,7 @@
 using FarmProject.Application.PairingService;
-using FarmProject.Application.RabbitsService;
+using FarmProject.Application.Common;
+using FarmProject.Domain.Models;
 using FarmProject.Presentation.Models.Pairs;
-using FarmProject.Presentation.Models.Rabbits;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -11,19 +11,25 @@ public class AllPairsModel(IPairingService pairingService) : PageModel
 {
     private readonly IPairingService _pairingService = pairingService;
 
-    public List<ViewPairDto> PairDtos { get; private set; }
+    public List<ViewPairDto>? PairDtos { get; private set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
-        try
-        {
-            var requestedPairs = await _pairingService.GetAllPairs();
-            PairDtos = requestedPairs.Select(p => p.ToViewPairDto()).ToList();
-            return Page();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, "Error occurred when retrieving pairs.");
-        }
+        var result = await _pairingService.GetAllPairs();
+
+        return result.Match<IActionResult, List<Pair>>(
+            onSuccess: pairs =>
+            {
+                PairDtos = pairs.Select(p => p.ToViewPairDto()).ToList();
+                return Page();
+            },
+
+            onFailure: error =>
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+                return Page();
+            }
+        );
+
     }
 }

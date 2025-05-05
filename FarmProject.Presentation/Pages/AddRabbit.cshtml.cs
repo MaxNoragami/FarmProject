@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using FarmProject.Application.RabbitsService;
 using FarmProject.Presentation.Models.Rabbits;
+using FarmProject.Domain.Models;
+using FarmProject.Application.Common;
+using FarmProject.Domain.Errors;
 
 
 namespace FarmProject.Presentation.Pages;
@@ -24,13 +27,23 @@ public class AddRabbitModel(IRabbitService rabbitService) : PageModel
             return Page();
         }
 
-        var createdRabbit = await _rabbitService.CreateRabbit(
+        var result = await _rabbitService.CreateRabbit(
                            Rabbit.Name, 
                            Rabbit.Gender, 
                            Rabbit.BreedingStatus);
 
-        var result = createdRabbit.ToViewRabbitDto();
+        return result.Match<IActionResult, Rabbit>(
+            onSuccess: rabbit =>
+            {
+                var createdRabbit = rabbit.ToViewRabbitDto();
+                return RedirectToPage("/RabbitDetails", new { id = createdRabbit.Id });
+            },
 
-        return RedirectToPage("/RabbitDetails", new { id = result.Id });
+            onFailure: error =>
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+                return Page();
+            }
+        );
     }
 }

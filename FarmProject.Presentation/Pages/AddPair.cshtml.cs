@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using FarmProject.Application.PairingService;
 using FarmProject.Presentation.Models.Pairs;
+using FarmProject.Domain.Models;
+using FarmProject.Application.Common;
 
 
 namespace FarmProject.Presentation.Pages;
@@ -24,12 +26,22 @@ public class AddPairModel(IPairingService pairingService) : PageModel
             return Page();
         }
 
-        var createdPair = await _pairingService.CreatePair(
+        var result = await _pairingService.CreatePair(
                            Pair.FemaleId,
                            Pair.MaleId);
 
-        var result = createdPair.ToViewPairDto();
+        return result.Match<IActionResult, Pair>(
+            onSuccess: pair =>
+            {
+                var createdPair = pair.ToViewPairDto();
+                return RedirectToPage("/PairDetails", new { id = createdPair.Id });
+            },
 
-        return RedirectToPage("/PairDetails", new { id = result.Id });
+            onFailure: error =>
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+                return Page();
+            }
+        );
     }
 }
