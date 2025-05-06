@@ -405,8 +405,8 @@ bin/
 obj/
 
 # Common node modules locations
-/node_modules
-/wwwroot/node_modules
+#/node_modules
+#/wwwroot/node_modules
 
 ### JetBrains+all ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
@@ -639,7 +639,7 @@ dist
 **/*.backup.*
 **/*.back.*
 
-node_modules
+#node_modules
 
 *.sublime*
 
