@@ -18,7 +18,7 @@ public class AddPairModel(IPairingService pairingService, IRabbitService rabbitS
 
     [BindProperty]
     public CreatePairDto Pair { get; set; }
-    public List<ViewRabbitDto>? AllRabbitsDtos { get; private set; }
+    public List<ViewRabbitDto>? AllRabbitsDtos { get; private set; } = new();
 
     public async Task<IActionResult> OnGet()
     {
@@ -40,27 +40,30 @@ public class AddPairModel(IPairingService pairingService, IRabbitService rabbitS
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if(!ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
             return Page();
         }
 
-        var result = await _pairingService.CreatePair(
+        var pairingResult = await _pairingService.CreatePair(
                            Pair.FemaleId,
                            Pair.MaleId);
 
-        return result.Match<IActionResult, Pair>(
-            onSuccess: pair =>
-            {
-                var createdPair = pair.ToViewPairDto();
-                return RedirectToPage("/PairDetails", new { id = createdPair.Id });
-            },
+        if (pairingResult.IsSuccess)
+        {
+            var createdPair = pairingResult.Value.ToViewPairDto();
+            return RedirectToPage("/PairDetails", new { id = createdPair.Id });
+        }
+        else
+        {
+            ModelState.AddModelError(string.Empty, pairingResult.Error.Description);
 
-            onFailure: error =>
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-                return Page();
-            }
-        );
+            // Load rabbits here
+            var rabbitsResult = await _rabbitService.GetAllRabbits();
+            if (rabbitsResult.IsSuccess)
+                AllRabbitsDtos = rabbitsResult.Value.Select(r => r.ToViewRabbitDto()).ToList();
+
+            return Page();
+        }
     }
 }
