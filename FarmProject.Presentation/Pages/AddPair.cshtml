@@ -1,4 +1,5 @@
 ﻿@page
+@using FarmProject.Domain.Constants;
 @model FarmProject.Presentation.Pages.AddPairModel
 @{
     ViewData["Title"] = "Add Pair";
@@ -7,11 +8,59 @@
 <h1>Add Pair</h1>
 
 <form method="post">
-    <p>First Rabbit ID:</p>
+    <p>Female Rabbit ID:</p>
     <input type="text" asp-for="Pair.MaleId" placeholder="Input Rabbit Id" />
 
-    <p>Second Rabbit ID:</p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Breeding Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var viewRabbitDto in Model.AllRabbitsDtos)
+            {
+                @if (viewRabbitDto.Gender == Gender.Female && 
+                     viewRabbitDto.BreedingStatus == BreedingStatus.Available)
+                {
+                    <tr>
+                        <th scope="row">@viewRabbitDto.Id</th>
+                        <td>@viewRabbitDto.Name</td>
+                        <td>@viewRabbitDto.BreedingStatus</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    <p>Male Rabbit ID:</p>
     <input type="text" asp-for="Pair.FemaleId" placeholder="Input Rabbit Id" />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Breeding Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var viewRabbitDto in Model.AllRabbitsDtos)
+            {
+                @if (viewRabbitDto.Gender == Gender.Male && 
+                     viewRabbitDto.BreedingStatus == BreedingStatus.Available)
+                {
+                    <tr>
+                        <th scope="row">@viewRabbitDto.Id</th>
+                        <td>@viewRabbitDto.Name</td>
+                        <td>@viewRabbitDto.BreedingStatus</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
 
     <button type="submit" class="btn btn-primary">Create</button>
 

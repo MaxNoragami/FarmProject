@@ -6,8 +6,8 @@ using System.Reflection;
 namespace FarmProject.Domain.Models;
 public class Rabbit(int id, string name, Gender gender) : Entity(id)
 {
-    public string Name { get; set; } = name;
-    public Gender Gender { get; set; } = gender;
+    public string Name { get; private set; } = name;
+    public Gender Gender { get; private set; } = gender;
     public BreedingStatus BreedingStatus { get; private set; } = BreedingStatus.Available;
 
     public Result<Pair> Breed(Rabbit otherRabbit, int nextPairId, DateTime dateTimeNow)

@@ -33,10 +33,7 @@
     <form method="post">
         <select asp-for="UpdateRabbitDto.BreedingStatus" class="form-control">
             <option value="">Select Breeding Status</option>
-            @foreach (var status in Enum.GetValues(typeof(BreedingStatus)))
-            {
-                <option value="@status">@status</option>
-            }
+            <option value=@BreedingStatus.Inapt>@BreedingStatus.Inapt</option>
         </select>
         <button type="submit" class="btn btn-primary">Update</button>
     </form>
