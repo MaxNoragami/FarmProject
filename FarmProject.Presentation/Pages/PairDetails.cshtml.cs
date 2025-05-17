@@ -5,7 +5,6 @@ using FarmProject.Domain.Models;
 using FarmProject.Presentation.Models.Pairs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using FarmProject.Presentation.Models.Rabbits;
 namespace FarmProject.Presentation.Pages;
 
 public class PairDetailsModel(IPairingService pairingService) : PageModel

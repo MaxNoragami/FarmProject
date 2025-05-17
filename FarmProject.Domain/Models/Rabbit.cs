@@ -1,9 +1,65 @@
-﻿using FarmProject.Domain.Constants;
+﻿using FarmProject.Domain.Common;
+using FarmProject.Domain.Constants;
+using FarmProject.Domain.Errors;
+using System.Reflection;
 
 namespace FarmProject.Domain.Models;
-public class Rabbit : Entity
+public class Rabbit(int id, string name, Gender gender) : Entity(id)
 {
-    public string Name { get; set; }
-    public Gender Gender { get; set; }
-    public BreedingStatus BreedingStatus { get; set; }
+    public string Name { get; set; } = name;
+    public Gender Gender { get; set; } = gender;
+    public BreedingStatus BreedingStatus { get; private set; } = BreedingStatus.Available;
+
+    public Result<Pair> Breed(Rabbit otherRabbit, int nextPairId, DateTime dateTimeNow)
+    {
+        var canPairResult = CanPairWith(otherRabbit);
+        if (canPairResult.IsFailure)
+            return Result.Failure<Pair>(canPairResult.Error);
+
+        var setStatusResult = SetBreedingStatus(BreedingStatus.Paired);
+        if (setStatusResult.IsFailure)
+            return Result.Failure<Pair>(setStatusResult.Error);
+
+        var otherSetStatusResult = otherRabbit.SetBreedingStatus(BreedingStatus.Paired);
+        if (otherSetStatusResult.IsFailure)
+            return Result.Failure<Pair>(otherSetStatusResult.Error);
+
+        var rabbitPair = new Pair(
+            id: nextPairId,
+            maleId: (Gender == Gender.Male) ? Id : otherRabbit.Id,
+            femaleId: (Gender == Gender.Female) ? Id : otherRabbit.Id,
+            startDate: dateTimeNow
+        );
+
+        return Result.Success(rabbitPair);
+    }
+
+    public Result CanPairWith(Rabbit otherRabbit)
+    {
+        if (Gender == otherRabbit.Gender)
+            return Result.Failure(PairErrors.InvalidPairing);
+
+        if(BreedingStatus != BreedingStatus.Available ||
+           otherRabbit.BreedingStatus != BreedingStatus.Available)
+        {
+            return Result.Failure(PairErrors.InvalidPairing);
+        }
+
+        return Result.Success();
+    }
+
+    public Result SetBreedingStatus(BreedingStatus breedingStatus)
+    {
+        if (Gender == Gender.Male &&
+           breedingStatus != BreedingStatus.Available &&
+           breedingStatus != BreedingStatus.Paired &&
+           breedingStatus != BreedingStatus.Inapt)
+        {
+            return Result.Failure(RabbitErrors.InvalidBreedingStatus);
+        }
+
+        BreedingStatus = breedingStatus;
+
+        return Result.Success();
+    }
 }

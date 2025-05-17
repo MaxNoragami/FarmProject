@@ -2,7 +2,6 @@
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Models;
-using System.Reflection;
 
 namespace FarmProject.Application.RabbitsService;
 
@@ -10,20 +9,13 @@ public class RabbitService(IRepository<Rabbit> rabbitRepository) : IRabbitServic
 {
     private readonly IRepository<Rabbit> _rabbitRepository = rabbitRepository;
 
-    public Task<Result<Rabbit>> CreateRabbit(string name, Gender gender, BreedingStatus breedingStatus)
+    public Task<Result<Rabbit>> CreateRabbit(string name, Gender gender)
     {
-        var validationResult = RabbitValidator.ValidateMakeBreedingStatus(gender, breedingStatus);
-
-        if (validationResult.IsFailure)
-            return Task.FromResult(Result.Failure<Rabbit>(RabbitErrors.InvalidBreedingStatus));
-
-        var requestRabbit = new Rabbit()
-        {
-            Id = GetNextId(),
-            Name = name,
-            Gender = gender,
-            BreedingStatus = breedingStatus
-        };
+        var requestRabbit = new Rabbit(
+            id: GetNextId(),
+            name: name,
+            gender: gender
+        );
 
         var createdRabbit = _rabbitRepository.Create(requestRabbit);
 
@@ -53,14 +45,21 @@ public class RabbitService(IRepository<Rabbit> rabbitRepository) : IRabbitServic
         if (requestRabbit == null)
             return Task.FromResult(Result.Failure<Rabbit>(RabbitErrors.NotFound));
 
-        var validationResult = RabbitValidator.ValidateMakeBreedingStatus(requestRabbit.Gender, breedingStatus);
+        var setBreedStatusResult = requestRabbit.SetBreedingStatus(breedingStatus);
 
-        if (validationResult.IsFailure)
-            return Task.FromResult(Result.Failure<Rabbit>(RabbitErrors.InvalidBreedingStatus));
-
-        requestRabbit.BreedingStatus = breedingStatus;
+        if (setBreedStatusResult.IsFailure)
+            return Task.FromResult(Result.Failure<Rabbit>(setBreedStatusResult.Error));
 
         var updatedRabbit = _rabbitRepository.Update(requestRabbit);
+        return Task.FromResult(Result.Success(updatedRabbit));
+    }
+
+    public Task<Result<Rabbit>> UpdateRabbit(Rabbit rabbit)
+    {
+        if (rabbit == null)
+            return Task.FromResult(Result.Failure<Rabbit>(RabbitErrors.NotFound));
+
+        var updatedRabbit = _rabbitRepository.Update(rabbit);
         return Task.FromResult(Result.Success(updatedRabbit));
     }
 
