@@ -29,8 +29,7 @@ public class AddRabbitModel(IRabbitService rabbitService) : PageModel
 
         var result = await _rabbitService.CreateRabbit(
                            Rabbit.Name, 
-                           Rabbit.Gender, 
-                           Rabbit.BreedingStatus);
+                           Rabbit.Gender);
 
         return result.Match<IActionResult, Rabbit>(
             onSuccess: rabbit =>
