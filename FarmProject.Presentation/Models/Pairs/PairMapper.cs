@@ -17,13 +17,10 @@ public static class PairMapper
             };
     
     public static Pair ToPair(this ViewPairDto viewPairDto)
-        => new Pair()
-            {
-                Id = viewPairDto.Id,
-                MaleId = viewPairDto.MaleId,
-                FemaleId = viewPairDto.FemaleId,
-                StartDate = viewPairDto.StartDate,
-                EndDate = viewPairDto.EndDate,
-                PairingStatus = viewPairDto.PairingStatus
-            };
+        => new Pair(
+                id: viewPairDto.Id,
+                maleId: viewPairDto.MaleId,
+                femaleId: viewPairDto.FemaleId,
+                startDate: viewPairDto.StartDate
+            );
 }
