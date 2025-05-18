@@ -1,4 +1,6 @@
 ﻿using FarmProject.Application;
+using FarmProject.Application.EventsService;
+using FarmProject.Application.FarmEventsService;
 using FarmProject.Application.PairingService;
 using FarmProject.Application.RabbitsService;
 using FarmProject.Domain.Models;
@@ -18,7 +20,8 @@ public static class ServiceCollectionExtension
     public static IServiceCollection AddFarmServices(this IServiceCollection services)
     {
         services.AddScoped<IRabbitService, RabbitService>()
-            .AddScoped<IPairingService, PairingService>();
+            .AddScoped<IPairingService, PairingService>()
+            .AddScoped<IFarmEventService, FarmEventService>();
         return services;
     }
 }

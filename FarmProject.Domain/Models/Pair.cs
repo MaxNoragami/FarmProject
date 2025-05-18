@@ -12,7 +12,10 @@ public class Pair(int id, int maleId, int femaleId, DateTime startDate) : Entity
     public DateTime? EndDate { get; private set; } = null;
     public PairingStatus PairingStatus { get; private set; } = PairingStatus.Active;
 
-    public Result CompletePairing(PairingStatus outcome, Rabbit maleRabbit, Rabbit femaleRabbit, DateTime dateTimeNow)
+    public Result CompletePairing(PairingStatus outcome, 
+                                  Rabbit maleRabbit, 
+                                  Rabbit femaleRabbit, 
+                                  DateTime dateTimeNow)
     {
         if (PairingStatus != PairingStatus.Active)
             return Result.Failure(PairErrors.InvalidStateChange);
@@ -37,5 +40,28 @@ public class Pair(int id, int maleId, int femaleId, DateTime startDate) : Entity
         
         PairingStatus = outcome;
         return Result.Success();
+    }
+
+    public Result<FarmEvent> CreateNestPrepEvent(int eventId)
+    {
+        if (PairingStatus != PairingStatus.Successful)
+            return Result.Failure<FarmEvent>(PairErrors.NotSuccessful);
+
+        if (EndDate == null)
+            return Result.Failure<FarmEvent>(PairErrors.NoEndDate);
+
+        var dueDate = EndDate.Value.AddMonths(1).AddDays(-3);
+
+        var message = $"Prepare nest in cage for rabbit #{FemaleId}";
+
+        var nestPrepEvent = new FarmEvent(
+            id: eventId,
+            farmEventType: FarmEventType.NestPreparation,
+            message: message,
+            createdOn: EndDate.Value,
+            dueOn: dueDate
+        );
+
+        return Result.Success(nestPrepEvent);
     }
 }

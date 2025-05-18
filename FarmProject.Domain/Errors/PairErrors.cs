@@ -15,4 +15,10 @@ public static class PairErrors
 
     public static readonly Error InvalidOutcome = new(
         "Pair.InvalidOutcome", "Cannot set an active pairing as the outcome");
+
+    public static readonly Error NotSuccessful = new(
+        "Pair.NotSuccessful", "Cannot create nest preparation event for non-successful pairings");
+
+    public static readonly Error NoEndDate = new(
+        "Pair.NoEndDate", "Cannot create nest preparation for a pairing without an end date");
 }
