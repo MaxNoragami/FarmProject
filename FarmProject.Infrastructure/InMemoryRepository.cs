@@ -1,5 +1,6 @@
 ﻿using FarmProject.Application;
 using FarmProject.Domain.Models;
+using FarmProject.Domain.Specifications;
 
 namespace FarmProject.Infrastructure;
 
@@ -23,6 +24,9 @@ public class InMemoryRepository<T> : IRepository<T> where T : Entity
         => _items.Any()
             ? _items.Max(i => i.Id) + 1
             : 1;
+
+    public List<T> Find(ISpecification<T> specification)
+        => _items.Where(specification.IsSatisfiedBy).ToList();
 
     public T Update(T item)
     {

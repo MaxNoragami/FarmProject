@@ -1,6 +1,8 @@
 ﻿using FarmProject.Application.EventsService;
 using FarmProject.Domain.Common;
+using FarmProject.Domain.Errors;
 using FarmProject.Domain.Models;
+using FarmProject.Domain.Specifications;
 
 namespace FarmProject.Application.FarmEventsService;
 
@@ -10,32 +12,65 @@ public class FarmEventService(IRepository<FarmEvent> farmEventsRepository) : IFa
 
     public Task<Result<FarmEvent>> CreateFarmEvent(FarmEvent farmEvent)
     {
-        throw new NotImplementedException();
+        if (farmEvent == null)
+            return Task.FromResult(Result.Failure<FarmEvent>(FarmEventErrors.NullValue));
+
+        var createdEvent = _farmEventsRepository.Create(farmEvent);
+        return Task.FromResult(Result.Success(createdEvent));
     }
 
     public Task<Result<List<FarmEvent>>> GetAllFarmEvents()
     {
-        throw new NotImplementedException();
+        var allFarmEvents = _farmEventsRepository.GetAll();
+        return Task.FromResult(Result.Success(allFarmEvents));
     }
 
-    public Task<Result<List<FarmEvent>>> GetAllFarmEventsByDate()
+    public Task<Result<List<FarmEvent>>> GetAllFarmEventsByDate(DateTime date)
     {
-        throw new NotImplementedException();
+        var specification = new FarmEventSpecificationsByDate(date);
+        var eventsOnDate = _farmEventsRepository.Find(specification);
+        return Task.FromResult(Result.Success(eventsOnDate));
     }
 
     public Task<Result<List<FarmEvent>>> GetAllPendingFarmEvents()
     {
-        throw new NotImplementedException();
+        var specification = new FarmEventSpecificationPending();
+        var eventsPending = _farmEventsRepository.Find(specification);
+        return Task.FromResult(Result.Success(eventsPending));
     }
 
     public Task<Result<FarmEvent>> GetFarmEventById(int eventId)
     {
-        throw new NotImplementedException();
+        var requestEvent = _farmEventsRepository.GetById(eventId);
+        if (requestEvent == null)
+            return Task.FromResult(Result.Failure<FarmEvent>(FarmEventErrors.NotFound));
+        return Task.FromResult(Result.Success(requestEvent));
     }
 
-    public Task<Result<FarmEvent>> MarkFarmEventAsCompleted(int eventId)
+    public async Task<Result<FarmEvent>> MarkFarmEventAsCompleted(int eventId)
     {
-        throw new NotImplementedException();
+        var requestEventResult = await GetFarmEventById(eventId);
+        if (requestEventResult.IsFailure)
+            return Result.Failure<FarmEvent>(requestEventResult.Error);
+
+        var eventMarkCompletedResult = requestEventResult.Value.MarkAsCompleted();
+        if (eventMarkCompletedResult.IsFailure)
+            return Result.Failure<FarmEvent>(eventMarkCompletedResult.Error);
+
+        var updateEventResult = await UpdateFarmEvent(requestEventResult.Value);
+        if (updateEventResult.IsFailure)
+            return Result.Failure<FarmEvent>(updateEventResult.Error);
+
+        return Result.Success(updateEventResult.Value);
+    }
+
+    public Task<Result<FarmEvent>> UpdateFarmEvent(FarmEvent farmEvent)
+    {
+        if (farmEvent == null)
+            return Task.FromResult(Result.Failure<FarmEvent>(FarmEventErrors.NotFound));
+
+        var updatedEvent = _farmEventsRepository.Update(farmEvent);
+        return Task.FromResult(Result.Success(updatedEvent));
     }
 
     public Task<Result<int>> GetNextAvailableEventId()
