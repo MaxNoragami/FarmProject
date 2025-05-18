@@ -1,4 +1,5 @@
-﻿using FarmProject.Application.RabbitsService;
+﻿using FarmProject.Application.EventsService;
+using FarmProject.Application.RabbitsService;
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
@@ -6,10 +7,14 @@ using FarmProject.Domain.Models;
 
 namespace FarmProject.Application.PairingService;
 
-public class PairingService(IRepository<Pair> pairingRepository, IRabbitService animalService) : IPairingService
+public class PairingService(IRepository<Pair> pairingRepository, 
+                            IRabbitService animalService,
+                            IFarmEventService farmEventService) 
+             : IPairingService
 {
     private readonly IRepository<Pair> _pairingRepository = pairingRepository;
     private readonly IRabbitService _animalService = animalService;
+    private readonly IFarmEventService _farmEventService = farmEventService;
 
     public async Task<Result<Pair>> CreatePair(int firstAnimalId, int secondAnimalId)
     {
@@ -89,6 +94,29 @@ public class PairingService(IRepository<Pair> pairingRepository, IRabbitService 
 
         if (completePairResult.IsFailure)
             return Result.Failure<Pair>(completePairResult.Error);
+
+        // Create nest prep FarmEvent
+
+        if(pairingStatus == PairingStatus.Successful)
+        {
+            // Get next available event
+            var nextFarmEventIdResult = await _farmEventService.GetNextAvailableEventId();
+            if (nextFarmEventIdResult.IsFailure)
+                return Result.Failure<Pair>(nextFarmEventIdResult.Error);
+
+            // Create the FarmEvent instance
+            var createNestPrepEventResult = requestPair.CreateNestPrepEvent(nextFarmEventIdResult.Value);
+
+            if (createNestPrepEventResult.IsFailure)
+                return Result.Failure<Pair>(createNestPrepEventResult.Error);
+
+            // Create FarmEvent record in the repo
+            var createFarmEventResult = await _farmEventService
+                                                .CreateFarmEvent(createNestPrepEventResult.Value);
+
+            if (createFarmEventResult.IsFailure)
+                return Result.Failure<Pair>(createFarmEventResult.Error);
+        }
 
         // Update the rabbits
         var femaleUpdateResult = await _animalService.UpdateRabbit(femaleRabbit);

@@ -42,7 +42,7 @@ public class Pair(int id, int maleId, int femaleId, DateTime startDate) : Entity
         return Result.Success();
     }
 
-    public Result<FarmEvent> CreateNestPrepEvent(int eventId, DateTime createDate)
+    public Result<FarmEvent> CreateNestPrepEvent(int eventId)
     {
         if (PairingStatus != PairingStatus.Successful)
             return Result.Failure<FarmEvent>(PairErrors.NotSuccessful);
@@ -58,7 +58,7 @@ public class Pair(int id, int maleId, int femaleId, DateTime startDate) : Entity
             id: eventId,
             farmEventType: FarmEventType.NestPreparation,
             message: message,
-            createdOn: createDate,
+            createdOn: EndDate.Value,
             dueOn: dueDate
         );
 
