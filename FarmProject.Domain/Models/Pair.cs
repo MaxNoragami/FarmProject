@@ -12,7 +12,10 @@ public class Pair(int id, int maleId, int femaleId, DateTime startDate) : Entity
     public DateTime? EndDate { get; private set; } = null;
     public PairingStatus PairingStatus { get; private set; } = PairingStatus.Active;
 
-    public Result CompletePairing(PairingStatus outcome, Rabbit maleRabbit, Rabbit femaleRabbit, DateTime dateTimeNow)
+    public Result CompletePairing(PairingStatus outcome, 
+                                  Rabbit maleRabbit, 
+                                  Rabbit femaleRabbit, 
+                                  DateTime dateTimeNow)
     {
         if (PairingStatus != PairingStatus.Active)
             return Result.Failure(PairErrors.InvalidStateChange);
