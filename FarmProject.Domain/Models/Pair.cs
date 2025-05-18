@@ -50,7 +50,7 @@ public class Pair(int id, int maleId, int femaleId, DateTime startDate) : Entity
         if (EndDate == null)
             return Result.Failure<FarmEvent>(PairErrors.NoEndDate);
 
-        var dueDate = EndDate.Value.AddMonths(3).AddDays(-3);
+        var dueDate = EndDate.Value.AddMonths(1).AddDays(-3);
 
         var message = $"Prepare nest in cage for rabbit #{FemaleId}";
 

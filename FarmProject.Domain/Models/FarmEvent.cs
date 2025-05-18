@@ -10,7 +10,6 @@ public class FarmEvent(int id,
                        DateTime dueOn) 
              : Entity(id)
 {
-    public int Id { get; private set; } = id;
     public FarmEventType FarmEventType { get; private set; } = farmEventType;
     public string Message { get; private set; } = message;
     public bool IsCompleted { get; private set; }

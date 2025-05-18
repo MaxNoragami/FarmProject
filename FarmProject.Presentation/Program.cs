@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddInMemoryRepository<Rabbit>();
 builder.Services.AddInMemoryRepository<Pair>();
+builder.Services.AddInMemoryRepository<FarmEvent>();
 builder.Services.AddFarmServices();
 
 var app = builder.Build();
