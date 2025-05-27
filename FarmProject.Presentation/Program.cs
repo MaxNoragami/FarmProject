@@ -9,6 +9,7 @@ builder.Services.AddInMemoryRepository<Rabbit>();
 builder.Services.AddInMemoryRepository<Pair>();
 builder.Services.AddInMemoryRepository<FarmEvent>();
 builder.Services.AddFarmServices();
+//builder.Services.AddSqlServer
 
 var app = builder.Build();
 

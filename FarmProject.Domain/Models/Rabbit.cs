@@ -1,7 +1,6 @@
 ﻿using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
-using System.Reflection;
 
 namespace FarmProject.Domain.Models;
 public class Rabbit(int id, string name, Gender gender) : Entity(id)
@@ -26,8 +25,8 @@ public class Rabbit(int id, string name, Gender gender) : Entity(id)
 
         var rabbitPair = new Pair(
             id: nextPairId,
-            maleId: (Gender == Gender.Male) ? Id : otherRabbit.Id,
-            femaleId: (Gender == Gender.Female) ? Id : otherRabbit.Id,
+            maleRabbit: (Gender == Gender.Male) ? this : otherRabbit,
+            femaleRabbit: (Gender == Gender.Female) ? this : otherRabbit,
             startDate: dateTimeNow
         );
 

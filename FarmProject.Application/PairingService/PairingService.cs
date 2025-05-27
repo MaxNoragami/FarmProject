@@ -76,29 +76,16 @@ public class PairingService(IRepository<Pair> pairingRepository,
         if (requestPair == null)
             return Result.Failure<Pair>(PairErrors.NotFound);
 
-        // Get the rabbits
-        var femaleRabbitResult = await _animalService.GetRabbitById(requestPair.FemaleId);
-        var maleRabbitResult = await _animalService.GetRabbitById(requestPair.MaleId);
-
-        if (femaleRabbitResult.IsFailure)
-            return Result.Failure<Pair>(femaleRabbitResult.Error);
-
-        if (maleRabbitResult.IsFailure)
-            return Result.Failure<Pair>(maleRabbitResult.Error);
-
-        var femaleRabbit = femaleRabbitResult.Value;
-        var maleRabbit = maleRabbitResult.Value;
-
-        // Update PairingStatus of the Pair
-        var completePairResult = requestPair.CompletePairing(pairingStatus, maleRabbit, femaleRabbit, DateTime.Now);
-
-        if (completePairResult.IsFailure)
-            return Result.Failure<Pair>(completePairResult.Error);
-
-        // Create nest prep FarmEvent
+        // Create nest prep FarmEvent & Record pairing outcome
 
         if(pairingStatus == PairingStatus.Successful)
         {
+            // Update PairingStatus of the Pair
+            var recordPairResult = requestPair.RecordSuccessfulImpregnation(DateTime.Now);
+
+            if (recordPairResult.IsFailure)
+                return Result.Failure<Pair>(recordPairResult.Error);
+
             // Get next available event
             var nextFarmEventIdResult = await _farmEventService.GetNextAvailableEventId();
             if (nextFarmEventIdResult.IsFailure)
@@ -117,15 +104,25 @@ public class PairingService(IRepository<Pair> pairingRepository,
             if (createFarmEventResult.IsFailure)
                 return Result.Failure<Pair>(createFarmEventResult.Error);
         }
+        else if (pairingStatus == PairingStatus.Failed)
+        {
+            // Update PairingStatus of the Pair
+            var recordPairResult = requestPair.RecordFailedImpregnation(DateTime.Now);
 
-        // Update the rabbits
-        var femaleUpdateResult = await _animalService.UpdateRabbit(femaleRabbit);
-        if (femaleUpdateResult.IsFailure)
-            return Result.Failure<Pair>(femaleUpdateResult.Error);
+            if (recordPairResult.IsFailure)
+                return Result.Failure<Pair>(recordPairResult.Error);
+        }
+        else
+            return Result.Failure<Pair>(PairErrors.InvalidOutcome);
 
-        var maleUpdateResult = await _animalService.UpdateRabbit(maleRabbit);
-        if (maleUpdateResult.IsFailure)
-            return Result.Failure<Pair>(maleUpdateResult.Error);
+        // Update rabbits references
+        var maleRabbitUpdateResult = await _animalService.UpdateRabbit(requestPair.MaleRabbit);
+        if (maleRabbitUpdateResult.IsFailure)
+            return Result.Failure<Pair>(maleRabbitUpdateResult.Error);
+
+        var femaleRabbitUpdateResult = await _animalService.UpdateRabbit(requestPair.FemaleRabbit);
+        if (femaleRabbitUpdateResult.IsFailure)
+            return Result.Failure<Pair>(femaleRabbitUpdateResult.Error);
 
         // Update the pair
         var updatedPair = _pairingRepository.Update(requestPair);
