@@ -4,13 +4,25 @@ using FarmProject.Domain.Errors;
 
 namespace FarmProject.Domain.Models;
 
-public class Pair(int id, Rabbit maleRabbit, Rabbit femaleRabbit, DateTime startDate) : Entity(id)
+public class Pair : Entity
 {
-    public Rabbit MaleRabbit => maleRabbit;
-    public Rabbit FemaleRabbit => femaleRabbit;
-    public DateTime StartDate { get; private set; } = startDate;
-    public DateTime? EndDate { get; private set; } = null;
-    public PairingStatus PairingStatus { get; set; } = PairingStatus.Active;
+    public Rabbit? MaleRabbit { get; private set; }
+    public Rabbit? FemaleRabbit { get; private set; }
+    public DateTime StartDate { get; private set; }
+    public DateTime? EndDate { get; private set; }
+    public PairingStatus PairingStatus { get; set; }
+
+    public Pair(int id, Rabbit maleRabbit, Rabbit femaleRabbit, DateTime startDate) 
+        : base(id)
+    {
+        MaleRabbit = maleRabbit;
+        FemaleRabbit = femaleRabbit;
+        StartDate = startDate;
+        EndDate = null;
+        PairingStatus = PairingStatus.Active;
+    }
+
+    private Pair() : base(0) { }
 
     public Result<FarmEvent> CreateNestPrepEvent(int eventId)
     {
@@ -59,8 +71,6 @@ public class Pair(int id, Rabbit maleRabbit, Rabbit femaleRabbit, DateTime start
         FemaleRabbit.SetBreedingStatus(BreedingStatus.Pregnant);
 
         PairingStatus = PairingStatus.Successful;
-
-        FarmEvents.Add(new FarmEvent(1, FarmEventType.NestPreparation, "", DateTime.Now, DateTime.Now));
 
         EndDate = dateTime;
 

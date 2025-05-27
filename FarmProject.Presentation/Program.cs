@@ -1,4 +1,5 @@
 using FarmProject.Domain.Models;
+using FarmProject.Infrastructure.DependencyInjection;
 using FarmProject.Presentation.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +10,9 @@ builder.Services.AddInMemoryRepository<Rabbit>();
 builder.Services.AddInMemoryRepository<Pair>();
 builder.Services.AddInMemoryRepository<FarmEvent>();
 builder.Services.AddFarmServices();
-//builder.Services.AddSqlServer
+builder.Services.AddFarmDatabase(
+    builder.Configuration.GetConnectionString("FarmContext")!
+);
 
 var app = builder.Build();
 
