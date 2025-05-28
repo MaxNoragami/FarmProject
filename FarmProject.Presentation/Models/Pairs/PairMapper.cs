@@ -1,5 +1,8 @@
 ﻿using FarmProject.Domain.Models;
 using FarmProject.Domain.Constants;
+using FarmProject.Presentation.Models.Rabbits;
+using FarmProject.Domain.Common;
+using FarmProject.Domain.Errors;
 
 namespace FarmProject.Presentation.Models.Pairs;
 
@@ -9,18 +12,10 @@ public static class PairMapper
         => new ViewPairDto()
             {
                 Id = pair.Id,
-                MaleId = pair.MaleId,
-                FemaleId = pair.FemaleId,
+                MaleRabbit = pair.MaleRabbit?.ToViewRabbitDto(),
+                FemaleRabbit = pair.FemaleRabbit?.ToViewRabbitDto(),
                 StartDate = pair.StartDate,
                 EndDate = pair.EndDate,
                 PairingStatus = pair.PairingStatus
             };
-    
-    public static Pair ToPair(this ViewPairDto viewPairDto)
-        => new Pair(
-                id: viewPairDto.Id,
-                maleId: viewPairDto.MaleId,
-                femaleId: viewPairDto.FemaleId,
-                startDate: viewPairDto.StartDate
-            );
 }

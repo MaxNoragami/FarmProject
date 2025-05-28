@@ -14,20 +14,4 @@ public static class RabbitMapper
                 Gender = rabbit.Gender,
                 BreedingStatus = rabbit.BreedingStatus
             };
-
-    public static Result<Rabbit> ToRabbit(this ViewRabbitDto rabbitDto)
-    {
-
-        var createdRabbit = new Rabbit(
-            id: rabbitDto.Id,
-            name: rabbitDto.Name,
-            gender: rabbitDto.Gender
-        );
-
-        var updateBreedStatusResult = createdRabbit.SetBreedingStatus(rabbitDto.BreedingStatus);
-        if (updateBreedStatusResult.IsFailure)
-            return Result.Failure<Rabbit>(RabbitErrors.InvalidBreedingStatus);
-
-        return Result.Success(createdRabbit);
-    }
 }

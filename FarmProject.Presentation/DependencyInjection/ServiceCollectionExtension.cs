@@ -10,13 +10,6 @@ namespace FarmProject.Presentation.DependencyInjection;
 
 public static class ServiceCollectionExtension
 {
-    public static IServiceCollection AddInMemoryRepository<T>(this IServiceCollection services)
-        where T : Entity
-    {
-        services.AddSingleton<IRepository<T>, InMemoryRepository<T>>();
-        return services;
-    }
-
     public static IServiceCollection AddFarmServices(this IServiceCollection services)
     {
         services.AddScoped<IRabbitService, RabbitService>()
