@@ -10,7 +10,8 @@ public class FarmEventConfiguration : IEntityTypeConfiguration<FarmEvent>
         builder.HasKey(fe => fe.Id);
 
         builder.Property(fe => fe.FarmEventType)
-            .IsRequired();
+            .IsRequired()
+            .HasConversion<string>();
 
         builder.Property(fe => fe.Message)
             .IsRequired()

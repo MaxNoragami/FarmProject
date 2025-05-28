@@ -16,10 +16,15 @@ public class PairingRepository(FarmDbContext context) : IPairingRepository
     }
 
     public async Task<List<Pair>> GetAllAsync()
-        => await _context.Pairs.ToListAsync();
+        => await _context.Pairs
+            .Include(p => p.MaleRabbit)
+            .Include(p => p.FemaleRabbit)
+            .ToListAsync();
 
     public async Task<Pair?> GetByIdAsync(int pairId)
         => await _context.Pairs
+            .Include(p => p.MaleRabbit)
+            .Include(p => p.FemaleRabbit)
             .FirstOrDefaultAsync(p => p.Id == pairId);
 
     public async Task RemoveAsync(Pair pair)

@@ -12,8 +12,8 @@ public static class PairMapper
         => new ViewPairDto()
             {
                 Id = pair.Id,
-                MaleRabbit = pair.MaleRabbit!.ToViewRabbitDto(),
-                FemaleRabbit = pair.FemaleRabbit!.ToViewRabbitDto(),
+                MaleRabbit = pair.MaleRabbit?.ToViewRabbitDto(),
+                FemaleRabbit = pair.FemaleRabbit?.ToViewRabbitDto(),
                 StartDate = pair.StartDate,
                 EndDate = pair.EndDate,
                 PairingStatus = pair.PairingStatus
