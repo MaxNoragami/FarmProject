@@ -1,4 +1,3 @@
-using FarmProject.Domain.Models;
 using FarmProject.Infrastructure.DependencyInjection;
 using FarmProject.Presentation.DependencyInjection;
 
@@ -6,11 +5,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddInMemoryRepository<Rabbit>();
-builder.Services.AddInMemoryRepository<Pair>();
-builder.Services.AddInMemoryRepository<FarmEvent>();
 builder.Services.AddFarmServices();
-builder.Services.AddFarmDatabase(
+builder.Services.AddFarmInfrastructure(
     builder.Configuration.GetConnectionString("FarmContext")!
 );
 

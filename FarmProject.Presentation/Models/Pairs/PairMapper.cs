@@ -12,30 +12,10 @@ public static class PairMapper
         => new ViewPairDto()
             {
                 Id = pair.Id,
-                MaleRabbit = pair.MaleRabbit.ToViewRabbitDto(),
-                FemaleRabbit = pair.FemaleRabbit.ToViewRabbitDto(),
+                MaleRabbit = pair.MaleRabbit!.ToViewRabbitDto(),
+                FemaleRabbit = pair.FemaleRabbit!.ToViewRabbitDto(),
                 StartDate = pair.StartDate,
                 EndDate = pair.EndDate,
                 PairingStatus = pair.PairingStatus
             };
-
-    public static Result<Pair> ToPair(this ViewPairDto viewPairDto)
-    {
-        var maleRabbitResult = viewPairDto.MaleRabbit.ToRabbit();
-        if (maleRabbitResult.IsFailure)
-            return Result.Failure<Pair>(PairErrors.InvalidPairing);
-
-        var femaleRabbitResult = viewPairDto.FemaleRabbit.ToRabbit();
-        if (femaleRabbitResult.IsFailure)
-            return Result.Failure<Pair>(PairErrors.InvalidPairing);
-
-        var createdPair = new Pair(
-                id: viewPairDto.Id,
-                maleRabbit: maleRabbitResult.Value,
-                femaleRabbit: femaleRabbitResult.Value,
-                startDate: viewPairDto.StartDate
-            );
-
-        return Result.Success(createdPair);
-    }
 }

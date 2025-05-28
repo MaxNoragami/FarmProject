@@ -9,14 +9,14 @@ namespace FarmProject.Domain.UnitTests.PairTest
         [Fact]
         public void UpdatePairingSuccess()
         {
-            var rabbitMale = new Rabbit(1, "John", Gender.Male);
-            var rabbitFemale = new Rabbit(2, "Mary", Gender.Female);
+            var rabbitMale = new Rabbit("John", Gender.Male);
+            var rabbitFemale = new Rabbit("Mary", Gender.Female);
             var endPairingDate = DateTime.Today;
 
             rabbitMale.SetBreedingStatus(BreedingStatus.Paired);
             rabbitMale.SetBreedingStatus(BreedingStatus.Paired);
             
-            var pair = new Pair(1, rabbitMale, rabbitFemale, DateTime.Now);
+            var pair = new Pair(rabbitMale, rabbitFemale, DateTime.Now);
 
             var pairingResult = pair.RecordSuccessfulImpregnation(endPairingDate);
 
@@ -34,14 +34,14 @@ namespace FarmProject.Domain.UnitTests.PairTest
         [InlineData(PairingStatus.Failed)]
         public void DenoteChangeStatusOnOtherThanActivePairings(PairingStatus invalidPairingStatus)
         {
-            var rabbitMale = new Rabbit(1, "John", Gender.Male);
-            var rabbitFemale = new Rabbit(2, "Mary", Gender.Female);
+            var rabbitMale = new Rabbit("John", Gender.Male);
+            var rabbitFemale = new Rabbit("Mary", Gender.Female);
             var endPairingDate = DateTime.Today;
 
             rabbitMale.SetBreedingStatus(BreedingStatus.Paired);
             rabbitMale.SetBreedingStatus(BreedingStatus.Paired);
 
-            var pair = new Pair(1, rabbitMale, rabbitFemale, endPairingDate);
+            var pair = new Pair(rabbitMale, rabbitFemale, endPairingDate);
 
             pair.PairingStatus = invalidPairingStatus;
 

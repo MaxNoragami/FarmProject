@@ -6,7 +6,6 @@ using FarmProject.Domain.Models;
 using FarmProject.Application.Common;
 using FarmProject.Presentation.Models.Rabbits;
 using FarmProject.Application.RabbitsService;
-using FarmProject.Domain.Common;
 
 
 namespace FarmProject.Presentation.Pages;
