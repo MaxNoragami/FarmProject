@@ -5,64 +5,48 @@ using FarmProject.Domain.Models;
 
 namespace FarmProject.Application.RabbitsService;
 
-public class RabbitService(IRepository<Rabbit> rabbitRepository) : IRabbitService
+public class RabbitService(IUnitOfWork unitOfWork) : IRabbitService
 {
-    private readonly IRepository<Rabbit> _rabbitRepository = rabbitRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public Task<Result<Rabbit>> CreateRabbit(string name, Gender gender)
+    public async Task<Result<Rabbit>> CreateRabbit(string name, Gender gender)
     {
         var requestRabbit = new Rabbit(
-            id: GetNextId(),
             name: name,
             gender: gender
         );
+        var createdRabbit = await _unitOfWork.RabbitRepository.AddAsync(requestRabbit);
 
-        var createdRabbit = _rabbitRepository.Create(requestRabbit);
-
-        return Task.FromResult(Result.Success(createdRabbit));
+        return Result.Success(createdRabbit);
     }
 
-    public Task<Result<List<Rabbit>>> GetAllRabbits()
+    public async Task<Result<List<Rabbit>>> GetAllRabbits()
     {
-        var rabbits = _rabbitRepository.GetAll();
-        return Task.FromResult(Result.Success(rabbits));
+        var rabbits = await _unitOfWork.RabbitRepository.GetAllAsync();
+        return Result.Success(rabbits);
     }
 
-    public Task<Result<Rabbit>> GetRabbitById(int rabbitId)
+    public async Task<Result<Rabbit>> GetRabbitById(int rabbitId)
     {
-        var requestRabbit = _rabbitRepository.GetById(rabbitId);
-
+        var requestRabbit = await _unitOfWork.RabbitRepository.GetByIdAsync(rabbitId);
         if (requestRabbit == null)
-            return Task.FromResult(Result.Failure<Rabbit>(RabbitErrors.NotFound));
+            return Result.Failure<Rabbit>(RabbitErrors.NotFound);
 
-        return Task.FromResult(Result.Success(requestRabbit));
+        return Result.Success(requestRabbit);
     }
 
-    public Task<Result<Rabbit>> UpdateBreedingStatus(int rabbitId, BreedingStatus breedingStatus)
+    public async Task<Result<Rabbit>> UpdateBreedingStatus(int rabbitId, BreedingStatus breedingStatus)
     {
-        var requestRabbit = _rabbitRepository.GetById(rabbitId);
-
+        var requestRabbit = await _unitOfWork.RabbitRepository.GetByIdAsync(rabbitId);
         if (requestRabbit == null)
-            return Task.FromResult(Result.Failure<Rabbit>(RabbitErrors.NotFound));
+            return Result.Failure<Rabbit>(RabbitErrors.NotFound);
 
         var setBreedStatusResult = requestRabbit.SetBreedingStatus(breedingStatus);
-
         if (setBreedStatusResult.IsFailure)
-            return Task.FromResult(Result.Failure<Rabbit>(setBreedStatusResult.Error));
+            return Result.Failure<Rabbit>(setBreedStatusResult.Error);
 
-        var updatedRabbit = _rabbitRepository.Update(requestRabbit);
-        return Task.FromResult(Result.Success(updatedRabbit));
+        var updatedRabbit = await _unitOfWork.RabbitRepository.UpdateAsync(requestRabbit);
+
+        return Result.Success(updatedRabbit);
     }
-
-    public Task<Result<Rabbit>> UpdateRabbit(Rabbit rabbit)
-    {
-        if (rabbit == null)
-            return Task.FromResult(Result.Failure<Rabbit>(RabbitErrors.NotFound));
-
-        var updatedRabbit = _rabbitRepository.Update(rabbit);
-        return Task.FromResult(Result.Success(updatedRabbit));
-    }
-
-    private int GetNextId()
-        => _rabbitRepository.GetLastId();
 }

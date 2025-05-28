@@ -1,6 +1,6 @@
 ﻿namespace FarmProject.Domain.Models;
 
-public abstract class Entity(int id)
+public abstract class Entity()
 {
-    public int Id { get; set; } = id;
+    public int Id { get; set; }
 }

@@ -6,84 +6,60 @@ using FarmProject.Domain.Specifications;
 
 namespace FarmProject.Application.FarmEventsService;
 
-public class FarmEventService(IRepository<FarmEvent> farmEventsRepository) : IFarmEventService
+public class FarmEventService(IUnitOfWork unitOfWork) : IFarmEventService
 {
-    private readonly IRepository<FarmEvent> _farmEventsRepository = farmEventsRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public Task<Result<FarmEvent>> CreateFarmEvent(FarmEvent farmEvent)
+    public async Task<Result<FarmEvent>> CreateFarmEvent(FarmEvent farmEvent)
     {
         if (farmEvent == null)
-            return Task.FromResult(Result.Failure<FarmEvent>(FarmEventErrors.NullValue));
+            return Result.Failure<FarmEvent>(FarmEventErrors.NullValue);
 
-        var createdEvent = _farmEventsRepository.Create(farmEvent);
-        return Task.FromResult(Result.Success(createdEvent));
+        var createdEvent = await _unitOfWork.FarmEventRepository.AddAsync(farmEvent);
+        return Result.Success(createdEvent);
     }
 
-    public Task<Result<List<FarmEvent>>> GetAllFarmEvents()
+    public async Task<Result<List<FarmEvent>>> GetAllFarmEvents()
     {
-        var allFarmEvents = _farmEventsRepository.GetAll();
-        return Task.FromResult(Result.Success(allFarmEvents));
+        var allFarmEvents = await _unitOfWork.FarmEventRepository.GetAllAsync();
+        return Result.Success(allFarmEvents);
     }
 
-    public Task<Result<List<FarmEvent>>> GetAllFarmEventsByDate(DateTime date)
+    public async Task<Result<List<FarmEvent>>> GetAllFarmEventsByDate(DateTime date)
     {
         var specification = new FarmEventSpecificationsByDate(date);
-        var eventsOnDate = _farmEventsRepository.Find(specification);
-        return Task.FromResult(Result.Success(eventsOnDate));
+        var eventsOnDate = await _unitOfWork.FarmEventRepository.FindAsync(specification);
+        return Result.Success(eventsOnDate);
     }
 
-    public Task<Result<List<FarmEvent>>> GetAllPendingFarmEvents()
+    public async Task<Result<List<FarmEvent>>> GetAllPendingFarmEvents()
     {
         var specification = new FarmEventSpecificationPending();
-        var eventsPending = _farmEventsRepository.Find(specification);
-        return Task.FromResult(Result.Success(eventsPending));
+        var eventsPending = await _unitOfWork.FarmEventRepository.FindAsync(specification);
+        return Result.Success(eventsPending);
     }
 
-    public Task<Result<FarmEvent>> GetFarmEventById(int eventId)
+    public async Task<Result<FarmEvent>> GetFarmEventById(int eventId)
     {
-        var requestEvent = _farmEventsRepository.GetById(eventId);
+        var requestEvent = await _unitOfWork.FarmEventRepository.GetByIdAsync(eventId);
         if (requestEvent == null)
-            return Task.FromResult(Result.Failure<FarmEvent>(FarmEventErrors.NotFound));
-        return Task.FromResult(Result.Success(requestEvent));
+            return Result.Failure<FarmEvent>(FarmEventErrors.NotFound);
+        return Result.Success(requestEvent);
     }
 
     public async Task<Result<FarmEvent>> MarkFarmEventAsCompleted(int eventId)
     {
-        var requestEventResult = await GetFarmEventById(eventId);
-        if (requestEventResult.IsFailure)
-            return Result.Failure<FarmEvent>(requestEventResult.Error);
+        var requestEvent = await _unitOfWork.FarmEventRepository.GetByIdAsync(eventId);
 
-        var eventMarkCompletedResult = requestEventResult.Value.MarkAsCompleted();
+        if (requestEvent is null)
+            return Result.Failure<FarmEvent>(FarmEventErrors.NotFound);
+
+        var eventMarkCompletedResult = requestEvent.MarkAsCompleted();
         if (eventMarkCompletedResult.IsFailure)
             return Result.Failure<FarmEvent>(eventMarkCompletedResult.Error);
 
-        var updateEventResult = await UpdateFarmEvent(requestEventResult.Value);
-        if (updateEventResult.IsFailure)
-            return Result.Failure<FarmEvent>(updateEventResult.Error);
+        var updateEvent = await _unitOfWork.FarmEventRepository.UpdateAsync(requestEvent);
 
-        return Result.Success(updateEventResult.Value);
-    }
-
-    public Task<Result<FarmEvent>> UpdateFarmEvent(FarmEvent farmEvent)
-    {
-        if (farmEvent == null)
-            return Task.FromResult(Result.Failure<FarmEvent>(FarmEventErrors.NotFound));
-
-        var updatedEvent = _farmEventsRepository.Update(farmEvent);
-        return Task.FromResult(Result.Success(updatedEvent));
-    }
-
-    public Task<Result<int>> GetNextAvailableEventId()
-    {
-        try
-        {
-            int nextId = _farmEventsRepository.GetLastId();
-            return Task.FromResult(Result.Success(nextId));
-        }
-        catch (Exception ex)
-        {
-            return Task.FromResult(Result.Failure<int>(
-                new Error("FarmEvent.IdGenerationFailed", ex.Message)));
-        }
-    }    
+        return Result.Success(updateEvent);
+    }  
 }

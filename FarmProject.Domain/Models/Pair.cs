@@ -12,8 +12,7 @@ public class Pair : Entity
     public DateTime? EndDate { get; private set; }
     public PairingStatus PairingStatus { get; set; }
 
-    public Pair(int id, Rabbit maleRabbit, Rabbit femaleRabbit, DateTime startDate) 
-        : base(id)
+    public Pair(Rabbit maleRabbit, Rabbit femaleRabbit, DateTime startDate)
     {
         MaleRabbit = maleRabbit;
         FemaleRabbit = femaleRabbit;
@@ -22,9 +21,9 @@ public class Pair : Entity
         PairingStatus = PairingStatus.Active;
     }
 
-    private Pair() : base(0) { }
+    private Pair() { }
 
-    public Result<FarmEvent> CreateNestPrepEvent(int eventId)
+    public Result<FarmEvent> CreateNestPrepEvent()
     {
         if (PairingStatus != PairingStatus.Successful)
             return Result.Failure<FarmEvent>(PairErrors.NotSuccessful);
@@ -34,10 +33,9 @@ public class Pair : Entity
 
         var dueDate = EndDate.Value.AddMonths(1).AddDays(-3);
 
-        var message = $"Prepare nest in cage for rabbit #{FemaleRabbit.Id}";
+        var message = $"Prepare nest in cage for rabbit #{FemaleRabbit!.Id}";
 
         var nestPrepEvent = new FarmEvent(
-            id: eventId,
             farmEventType: FarmEventType.NestPreparation,
             message: message,
             createdOn: EndDate.Value,
@@ -52,8 +50,8 @@ public class Pair : Entity
         if (PairingStatus != PairingStatus.Active)
             return Result.Failure(PairErrors.InvalidStateChange);
 
-        MaleRabbit.SetBreedingStatus(BreedingStatus.Available);
-        FemaleRabbit.SetBreedingStatus(BreedingStatus.Available);
+        MaleRabbit!.SetBreedingStatus(BreedingStatus.Available);
+        FemaleRabbit!.SetBreedingStatus(BreedingStatus.Available);
 
         PairingStatus = PairingStatus.Failed;
 

@@ -1,5 +1,6 @@
 ﻿using FarmProject.Application.FarmEventsService;
 using FarmProject.Domain.Models;
+using FarmProject.Domain.Specifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace FarmProject.Infrastructure.Repositories;
@@ -14,6 +15,11 @@ public class FarmEventRepository(FarmDbContext context) : IFarmEventRepository
         await _context.SaveChangesAsync();
         return farmEvent;
     }
+
+    public async Task<List<FarmEvent>> FindAsync(ISpecification<FarmEvent> specification)
+        => await _context.FarmEvents
+            .Where(specification.ToExpression())
+            .ToListAsync();
 
     public async Task<List<FarmEvent>> GetAllAsync()
         => await _context.FarmEvents.ToListAsync();

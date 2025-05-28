@@ -1,5 +1,4 @@
-﻿using FarmProject.Application.EventsService;
-using FarmProject.Application.RabbitsService;
+﻿using FarmProject.Application.RabbitsService;
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
@@ -7,20 +6,16 @@ using FarmProject.Domain.Models;
 
 namespace FarmProject.Application.PairingService;
 
-public class PairingService(IRepository<Pair> pairingRepository, 
-                            IRabbitService animalService,
-                            IFarmEventService farmEventService) 
-             : IPairingService
+public class PairingService(IUnitOfWork unitOfWork, IRabbitService rabbitService) : IPairingService
 {
-    private readonly IRepository<Pair> _pairingRepository = pairingRepository;
-    private readonly IRabbitService _animalService = animalService;
-    private readonly IFarmEventService _farmEventService = farmEventService;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IRabbitService _rabbitService = rabbitService;
 
     public async Task<Result<Pair>> CreatePair(int firstAnimalId, int secondAnimalId)
     {
         // Get the rabbits
-        var firstAnimalResult = await _animalService.GetRabbitById(firstAnimalId);
-        var secondAnimalResult = await _animalService.GetRabbitById(secondAnimalId);
+        var firstAnimalResult = await _rabbitService.GetRabbitById(firstAnimalId);
+        var secondAnimalResult = await _rabbitService.GetRabbitById(secondAnimalId);
 
         if (firstAnimalResult.IsFailure)
             return Result.Failure<Pair>(firstAnimalResult.Error);
@@ -32,103 +27,116 @@ public class PairingService(IRepository<Pair> pairingRepository,
         var secondAnimal = secondAnimalResult.Value;
 
         // Breed the rabbits
-        var bredPairResult = firstAnimal.Breed(secondAnimal, GetNextId(), DateTime.Now);
+        var bredPairResult = firstAnimal.Breed(secondAnimal, DateTime.Now);
 
         if (bredPairResult.IsFailure)
             return Result.Failure<Pair>(bredPairResult.Error);
 
-        // Update the rabbits
-        var firstUpdateResult = await _animalService.UpdateRabbit(firstAnimal);
-        if (firstUpdateResult.IsFailure)
-            return Result.Failure<Pair>(firstUpdateResult.Error);
+        await _unitOfWork.BeginTransactionAsync();
 
-        var secondUpdateResult = await _animalService.UpdateRabbit(secondAnimal);
-        if (secondUpdateResult.IsFailure)
-            return Result.Failure<Pair>(secondUpdateResult.Error);
+        try
+        {
+            // Update the rabbits
+            await _unitOfWork.RabbitRepository.UpdateAsync(firstAnimal);
+            await _unitOfWork.RabbitRepository.UpdateAsync(secondAnimal);
 
-        // Create the pair
-        var createdPair = _pairingRepository.Create(bredPairResult.Value);
+            // Create the pair
+            var createdPair = await _unitOfWork.PairingRepository.AddAsync(bredPairResult.Value);
 
-        return Result.Success(createdPair);
+            await _unitOfWork.CommitTransactionAsync();
+            return Result.Success(createdPair);
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
     }
 
-    public Task<Result<List<Pair>>> GetAllPairs()
+    public async Task<Result<List<Pair>>> GetAllPairs()
     {
-        var requestPairs = _pairingRepository.GetAll();
-        return Task.FromResult(Result.Success(requestPairs));
+        var requestPairs = await _unitOfWork.PairingRepository.GetAllAsync();
+        return Result.Success(requestPairs);
     }
 
-    public Task<Result<Pair>> GetPairById(int pairId)
+    public async Task<Result<Pair>> GetPairById(int pairId)
     {
-        var requestPair = _pairingRepository.GetById(pairId);
-
-        if (requestPair == null)
-            return Task.FromResult(Result.Failure<Pair>(PairErrors.NotFound));
-
-        return Task.FromResult(Result.Success(requestPair));
-    }
-
-    public async Task<Result<Pair>> UpdatePairingStatus(int pairId, PairingStatus pairingStatus)
-    {
-        // Get the Pair
-        var requestPair = _pairingRepository.GetById(pairId);
+        var requestPair = await _unitOfWork.PairingRepository.GetByIdAsync(pairId);
 
         if (requestPair == null)
             return Result.Failure<Pair>(PairErrors.NotFound);
 
-        // Create nest prep FarmEvent & Record pairing outcome
-
-        if(pairingStatus == PairingStatus.Successful)
-        {
-            // Update PairingStatus of the Pair
-            var recordPairResult = requestPair.RecordSuccessfulImpregnation(DateTime.Now);
-
-            if (recordPairResult.IsFailure)
-                return Result.Failure<Pair>(recordPairResult.Error);
-
-            // Get next available event
-            var nextFarmEventIdResult = await _farmEventService.GetNextAvailableEventId();
-            if (nextFarmEventIdResult.IsFailure)
-                return Result.Failure<Pair>(nextFarmEventIdResult.Error);
-
-            // Create the FarmEvent instance
-            var createNestPrepEventResult = requestPair.CreateNestPrepEvent(nextFarmEventIdResult.Value);
-
-            if (createNestPrepEventResult.IsFailure)
-                return Result.Failure<Pair>(createNestPrepEventResult.Error);
-
-            // Create FarmEvent record in the repo
-            var createFarmEventResult = await _farmEventService
-                                                .CreateFarmEvent(createNestPrepEventResult.Value);
-
-            if (createFarmEventResult.IsFailure)
-                return Result.Failure<Pair>(createFarmEventResult.Error);
-        }
-        else if (pairingStatus == PairingStatus.Failed)
-        {
-            // Update PairingStatus of the Pair
-            var recordPairResult = requestPair.RecordFailedImpregnation(DateTime.Now);
-
-            if (recordPairResult.IsFailure)
-                return Result.Failure<Pair>(recordPairResult.Error);
-        }
-        else
-            return Result.Failure<Pair>(PairErrors.InvalidOutcome);
-
-        // Update rabbits references
-        var maleRabbitUpdateResult = await _animalService.UpdateRabbit(requestPair.MaleRabbit);
-        if (maleRabbitUpdateResult.IsFailure)
-            return Result.Failure<Pair>(maleRabbitUpdateResult.Error);
-
-        var femaleRabbitUpdateResult = await _animalService.UpdateRabbit(requestPair.FemaleRabbit);
-        if (femaleRabbitUpdateResult.IsFailure)
-            return Result.Failure<Pair>(femaleRabbitUpdateResult.Error);
-
-        // Update the pair
-        var updatedPair = _pairingRepository.Update(requestPair);
-        return Result.Success(updatedPair);
+        return Result.Success(requestPair);
     }
 
-    private int GetNextId()
-        => _pairingRepository.GetLastId();
+    public async Task<Result<Pair>> UpdatePairingStatus(int pairId, PairingStatus pairingStatus)
+    {
+        await _unitOfWork.BeginTransactionAsync();
+
+        try
+        {
+            // Get the Pair
+            var requestPair = await _unitOfWork.PairingRepository.GetByIdAsync(pairId);
+
+            if (requestPair == null)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return Result.Failure<Pair>(PairErrors.NotFound);
+            }
+            // Create nest prep FarmEvent & Record pairing outcome
+            if (pairingStatus == PairingStatus.Successful)
+            {
+                // Update PairingStatus of the Pair
+                var recordPairResult = requestPair.RecordSuccessfulImpregnation(DateTime.Now);
+
+                if (recordPairResult.IsFailure)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return Result.Failure<Pair>(recordPairResult.Error);
+                }
+
+                // Create the FarmEvent instance
+                var createNestPrepEventResult = requestPair.CreateNestPrepEvent();
+
+                if (createNestPrepEventResult.IsFailure)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return Result.Failure<Pair>(createNestPrepEventResult.Error);
+                }
+
+                // Create FarmEvent record in the repo
+                await _unitOfWork.FarmEventRepository.AddAsync(createNestPrepEventResult.Value);
+            }
+            else if (pairingStatus == PairingStatus.Failed)
+            {
+                // Update PairingStatus of the Pair
+                var recordPairResult = requestPair.RecordFailedImpregnation(DateTime.Now);
+
+                if (recordPairResult.IsFailure)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return Result.Failure<Pair>(recordPairResult.Error);
+                }
+            }
+            else
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return Result.Failure<Pair>(PairErrors.InvalidOutcome);
+            }
+
+            // Update rabbits references
+            await _unitOfWork.RabbitRepository.UpdateAsync(requestPair.MaleRabbit!);
+            await _unitOfWork.RabbitRepository.UpdateAsync(requestPair.FemaleRabbit!);
+
+            // Update the pair
+            var updatedPair = await _unitOfWork.PairingRepository.UpdateAsync(requestPair);
+            await _unitOfWork.CommitTransactionAsync();
+            return Result.Success(updatedPair);
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
+    }
 }
