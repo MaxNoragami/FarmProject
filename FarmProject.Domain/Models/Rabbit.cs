@@ -23,6 +23,13 @@ public class Rabbit(string name, Gender gender) : Entity
         if (otherSetStatusResult.IsFailure)
             return Result.Failure<Pair>(otherSetStatusResult.Error);
 
+        Events.Add(new BreedEvent()
+            { 
+                RabbitIds = [Id, otherRabbit.Id],
+                StartDate = dateTimeNow
+            }
+        );
+
         var rabbitPair = new Pair(
             maleRabbit: (Gender == Gender.Male) ? this : otherRabbit,
             femaleRabbit: (Gender == Gender.Female) ? this : otherRabbit,
