@@ -25,4 +25,7 @@ jobs:
     - name: Build with .NET
       run: dotnet build --configuration Release --no-restore FarmProject.sln
 
+    - name: Test with .NET
+      run: dotnet test
+
     
