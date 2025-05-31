@@ -115,15 +115,13 @@ internal class InMemoryPairingRepo : IPairingRepository
 
 internal class EventConsumer
 {
-    
+    public IPairingRepository PairRepo { get; internal set; }
+    private readonly IRabbitRepository _rabbitRepository;
 
     public EventConsumer(IRabbitRepository rabbitRepository)
     {
         _rabbitRepository = rabbitRepository;
     }
-
-    public IPairingRepository PairRepo { get; internal set; }
-    private readonly IRabbitRepository _rabbitRepository;
 
     internal async Task Consume(BreedEvent breedEvent)
     {

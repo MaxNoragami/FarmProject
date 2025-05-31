@@ -83,7 +83,7 @@ public class PairingService(IUnitOfWork unitOfWork, IRabbitService rabbitService
                 await _unitOfWork.RollbackTransactionAsync();
                 return Result.Failure<Pair>(PairErrors.NotFound);
             }
-            // Create nest prep FarmEvent & Record pairing outcome
+            // Create nest prep FarmTask & Record pairing outcome
             if (pairingStatus == PairingStatus.Successful)
             {
                 // Update PairingStatus of the Pair
@@ -95,17 +95,17 @@ public class PairingService(IUnitOfWork unitOfWork, IRabbitService rabbitService
                     return Result.Failure<Pair>(recordPairResult.Error);
                 }
 
-                // Create the FarmEvent instance
-                var createNestPrepEventResult = requestPair.CreateNestPrepEvent();
+                // Create the FarmTask instance
+                var createNestPrepTaskResult = requestPair.CreateNestPrepTask();
 
-                if (createNestPrepEventResult.IsFailure)
+                if (createNestPrepTaskResult.IsFailure)
                 {
                     await _unitOfWork.RollbackTransactionAsync();
-                    return Result.Failure<Pair>(createNestPrepEventResult.Error);
+                    return Result.Failure<Pair>(createNestPrepTaskResult.Error);
                 }
 
-                // Create FarmEvent record in the repo
-                await _unitOfWork.FarmEventRepository.AddAsync(createNestPrepEventResult.Value);
+                // Create FarmTask record in the repo
+                await _unitOfWork.FarmTaskRepository.AddAsync(createNestPrepTaskResult.Value);
             }
             else if (pairingStatus == PairingStatus.Failed)
             {

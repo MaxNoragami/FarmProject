@@ -1,4 +1,4 @@
-﻿using FarmProject.Application.FarmEventsService;
+﻿using FarmProject.Application.FarmTaskService;
 using FarmProject.Application.PairingService;
 using FarmProject.Application.RabbitsService;
 
@@ -8,7 +8,7 @@ public interface IUnitOfWork
 {
     public IRabbitRepository RabbitRepository { get; }
     public IPairingRepository PairingRepository { get; }
-    public IFarmEventRepository FarmEventRepository { get; }
+    public IFarmTaskRepository FarmTaskRepository { get; }
 
     public Task SaveAsync();
     public Task BeginTransactionAsync();

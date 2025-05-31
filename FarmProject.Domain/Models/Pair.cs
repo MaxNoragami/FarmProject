@@ -23,26 +23,26 @@ public class Pair : Entity
 
     private Pair() { }
 
-    public Result<FarmEvent> CreateNestPrepEvent()
+    public Result<FarmTask> CreateNestPrepTask()
     {
         if (PairingStatus != PairingStatus.Successful)
-            return Result.Failure<FarmEvent>(PairErrors.NotSuccessful);
+            return Result.Failure<FarmTask>(PairErrors.NotSuccessful);
 
         if (EndDate == null)
-            return Result.Failure<FarmEvent>(PairErrors.NoEndDate);
+            return Result.Failure<FarmTask>(PairErrors.NoEndDate);
 
         var dueDate = EndDate.Value.AddMonths(1).AddDays(-3);
 
         var message = $"Prepare nest in cage for rabbit #{FemaleRabbit!.Id}";
 
-        var nestPrepEvent = new FarmEvent(
-            farmEventType: FarmEventType.NestPreparation,
+        var nestPrepTask = new FarmTask(
+            farmTaskType: FarmTaskType.NestPreparation,
             message: message,
             createdOn: EndDate.Value,
             dueOn: dueDate
         );
 
-        return Result.Success(nestPrepEvent);
+        return Result.Success(nestPrepTask);
     }
 
     public Result RecordFailedImpregnation(DateTime dateTime)

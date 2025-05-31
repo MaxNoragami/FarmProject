@@ -1,11 +1,11 @@
 ﻿@page "{DateInput?}"
 @model IndexModel
 @{
-    ViewData["Title"] = "Farm Events";
+    ViewData["Title"] = "Farm Tasks";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Farm Events for @Model.CurrentDate.ToString("MMMM d, yyyy")</h1>
+    <h1 class="display-4">Farm Tasks for @Model.CurrentDate.ToString("MMMM d, yyyy")</h1>
 
     <div class="my-4">
         <a asp-page="/Index" asp-route-dateInput="@Model.PrevDateString" class="btn btn-primary">&laquo; Previous Day</a>
@@ -27,26 +27,26 @@
         </div>
     }
 
-    @if (Model.FarmEvents != null && Model.FarmEvents.Any())
+    @if (Model.FarmTasks != null && Model.FarmTasks.Any())
     {
         <div class="row">
-            @foreach (var farmEvent in Model.FarmEvents)
+            @foreach (var farmTask in Model.FarmTasks)
             {
                 <div class="col-md-6 mb-4">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <span>@farmEvent.FarmEventType</span>
-                            <span class="badge @(farmEvent.IsCompleted ? "bg-success" : "bg-warning")">
-                                @(farmEvent.IsCompleted ? "Completed" : "Pending")
+                            <span>@farmTask.FarmTaskType</span>
+                            <span class="badge @(farmTask.IsCompleted ? "bg-success" : "bg-warning")">
+                                @(farmTask.IsCompleted ? "Completed" : "Pending")
                             </span>
                         </div>
                         <div class="card-body">
-                            <h5 class="card-title">@farmEvent.Message</h5>
-                            <p><strong>Due:</strong> @farmEvent.DueOn.ToString("g")</p>
+                            <h5 class="card-title">@farmTask.Message</h5>
+                            <p><strong>Due:</strong> @farmTask.DueOn.ToString("g")</p>
 
-                            @if (!farmEvent.IsCompleted)
+                            @if (!farmTask.IsCompleted)
                             {
-                                <form method="post" asp-page="/MarkCompletedModel" asp-route-id="@farmEvent.Id"
+                                <form method="post" asp-page="/MarkCompletedModel" asp-route-id="@farmTask.Id"
                                       asp-route-returnDate="@Model.CurrentDate.ToString("yyyy-MM-dd")">
                                     <button type="submit" class="btn btn-success">Mark as Completed</button>
                                 </form>
@@ -60,7 +60,7 @@
     else
     {
         <div class="alert alert-info">
-            No farm events scheduled for this date.
+            No farm tasks scheduled for this date.
         </div>
     }
 </div>

@@ -1,12 +1,11 @@
 ﻿using FarmProject.Domain.Constants;
-using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace FarmProject.Presentation.Models.FarmEvents;
+namespace FarmProject.Presentation.Models.FarmTasks;
 
-public class ViewFarmEventDto
+public class ViewFarmTaskDto
 {
     public int Id { get; set; }
-    public FarmEventType FarmEventType { get; set; }
+    public FarmTaskType FarmTaskType { get; set; }
     public string Message { get; set; }
     public bool IsCompleted { get; set; }
     public DateTime CreatedOn { get; set; }

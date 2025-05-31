@@ -1,6 +1,6 @@
 ﻿namespace FarmProject.Domain.Constants;
 
-public enum FarmEventType
+public enum FarmTaskType
 {
     NestPreparation,
 

@@ -3,13 +3,13 @@ using FarmProject.Domain.Constants;
 
 namespace FarmProject.Domain.Models;
 
-public class FarmEvent(FarmEventType farmEventType, 
+public class FarmTask(FarmTaskType farmTaskType, 
                        string message, 
                        DateTime createdOn, 
                        DateTime dueOn) 
              : Entity
 {
-    public FarmEventType FarmEventType { get; private set; } = farmEventType;
+    public FarmTaskType FarmTaskType { get; private set; } = farmTaskType;
     public string Message { get; private set; } = message;
     public bool IsCompleted { get; private set; }
     public DateTime CreatedOn { get; private set; } = createdOn;

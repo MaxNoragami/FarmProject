@@ -1,19 +1,19 @@
 using FarmProject.Application.Common;
-using FarmProject.Application.EventsService;
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Models;
-using FarmProject.Presentation.Models.FarmEvents;
+using FarmProject.Presentation.Models.FarmTasks;
 using Microsoft.AspNetCore.Mvc;
+using FarmProject.Application.FarmTaskService;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace FarmProject.Presentation.Pages
 {
-    public class IndexModel(ILogger<IndexModel> logger, IFarmEventService farmEventService) : PageModel
+    public class IndexModel(ILogger<IndexModel> logger, IFarmTaskService farmTaskService) : PageModel
     {
         private readonly ILogger<IndexModel> _logger = logger;
-        private readonly IFarmEventService _farmEventService = farmEventService;
+        private readonly IFarmTaskService _farmTaskService = farmTaskService;
 
-        public List<ViewFarmEventDto>? FarmEvents { get; private set; }
+        public List<ViewFarmTaskDto>? FarmTasks { get; private set; }
 
         [BindProperty(SupportsGet = true)]
         public string? DateInput { get; set; }
@@ -35,12 +35,12 @@ namespace FarmProject.Presentation.Pages
         {
             CurrentDate = ParseDate(DateInput);
 
-            var result = await _farmEventService.GetAllFarmEventsByDate(CurrentDate);
+            var result = await _farmTaskService.GetAllFarmTasksByDate(CurrentDate);
 
-            return result.Match<IActionResult, List<FarmEvent>>(
-                onSuccess: farmEvents =>
+            return result.Match<IActionResult, List<FarmTask>>(
+                onSuccess: farmTasks =>
                 {
-                    FarmEvents = farmEvents.Select(farmEvent => farmEvent.ToViewFarmEventDto()).ToList();
+                    FarmTasks = farmTasks.Select(farmTask => farmTask.ToViewFarmTaskDto()).ToList();
                     return Page();
                 },
 

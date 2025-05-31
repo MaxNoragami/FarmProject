@@ -1,15 +1,16 @@
 ﻿using FarmProject.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FarmProject.Infrastructure.Configurations;
 
-public class FarmEventConfiguration : IEntityTypeConfiguration<FarmEvent>
+public class FarmTaskConfiguration : IEntityTypeConfiguration<FarmTask>
 {
-    public void Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<FarmEvent> builder)
+    public void Configure(EntityTypeBuilder<FarmTask> builder)
     {
         builder.HasKey(fe => fe.Id);
 
-        builder.Property(fe => fe.FarmEventType)
+        builder.Property(fe => fe.FarmTaskType)
             .IsRequired()
             .HasConversion<string>();
 

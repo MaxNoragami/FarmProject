@@ -2,11 +2,11 @@
 
 namespace FarmProject.Domain.Errors;
 
-public class FarmEventErrors
+public class FarmTaskErrors
 {
     public static readonly Error NotFound = new(
-        "FarmEvent.NotFound", "FarmEvent not found");
+        "FarmTask.NotFound", "FarmTask not found");
 
     public static readonly Error NullValue = new(
-        "FarmEvent.NullValue", "FarmEvent cannot be null");
+        "FarmTask.NullValue", "FarmTask cannot be null");
 }
