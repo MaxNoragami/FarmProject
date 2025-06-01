@@ -1,6 +1,7 @@
 ﻿using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
+using FarmProject.Domain.Events;
 
 namespace FarmProject.Domain.Models;
 
@@ -23,7 +24,7 @@ public class Pair : Entity
 
     private Pair() { }
 
-    public Result<FarmTask> CreateNestPrepTask()
+    public Result CreateNestPrepTask()
     {
         if (PairingStatus != PairingStatus.Successful)
             return Result.Failure<FarmTask>(PairErrors.NotSuccessful);
@@ -35,14 +36,14 @@ public class Pair : Entity
 
         var message = $"Prepare nest in cage for rabbit #{FemaleRabbit!.Id}";
 
-        var nestPrepTask = new FarmTask(
-            farmTaskType: FarmTaskType.NestPreparation,
-            message: message,
-            createdOn: EndDate.Value,
-            dueOn: dueDate
-        );
+        AddDomainEvent(new NestPrepEvent()
+        {
+            DueDate = dueDate.Date,
+            Message = message,
+            CreatedOn = EndDate.Value
+        });
 
-        return Result.Success(nestPrepTask);
+        return Result.Success();
     }
 
     public Result RecordFailedImpregnation(DateTime dateTime)

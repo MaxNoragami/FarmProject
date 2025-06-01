@@ -22,6 +22,7 @@ public static class ServiceCollectionExtension
     public static IServiceCollection AddEventArchitecture(this IServiceCollection services)
     {
         services.AddScoped<IEventConsumer<BreedEvent>, BreedEventConsumer>();
+        services.AddScoped<IEventConsumer<NestPrepEvent>, NestPrepEventConsumer>();
         services.AddScoped<DomainEventDispatcher>();
 
         return services;

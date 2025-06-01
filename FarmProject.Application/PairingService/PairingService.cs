@@ -117,9 +117,6 @@ public class PairingService(IUnitOfWork unitOfWork,
                     await _unitOfWork.RollbackTransactionAsync();
                     return Result.Failure<Pair>(createNestPrepTaskResult.Error);
                 }
-
-                // Create FarmTask record in the repo
-                await _unitOfWork.FarmTaskRepository.AddAsync(createNestPrepTaskResult.Value);
             }
             else if (pairingStatus == PairingStatus.Failed)
             {
@@ -142,15 +139,18 @@ public class PairingService(IUnitOfWork unitOfWork,
             await _unitOfWork.RabbitRepository.UpdateAsync(requestPair.MaleRabbit!);
             await _unitOfWork.RabbitRepository.UpdateAsync(requestPair.FemaleRabbit!);
 
+            await _domainEventDispatcher.DispatchEventsAsync(requestPair.DomainEvents);
+            requestPair.ClearDomainEvents();
+
             // Update the pair
             var updatedPair = await _unitOfWork.PairingRepository.UpdateAsync(requestPair);
             await _unitOfWork.CommitTransactionAsync();
             return Result.Success(updatedPair);
         }
-        catch
+        catch (Exception ex)
         {
             await _unitOfWork.RollbackTransactionAsync();
-            throw;
+            return Result.Failure<Pair>(new Error("Pair.UpdateFailed", ex.Message));
         }
     }
 }
