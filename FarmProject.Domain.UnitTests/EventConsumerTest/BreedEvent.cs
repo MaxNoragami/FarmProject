@@ -1,13 +1,15 @@
 ﻿
+using FarmProject.Application.Events;
 using FarmProject.Application.PairingService;
 using FarmProject.Application.RabbitsService;
 using FarmProject.Domain.Constants;
+using FarmProject.Domain.Events;
 using FarmProject.Domain.Models;
 using FluentAssertions;
 
 namespace FarmProject.Domain.UnitTests.ListnerTest;
 
-public class Test
+public class BreedEventTest
 {
     [Fact]
     public async Task SavePairOnBreedEventAsync()
@@ -27,10 +29,7 @@ public class Test
         await rabbitRepository.AddAsync(femaleRabbit);
         await rabbitRepository.AddAsync(maleRabbit);
 
-        var eventConsumer = new EventConsumer(rabbitRepository)
-        {
-            PairRepo = pairingRepository
-        };
+        var eventConsumer = new BreedEventConsumer(pairingRepository, rabbitRepository);
         var startDate = DateTime.Now;
         var breedEvent = new BreedEvent()
         {
@@ -38,12 +37,12 @@ public class Test
             StartDate = startDate
         };
 
-        await eventConsumer.Consume(breedEvent);
+        var consumeResult = await eventConsumer.ConsumeAsync(breedEvent);
 
         var pairingResult = await pairingRepository.GetAllAsync();
 
         Assert.Single(pairingResult);
-
+        consumeResult.IsSuccess.Should().BeTrue();
         pairingResult[0].FemaleRabbit.Should().BeEquivalentTo(femaleRabbit);
         pairingResult[0].MaleRabbit.Should().BeEquivalentTo(maleRabbit);
 
@@ -110,34 +109,5 @@ internal class InMemoryPairingRepo : IPairingRepository
     public Task<Pair> UpdateAsync(Pair pair)
     {
         throw new NotImplementedException();
-    }
-}
-
-internal class EventConsumer
-{
-    public IPairingRepository PairRepo { get; internal set; }
-    private readonly IRabbitRepository _rabbitRepository;
-
-    public EventConsumer(IRabbitRepository rabbitRepository)
-    {
-        _rabbitRepository = rabbitRepository;
-    }
-
-    internal async Task Consume(BreedEvent breedEvent)
-    {
-        var femaleRabbit = await _rabbitRepository.GetByIdAsync(breedEvent.RabbitIds[0]);
-        var maleRabbit = await _rabbitRepository.GetByIdAsync(breedEvent.RabbitIds[1]);
-
-        Rabbit temp;
-        if(femaleRabbit.Gender == Gender.Male)
-        {
-            temp = femaleRabbit;
-            femaleRabbit = maleRabbit;
-            maleRabbit = temp;
-        }
-
-        await PairRepo.AddAsync(new Pair(maleRabbit, 
-                femaleRabbit, 
-                breedEvent.StartDate));
     }
 }
