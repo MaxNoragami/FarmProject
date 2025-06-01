@@ -9,4 +9,6 @@ public interface IPairingRepository
     public Task<List<Pair>> GetAllAsync();
     public Task<Pair> UpdateAsync(Pair pair);
     public Task RemoveAsync(Pair pair);
+    public Task<Pair?> GetMostRecentPairByRabbitIdsAsync(int rabbitId1, int rabbitId2);
+
 }

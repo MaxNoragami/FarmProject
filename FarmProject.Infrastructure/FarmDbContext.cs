@@ -1,4 +1,5 @@
-﻿using FarmProject.Domain.Models;
+﻿using FarmProject.Domain.Events;
+using FarmProject.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FarmProject.Infrastructure;

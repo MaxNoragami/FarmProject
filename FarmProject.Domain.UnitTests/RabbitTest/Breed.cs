@@ -1,4 +1,5 @@
 ﻿using FarmProject.Domain.Constants;
+using FarmProject.Domain.Events;
 using FarmProject.Domain.Models;
 using FluentAssertions;
 
@@ -21,16 +22,16 @@ public class Breed
 
         femaleRabbit.Breed(maleRabbit, startBreedDate);
 
-        Assert.Single(femaleRabbit.Events);
-        Assert.IsType<BreedEvent>(femaleRabbit.Events[0]);
-        femaleRabbit.Events[0]
+        Assert.Single(femaleRabbit.DomainEvents);
+        Assert.IsType<BreedEvent>(femaleRabbit.DomainEvents.First());
+        femaleRabbit.DomainEvents.First()
             .Should()
             .BeOfType<BreedEvent>()
             .Subject.StartDate
             .Should()
             .Be(startBreedDate);
 
-        femaleRabbit.Events[0]
+        femaleRabbit.DomainEvents.First()
             .Should()
             .BeOfType<BreedEvent>()
             .Subject.RabbitIds
@@ -54,7 +55,7 @@ public class Breed
 
         maleRabbit1.Breed(maleRabbit2, startBreedDate);
 
-        Assert.Empty(maleRabbit1.Events);
+        Assert.Empty(maleRabbit1.DomainEvents);
     }
 
     [Fact]
@@ -72,6 +73,6 @@ public class Breed
 
         femaleRabbit.Breed(maleRabbit, startBreedDate);
 
-        Assert.Empty(maleRabbit.Events);
+        Assert.Empty(maleRabbit.DomainEvents);
     }
 }

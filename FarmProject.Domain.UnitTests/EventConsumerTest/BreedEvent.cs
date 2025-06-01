@@ -101,6 +101,11 @@ internal class InMemoryPairingRepo : IPairingRepository
         throw new NotImplementedException();
     }
 
+    public Task<Pair?> GetMostRecentPairByRabbitIdsAsync(int rabbitId1, int rabbitId2)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task RemoveAsync(Pair pair)
     {
         throw new NotImplementedException();

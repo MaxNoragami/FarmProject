@@ -4,6 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddEventArchitecture();
 builder.Services.AddFarmServices();
 builder.Services.AddFarmInfrastructure(
     builder.Configuration.GetConnectionString("FarmContext")!

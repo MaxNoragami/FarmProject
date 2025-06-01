@@ -1,6 +1,7 @@
 ﻿using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
+using FarmProject.Domain.Events;
 
 namespace FarmProject.Domain.Models;
 public class Rabbit(string name, Gender gender) : Entity
@@ -9,7 +10,7 @@ public class Rabbit(string name, Gender gender) : Entity
     public Gender Gender { get; private set; } = gender;
     public BreedingStatus BreedingStatus { get; private set; } = BreedingStatus.Available;
 
-    public Result<Pair> Breed(Rabbit otherRabbit, DateTime dateTimeNow)
+    public Result Breed(Rabbit otherRabbit, DateTime dateTimeNow)
     {
         var canPairResult = CanPairWith(otherRabbit);
         if (canPairResult.IsFailure)
@@ -23,20 +24,14 @@ public class Rabbit(string name, Gender gender) : Entity
         if (otherSetStatusResult.IsFailure)
             return Result.Failure<Pair>(otherSetStatusResult.Error);
 
-        Events.Add(new BreedEvent()
+        AddDomainEvent(new BreedEvent()
             { 
                 RabbitIds = [Id, otherRabbit.Id],
                 StartDate = dateTimeNow
             }
         );
 
-        var rabbitPair = new Pair(
-            maleRabbit: (Gender == Gender.Male) ? this : otherRabbit,
-            femaleRabbit: (Gender == Gender.Female) ? this : otherRabbit,
-            startDate: dateTimeNow
-        );
-
-        return Result.Success(rabbitPair);
+        return Result.Success();
     }
 
     public Result CanPairWith(Rabbit otherRabbit)

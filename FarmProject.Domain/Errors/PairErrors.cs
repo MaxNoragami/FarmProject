@@ -21,4 +21,7 @@ public static class PairErrors
 
     public static readonly Error NoEndDate = new(
         "Pair.NoEndDate", "Cannot create nest preparation for a pairing without an end date");
+    
+    public static readonly Error CreationFailed = new(
+        "Pair.CreationFailed", "Failed to create a Pair");
 }

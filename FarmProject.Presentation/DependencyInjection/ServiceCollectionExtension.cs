@@ -1,7 +1,9 @@
 ﻿using FarmProject.Application;
+using FarmProject.Application.Events;
 using FarmProject.Application.FarmTaskService;
 using FarmProject.Application.PairingService;
 using FarmProject.Application.RabbitsService;
+using FarmProject.Domain.Events;
 using FarmProject.Infrastructure;
 using FarmProject.Infrastructure.Repositories;
 
@@ -16,6 +18,15 @@ public static class ServiceCollectionExtension
             .AddScoped<IFarmTaskService, FarmTaskService>();
         return services;
     }
+
+    public static IServiceCollection AddEventArchitecture(this IServiceCollection services)
+    {
+        services.AddScoped<IEventConsumer<BreedEvent>, BreedEventConsumer>();
+        services.AddScoped<DomainEventDispatcher>();
+
+        return services;
+    }
+
 
     public static IServiceCollection AddFarmInfrastructure(this IServiceCollection services, string connectionString)
     {

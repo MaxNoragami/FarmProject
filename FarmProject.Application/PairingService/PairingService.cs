@@ -1,4 +1,5 @@
-﻿using FarmProject.Application.RabbitsService;
+﻿using FarmProject.Application.Events;
+using FarmProject.Application.RabbitsService;
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
@@ -6,10 +7,14 @@ using FarmProject.Domain.Models;
 
 namespace FarmProject.Application.PairingService;
 
-public class PairingService(IUnitOfWork unitOfWork, IRabbitService rabbitService) : IPairingService
+public class PairingService(IUnitOfWork unitOfWork, 
+        IRabbitService rabbitService,
+        DomainEventDispatcher domainEventDispatcher) 
+    : IPairingService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IRabbitService _rabbitService = rabbitService;
+    private readonly DomainEventDispatcher _domainEventDispatcher = domainEventDispatcher;
 
     public async Task<Result<Pair>> CreatePair(int firstAnimalId, int secondAnimalId)
     {
@@ -27,10 +32,10 @@ public class PairingService(IUnitOfWork unitOfWork, IRabbitService rabbitService
         var secondAnimal = secondAnimalResult.Value;
 
         // Breed the rabbits
-        var bredPairResult = firstAnimal.Breed(secondAnimal, DateTime.Now);
+        var breedResult = firstAnimal.Breed(secondAnimal, DateTime.Now);
 
-        if (bredPairResult.IsFailure)
-            return Result.Failure<Pair>(bredPairResult.Error);
+        if (breedResult.IsFailure)
+            return Result.Failure<Pair>(breedResult.Error);
 
         await _unitOfWork.BeginTransactionAsync();
 
@@ -40,16 +45,25 @@ public class PairingService(IUnitOfWork unitOfWork, IRabbitService rabbitService
             await _unitOfWork.RabbitRepository.UpdateAsync(firstAnimal);
             await _unitOfWork.RabbitRepository.UpdateAsync(secondAnimal);
 
-            // Create the pair
-            var createdPair = await _unitOfWork.PairingRepository.AddAsync(bredPairResult.Value);
+            await _domainEventDispatcher.DispatchEventsAsync(firstAnimal.DomainEvents);
+            firstAnimal.ClearDomainEvents();
+
+            var createdPair = await _unitOfWork.PairingRepository
+            .GetMostRecentPairByRabbitIdsAsync(firstAnimal.Id, secondAnimal.Id);
+
+            if (createdPair == null)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return Result.Failure<Pair>(PairErrors.CreationFailed);
+            }
 
             await _unitOfWork.CommitTransactionAsync();
             return Result.Success(createdPair);
         }
-        catch
+        catch (Exception ex)
         {
             await _unitOfWork.RollbackTransactionAsync();
-            throw;
+            return Result.Failure<Pair>(new Error("Pair.Failed", ex.Message));
         }
     }
 

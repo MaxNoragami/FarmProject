@@ -45,4 +45,15 @@ public class PairingRepository(FarmDbContext context) : IPairingRepository
         await _context.SaveChangesAsync();
         return pair;
     }
+
+    public async Task<Pair?> GetMostRecentPairByRabbitIdsAsync(int rabbitId1, int rabbitId2)
+    {
+        return await _context.Pairs
+            .Where(p =>
+                (p.MaleRabbit.Id == rabbitId1 && p.FemaleRabbit.Id == rabbitId2) ||
+                (p.MaleRabbit.Id == rabbitId2 && p.FemaleRabbit.Id == rabbitId1))
+            .OrderByDescending(p => p.StartDate)
+            .FirstOrDefaultAsync();
+    }
+
 }
