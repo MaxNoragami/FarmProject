@@ -22,73 +22,7 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("FarmProject.Domain.Models.FarmEvent", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DueOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FarmEventType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("FarmEvents");
-                });
-
-            modelBuilder.Entity("FarmProject.Domain.Models.Pair", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("FemaleRabbitId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("MaleRabbitId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PairingStatus")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(max)")
-                        .HasDefaultValue("Active");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FemaleRabbitId");
-
-                    b.HasIndex("MaleRabbitId");
-
-                    b.ToTable("Pairs");
-                });
-
-            modelBuilder.Entity("FarmProject.Domain.Models.Rabbit", b =>
+            modelBuilder.Entity("FarmProject.Domain.Models.BreedingRabbit", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -113,24 +47,90 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Rabbits");
+                    b.ToTable("BreedingRabbits");
+                });
+
+            modelBuilder.Entity("FarmProject.Domain.Models.FarmTask", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DueOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FarmTaskType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FarmTasks");
                 });
 
             modelBuilder.Entity("FarmProject.Domain.Models.Pair", b =>
                 {
-                    b.HasOne("FarmProject.Domain.Models.Rabbit", "FemaleRabbit")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("FemaleBreedingRabbitId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaleBreedingRabbitId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PairingStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Active");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FemaleBreedingRabbitId");
+
+                    b.HasIndex("MaleBreedingRabbitId");
+
+                    b.ToTable("Pairs");
+                });
+
+            modelBuilder.Entity("FarmProject.Domain.Models.Pair", b =>
+                {
+                    b.HasOne("FarmProject.Domain.Models.BreedingRabbit", "FemaleBreedingRabbit")
                         .WithMany()
-                        .HasForeignKey("FemaleRabbitId")
+                        .HasForeignKey("FemaleBreedingRabbitId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("FarmProject.Domain.Models.Rabbit", "MaleRabbit")
+                    b.HasOne("FarmProject.Domain.Models.BreedingRabbit", "MaleBreedingRabbit")
                         .WithMany()
-                        .HasForeignKey("MaleRabbitId")
+                        .HasForeignKey("MaleBreedingRabbitId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("FemaleRabbit");
+                    b.Navigation("FemaleBreedingRabbit");
 
-                    b.Navigation("MaleRabbit");
+                    b.Navigation("MaleBreedingRabbit");
                 });
 #pragma warning restore 612, 618
         }

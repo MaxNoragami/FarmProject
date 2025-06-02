@@ -1,0 +1,27 @@
+﻿@page
+@model FarmProject.Presentation.Pages.AllBreedingRabbitsModel
+@{
+    ViewData["Title"] = "All Rabbits";
+}
+
+<h1>All Breeding Rabbits</h1>
+
+@foreach(var breedingRabbit in Model.BreedingRabbits)
+{
+    <div class="card mt-4">
+        <div class="card-header">
+            Rabbit #@breedingRabbit.Id
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">@breedingRabbit.Name</h5>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <p><strong>Gender:</strong> @breedingRabbit.Gender</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Breeding Status:</strong> @breedingRabbit.BreedingStatus</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}

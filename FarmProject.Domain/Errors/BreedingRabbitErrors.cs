@@ -1,0 +1,12 @@
+﻿using FarmProject.Domain.Common;
+
+namespace FarmProject.Domain.Errors;
+
+public static class BreedingRabbitErrors
+{
+    public static readonly Error NotFound = new(
+        "BreedingRabbit.NotFound", "Rabbit not found");
+
+    public static readonly Error InvalidBreedingStatus = new(
+        "BreedingRabbit.InvalidBreedingStatus", "Breeding status cannot be applied to this gender");
+}

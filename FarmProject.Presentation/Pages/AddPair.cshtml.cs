@@ -4,28 +4,28 @@ using FarmProject.Application.PairingService;
 using FarmProject.Presentation.Models.Pairs;
 using FarmProject.Domain.Models;
 using FarmProject.Application.Common;
-using FarmProject.Presentation.Models.Rabbits;
-using FarmProject.Application.RabbitsService;
+using FarmProject.Presentation.Models.BreedingRabbits;
+using FarmProject.Application.BreedingRabbitsService;
 
 
 namespace FarmProject.Presentation.Pages;
 
-public class AddPairModel(IPairingService pairingService, IRabbitService rabbitService) : PageModel
+public class AddPairModel(IPairingService pairingService, IBreedingRabbitService breedingRabbitService) : PageModel
 {
     private readonly IPairingService _pairingService = pairingService;
-    private readonly IRabbitService _rabbitService = rabbitService;
+    private readonly IBreedingRabbitService _breedingRabbitService = breedingRabbitService;
 
     [BindProperty]
     public CreatePairDto Pair { get; set; }
-    public List<ViewRabbitDto>? AllRabbitsDtos { get; private set; } = new();
+    public List<ViewBreedingRabbitDto>? AllBreedingRabbitsDtos { get; private set; } = new();
 
     public async Task<IActionResult> OnGet()
     {
-        var getAllRabbitsResult = await _rabbitService.GetAllRabbits();
-        return getAllRabbitsResult.Match<IActionResult, List<Rabbit>>(
-            onSuccess: rabbits =>
+        var getAllBreedingRabbitsResult = await _breedingRabbitService.GetAllBreedingRabbits();
+        return getAllBreedingRabbitsResult.Match<IActionResult, List<BreedingRabbit>>(
+            onSuccess: breedingRabbits =>
             {
-                AllRabbitsDtos = rabbits.Select(r => r.ToViewRabbitDto()).ToList();
+                AllBreedingRabbitsDtos = breedingRabbits.Select(r => r.ToViewBreedingRabbitDto()).ToList();
                 return Page();
             },
 
@@ -57,10 +57,10 @@ public class AddPairModel(IPairingService pairingService, IRabbitService rabbitS
         {
             ModelState.AddModelError(string.Empty, pairingResult.Error.Description);
 
-            // Load rabbits here
-            var rabbitsResult = await _rabbitService.GetAllRabbits();
-            if (rabbitsResult.IsSuccess)
-                AllRabbitsDtos = rabbitsResult.Value.Select(r => r.ToViewRabbitDto()).ToList();
+            // Load breeding rabbits here
+            var breedingRabbitsResult = await _breedingRabbitService.GetAllBreedingRabbits();
+            if (breedingRabbitsResult.IsSuccess)
+                AllBreedingRabbitsDtos = breedingRabbitsResult.Value.Select(r => r.ToViewBreedingRabbitDto()).ToList();
 
             return Page();
         }

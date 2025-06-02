@@ -1,9 +1,9 @@
 ﻿using FarmProject.Application;
-using FarmProject.Application.EventsService;
-using FarmProject.Application.FarmEventsService;
+using FarmProject.Application.Events;
+using FarmProject.Application.FarmTaskService;
 using FarmProject.Application.PairingService;
-using FarmProject.Application.RabbitsService;
-using FarmProject.Domain.Models;
+using FarmProject.Application.BreedingRabbitsService;
+using FarmProject.Domain.Events;
 using FarmProject.Infrastructure;
 using FarmProject.Infrastructure.Repositories;
 
@@ -13,15 +13,25 @@ public static class ServiceCollectionExtension
 {
     public static IServiceCollection AddFarmServices(this IServiceCollection services)
     {
-        services.AddScoped<IRabbitService, RabbitService>()
+        services.AddScoped<IBreedingRabbitService, BreedingRabbitService>()
             .AddScoped<IPairingService, PairingService>()
-            .AddScoped<IFarmEventService, FarmEventService>();
+            .AddScoped<IFarmTaskService, FarmTaskService>();
         return services;
     }
 
+    public static IServiceCollection AddEventArchitecture(this IServiceCollection services)
+    {
+        services.AddScoped<IEventConsumer<BreedEvent>, BreedEventConsumer>();
+        services.AddScoped<IEventConsumer<NestPrepEvent>, NestPrepEventConsumer>();
+        services.AddScoped<DomainEventDispatcher>();
+
+        return services;
+    }
+
+
     public static IServiceCollection AddFarmInfrastructure(this IServiceCollection services, string connectionString)
     {
-        var assemblyName = typeof(FarmProject.Infrastructure.Migrations.Marker)
+        var assemblyName = typeof(Infrastructure.Migrations.Marker)
             .Assembly
             .GetName()
             .Name;
@@ -31,9 +41,9 @@ public static class ServiceCollectionExtension
             sqlServerOptions => sqlServerOptions.MigrationsAssembly(assemblyName)
         );
 
-        services.AddScoped<IRabbitRepository, RabbitRepository>();
+        services.AddScoped<IBreedingRabbitRepository, BreedingRabbitRepository>();
         services.AddScoped<IPairingRepository, PairingRepository>();
-        services.AddScoped<IFarmEventRepository, FarmEventRepository>();
+        services.AddScoped<IFarmTaskRepository, FarmTaskRepository>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

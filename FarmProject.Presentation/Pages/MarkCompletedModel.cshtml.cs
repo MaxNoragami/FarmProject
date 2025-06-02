@@ -1,4 +1,4 @@
-using FarmProject.Application.EventsService;
+using FarmProject.Application.FarmTaskService;
 using FarmProject.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -6,9 +6,9 @@ using FarmProject.Application.Common;
 
 namespace FarmProject.Presentation.Pages
 {
-    public class MarkCompletedModel(IFarmEventService farmEventService) : PageModel
+    public class MarkCompletedModel(IFarmTaskService farmTaskService) : PageModel
     {
-        private readonly IFarmEventService _farmEventService = farmEventService;
+        private readonly IFarmTaskService _farmTaskService = farmTaskService;
 
         [BindProperty(SupportsGet = true)]
         public int Id { get; set; }
@@ -18,12 +18,12 @@ namespace FarmProject.Presentation.Pages
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var result = await _farmEventService.MarkFarmEventAsCompleted(Id);
+            var result = await _farmTaskService.MarkFarmTaskAsCompleted(Id);
 
-            return result.Match<IActionResult, FarmEvent>(
-                onSuccess: FarmEvent =>
+            return result.Match<IActionResult, FarmTask>(
+                onSuccess: FarmTask =>
                 {
-                    TempData["SuccessMessage"] = "Event marked as completed successfully!";
+                    TempData["SuccessMessage"] = "Task marked as completed successfully!";
                     return RedirectToPage("/Index", new { dateInput = ReturnDate });
                 },
 
