@@ -1,7 +1,6 @@
 ﻿using FarmProject.Domain.Constants;
 using FarmProject.Domain.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FarmProject.Infrastructure.Configurations;
@@ -12,14 +11,14 @@ public class PairConfiguration : IEntityTypeConfiguration<Pair>
     {
         builder.HasKey(p => p.Id);
 
-        builder.HasOne(p => p.MaleRabbit)
+        builder.HasOne(p => p.MaleBreedingRabbit)
             .WithMany()
-            .HasForeignKey("MaleRabbitId")
+            .HasForeignKey("MaleBreedingRabbitId")
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(p => p.FemaleRabbit)
+        builder.HasOne(p => p.FemaleBreedingRabbit)
             .WithMany()
-            .HasForeignKey("FemaleRabbitId")
+            .HasForeignKey("FemaleBreedingRabbitId")
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(p => p.StartDate)

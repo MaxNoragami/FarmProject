@@ -8,8 +8,8 @@ public class RecordFailedImpregnation
     [Fact]
     public void UpdatePairingFailure()
     {
-        var rabbitMale = new Rabbit("John", Gender.Male);
-        var rabbitFemale = new Rabbit("Mary", Gender.Female);
+        var rabbitMale = new BreedingRabbit("John", Gender.Male);
+        var rabbitFemale = new BreedingRabbit("Mary", Gender.Female);
         var endPairingDate = DateTime.Today;
 
         rabbitMale.SetBreedingStatus(BreedingStatus.Paired);
@@ -22,8 +22,8 @@ public class RecordFailedImpregnation
         Assert.Multiple(
             () => Assert.True(pairingResult.IsSuccess),
             () => Assert.Equal(PairingStatus.Failed, pair.PairingStatus),
-            () => Assert.Equal(BreedingStatus.Available, pair.FemaleRabbit.BreedingStatus),
-            () => Assert.Equal(BreedingStatus.Available, pair.MaleRabbit.BreedingStatus),
+            () => Assert.Equal(BreedingStatus.Available, pair.FemaleBreedingRabbit.BreedingStatus),
+            () => Assert.Equal(BreedingStatus.Available, pair.MaleBreedingRabbit.BreedingStatus),
             () => Assert.Equal(endPairingDate, pair.EndDate)
         );
     }
@@ -33,8 +33,8 @@ public class RecordFailedImpregnation
     [InlineData(PairingStatus.Failed)]
     public void DenoteChangeStatusOnOtherThanActivePairings(PairingStatus invalidPairingStatus)
     {
-        var rabbitMale = new Rabbit("John", Gender.Male);
-        var rabbitFemale = new Rabbit("Mary", Gender.Female);
+        var rabbitMale = new BreedingRabbit("John", Gender.Male);
+        var rabbitFemale = new BreedingRabbit("Mary", Gender.Female);
         var endPairingDate = DateTime.Today;
 
         rabbitMale.SetBreedingStatus(BreedingStatus.Paired);

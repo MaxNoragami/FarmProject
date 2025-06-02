@@ -20,15 +20,15 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var viewRabbitDto in Model.AllRabbitsDtos)
+            @foreach (var viewBreedingRabbitDto in Model.AllBreedingRabbitsDtos)
             {
-                @if (viewRabbitDto.Gender == Gender.Female && 
-                     viewRabbitDto.BreedingStatus == BreedingStatus.Available)
+                @if (viewBreedingRabbitDto.Gender == Gender.Female && 
+                     viewBreedingRabbitDto.BreedingStatus == BreedingStatus.Available)
                 {
                     <tr>
-                        <th scope="row">@viewRabbitDto.Id</th>
-                        <td>@viewRabbitDto.Name</td>
-                        <td>@viewRabbitDto.BreedingStatus</td>
+                        <th scope="row">@viewBreedingRabbitDto.Id</th>
+                        <td>@viewBreedingRabbitDto.Name</td>
+                        <td>@viewBreedingRabbitDto.BreedingStatus</td>
                     </tr>
                 }
             }
@@ -47,15 +47,15 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var viewRabbitDto in Model.AllRabbitsDtos)
+            @foreach (var viewBreedingRabbitDto in Model.AllBreedingRabbitsDtos)
             {
-                @if (viewRabbitDto.Gender == Gender.Male && 
-                     viewRabbitDto.BreedingStatus == BreedingStatus.Available)
+                @if (viewBreedingRabbitDto.Gender == Gender.Male && 
+                     viewBreedingRabbitDto.BreedingStatus == BreedingStatus.Available)
                 {
                     <tr>
-                        <th scope="row">@viewRabbitDto.Id</th>
-                        <td>@viewRabbitDto.Name</td>
-                        <td>@viewRabbitDto.BreedingStatus</td>
+                        <th scope="row">@viewBreedingRabbitDto.Id</th>
+                        <td>@viewBreedingRabbitDto.Name</td>
+                        <td>@viewBreedingRabbitDto.BreedingStatus</td>
                     </tr>
                 }
             }

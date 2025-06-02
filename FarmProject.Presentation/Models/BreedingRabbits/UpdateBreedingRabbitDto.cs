@@ -1,8 +1,8 @@
 ﻿using FarmProject.Domain.Constants;
 
-namespace FarmProject.Presentation.Models.Rabbits;
+namespace FarmProject.Presentation.Models.BreedingRabbits;
 
-public class UpdateRabbitDto
+public class UpdateBreedingRabbitDto
 {
     public BreedingStatus BreedingStatus { get; set; }
 }

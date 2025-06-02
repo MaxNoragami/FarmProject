@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FarmProject.Infrastructure.Configurations;
 
-public class RabbitConfiguration : IEntityTypeConfiguration<Rabbit>
+public class BreedingRabbitConfiguration : IEntityTypeConfiguration<BreedingRabbit>
 {
-    public void Configure(EntityTypeBuilder<Rabbit> builder)
+    public void Configure(EntityTypeBuilder<BreedingRabbit> builder)
     {
         builder.HasKey(r => r.Id);
 

@@ -6,7 +6,7 @@ namespace FarmProject.Infrastructure;
 
 public class FarmDbContext(DbContextOptions<FarmDbContext> options) : DbContext(options)
 {
-    public DbSet<Rabbit> Rabbits { get; set; } = default!;
+    public DbSet<BreedingRabbit> BreedingRabbits { get; set; } = default!;
     public DbSet<Pair> Pairs { get; set; } = default!;
     public DbSet<FarmTask> FarmTasks { get; set; } = default!;
 

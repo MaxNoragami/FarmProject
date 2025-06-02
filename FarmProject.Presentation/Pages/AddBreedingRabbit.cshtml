@@ -1,16 +1,16 @@
 ﻿@page
 @using FarmProject.Domain.Constants;
-@model FarmProject.Presentation.Pages.AddRabbitModel
+@model FarmProject.Presentation.Pages.AddBreedingRabbitModel
 @{
-    ViewData["Title"] = "Add Rabbit";
+    ViewData["Title"] = "Add Breeding Rabbit";
 }
 
-<h1>Add Rabbit</h1>
+<h1>Add Breeding Rabbit</h1>
 
 <form method="post">
-    <input type="text" asp-for="Rabbit.Name" placeholder="Name of the rabbit"/>
+    <input type="text" asp-for="BreedingRabbit.Name" placeholder="Name of the rabbit"/>
     
-    <select asp-for="Rabbit.Gender">
+    <select asp-for="BreedingRabbit.Gender">
         <option value="">Select Gender</option>
         @foreach (var gender in Enum.GetValues(typeof(Gender)))
         {

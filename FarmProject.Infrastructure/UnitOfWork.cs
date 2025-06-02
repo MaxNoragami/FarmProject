@@ -1,19 +1,19 @@
 ﻿using FarmProject.Application;
 using FarmProject.Application.FarmTaskService;
 using FarmProject.Application.PairingService;
-using FarmProject.Application.RabbitsService;
+using FarmProject.Application.BreedingRabbitsService;
 
 namespace FarmProject.Infrastructure;
 
 public class UnitOfWork(FarmDbContext context, 
-                        IRabbitRepository rabbitRepository,
+                        IBreedingRabbitRepository breedingRabbitRepository,
                         IPairingRepository pairingRepository,
                         IFarmTaskRepository farmTaskRepository
                 ) : IUnitOfWork
 {
     private readonly FarmDbContext _context = context;
 
-    public IRabbitRepository RabbitRepository => rabbitRepository;
+    public IBreedingRabbitRepository BreedingRabbitRepository => breedingRabbitRepository;
 
     public IPairingRepository PairingRepository => pairingRepository;
 

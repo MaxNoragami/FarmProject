@@ -1,7 +1,7 @@
 ﻿
 using FarmProject.Application.Events;
 using FarmProject.Application.PairingService;
-using FarmProject.Application.RabbitsService;
+using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Events;
 using FarmProject.Domain.Models;
@@ -15,25 +15,25 @@ public class BreedEventTest
     public async Task SavePairOnBreedEventAsync()
     {
         IPairingRepository pairingRepository = new InMemoryPairingRepo();
-        IRabbitRepository rabbitRepository = new InMemoryRabbitRepo();
+        IBreedingRabbitRepository breedingRabbitRepository = new InMemoryBreedingRabbitRepo();
 
-        var femaleRabbit = new Rabbit("Female", Gender.Female)
+        var femaleBreedingRabbit = new BreedingRabbit("Female", Gender.Female)
         {
             Id = 1
         };
-        var maleRabbit = new Rabbit("Male", Gender.Male)
+        var maleBreedingRabbit = new BreedingRabbit("Male", Gender.Male)
         { 
             Id = 2
         };
 
-        await rabbitRepository.AddAsync(femaleRabbit);
-        await rabbitRepository.AddAsync(maleRabbit);
+        await breedingRabbitRepository.AddAsync(femaleBreedingRabbit);
+        await breedingRabbitRepository.AddAsync(maleBreedingRabbit);
 
-        var eventConsumer = new BreedEventConsumer(pairingRepository, rabbitRepository);
+        var eventConsumer = new BreedEventConsumer(pairingRepository, breedingRabbitRepository);
         var startDate = DateTime.Now;
         var breedEvent = new BreedEvent()
         {
-            RabbitIds = [1, 2],
+            BreedingRabbitIds = [1, 2],
             StartDate = startDate
         };
 
@@ -43,38 +43,38 @@ public class BreedEventTest
 
         Assert.Single(pairingResult);
         consumeResult.IsSuccess.Should().BeTrue();
-        pairingResult[0].FemaleRabbit.Should().BeEquivalentTo(femaleRabbit);
-        pairingResult[0].MaleRabbit.Should().BeEquivalentTo(maleRabbit);
+        pairingResult[0].FemaleBreedingRabbit.Should().BeEquivalentTo(femaleBreedingRabbit);
+        pairingResult[0].MaleBreedingRabbit.Should().BeEquivalentTo(maleBreedingRabbit);
 
     }
 }
 
-internal class InMemoryRabbitRepo : IRabbitRepository
+internal class InMemoryBreedingRabbitRepo : IBreedingRabbitRepository
 {
-    private List<Rabbit> _rabbits = [];
+    private List<BreedingRabbit> _breedingRabbits = [];
 
-    public Task<Rabbit> AddAsync(Rabbit rabbit)
+    public Task<BreedingRabbit> AddAsync(BreedingRabbit breedingRabbit)
     {
-        _rabbits.Add(rabbit);
-        return Task.FromResult(rabbit);
+        _breedingRabbits.Add(breedingRabbit);
+        return Task.FromResult(breedingRabbit);
     }
 
-    public Task<List<Rabbit>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Rabbit?> GetByIdAsync(int rabbitId)
-    {
-        return Task.FromResult(_rabbits.FirstOrDefault(r => r.Id == rabbitId));
-    }
-
-    public Task RemoveAsync(Rabbit rabbit)
+    public Task<List<BreedingRabbit>> GetAllAsync()
     {
         throw new NotImplementedException();
     }
 
-    public Task<Rabbit> UpdateAsync(Rabbit rabbit)
+    public Task<BreedingRabbit?> GetByIdAsync(int breedingRabbitId)
+    {
+        return Task.FromResult(_breedingRabbits.FirstOrDefault(r => r.Id == breedingRabbitId));
+    }
+
+    public Task RemoveAsync(BreedingRabbit breedingRabbit)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<BreedingRabbit> UpdateAsync(BreedingRabbit breedingRabbit)
     {
         throw new NotImplementedException();
     }
@@ -101,7 +101,7 @@ internal class InMemoryPairingRepo : IPairingRepository
         throw new NotImplementedException();
     }
 
-    public Task<Pair?> GetMostRecentPairByRabbitIdsAsync(int rabbitId1, int rabbitId2)
+    public Task<Pair?> GetMostRecentPairByBreedingRabbitIdsAsync(int breedingRabbitId1, int breedingRabbitId2)
     {
         throw new NotImplementedException();
     }

@@ -1,5 +1,5 @@
 ﻿using FarmProject.Application.Events;
-using FarmProject.Application.RabbitsService;
+using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
@@ -8,19 +8,19 @@ using FarmProject.Domain.Models;
 namespace FarmProject.Application.PairingService;
 
 public class PairingService(IUnitOfWork unitOfWork, 
-        IRabbitService rabbitService,
+        IBreedingRabbitService breedingRabbitService,
         DomainEventDispatcher domainEventDispatcher) 
     : IPairingService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IRabbitService _rabbitService = rabbitService;
+    private readonly IBreedingRabbitService _breedingRabbitService = breedingRabbitService;
     private readonly DomainEventDispatcher _domainEventDispatcher = domainEventDispatcher;
 
     public async Task<Result<Pair>> CreatePair(int firstAnimalId, int secondAnimalId)
     {
-        // Get the rabbits
-        var firstAnimalResult = await _rabbitService.GetRabbitById(firstAnimalId);
-        var secondAnimalResult = await _rabbitService.GetRabbitById(secondAnimalId);
+        // Get the breeding rabbits
+        var firstAnimalResult = await _breedingRabbitService.GetBreedingRabbitById(firstAnimalId);
+        var secondAnimalResult = await _breedingRabbitService.GetBreedingRabbitById(secondAnimalId);
 
         if (firstAnimalResult.IsFailure)
             return Result.Failure<Pair>(firstAnimalResult.Error);
@@ -31,7 +31,7 @@ public class PairingService(IUnitOfWork unitOfWork,
         var firstAnimal = firstAnimalResult.Value;
         var secondAnimal = secondAnimalResult.Value;
 
-        // Breed the rabbits
+        // Breed the breeding rabbits
         var breedResult = firstAnimal.Breed(secondAnimal, DateTime.Now);
 
         if (breedResult.IsFailure)
@@ -41,15 +41,14 @@ public class PairingService(IUnitOfWork unitOfWork,
 
         try
         {
-            // Update the rabbits
-            await _unitOfWork.RabbitRepository.UpdateAsync(firstAnimal);
-            await _unitOfWork.RabbitRepository.UpdateAsync(secondAnimal);
+            // Update the breeding rabbits
+            await _unitOfWork.BreedingRabbitRepository.UpdateAsync(firstAnimal);
+            await _unitOfWork.BreedingRabbitRepository.UpdateAsync(secondAnimal);
 
             await _domainEventDispatcher.DispatchEventsAsync(firstAnimal.DomainEvents);
-            firstAnimal.ClearDomainEvents();
 
             var createdPair = await _unitOfWork.PairingRepository
-            .GetMostRecentPairByRabbitIdsAsync(firstAnimal.Id, secondAnimal.Id);
+                .GetMostRecentPairByBreedingRabbitIdsAsync(firstAnimal.Id, secondAnimal.Id);
 
             if (createdPair == null)
             {
@@ -135,12 +134,11 @@ public class PairingService(IUnitOfWork unitOfWork,
                 return Result.Failure<Pair>(PairErrors.InvalidOutcome);
             }
 
-            // Update rabbits references
-            await _unitOfWork.RabbitRepository.UpdateAsync(requestPair.MaleRabbit!);
-            await _unitOfWork.RabbitRepository.UpdateAsync(requestPair.FemaleRabbit!);
+            // Update breeding rabbits references
+            await _unitOfWork.BreedingRabbitRepository.UpdateAsync(requestPair.MaleBreedingRabbit!);
+            await _unitOfWork.BreedingRabbitRepository.UpdateAsync(requestPair.FemaleBreedingRabbit!);
 
             await _domainEventDispatcher.DispatchEventsAsync(requestPair.DomainEvents);
-            requestPair.ClearDomainEvents();
 
             // Update the pair
             var updatedPair = await _unitOfWork.PairingRepository.UpdateAsync(requestPair);

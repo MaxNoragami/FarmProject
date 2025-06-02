@@ -4,13 +4,13 @@ using FarmProject.Domain.Errors;
 using FarmProject.Domain.Events;
 
 namespace FarmProject.Domain.Models;
-public class Rabbit(string name, Gender gender) : Entity
+public class BreedingRabbit(string name, Gender gender) : Entity
 {
     public string Name { get; private set; } = name;
     public Gender Gender { get; private set; } = gender;
     public BreedingStatus BreedingStatus { get; private set; } = BreedingStatus.Available;
 
-    public Result Breed(Rabbit otherRabbit, DateTime dateTimeNow)
+    public Result Breed(BreedingRabbit otherRabbit, DateTime dateTimeNow)
     {
         var canPairResult = CanPairWith(otherRabbit);
         if (canPairResult.IsFailure)
@@ -26,7 +26,7 @@ public class Rabbit(string name, Gender gender) : Entity
 
         AddDomainEvent(new BreedEvent()
             { 
-                RabbitIds = [Id, otherRabbit.Id],
+                BreedingRabbitIds = [Id, otherRabbit.Id],
                 StartDate = dateTimeNow
             }
         );
@@ -34,7 +34,7 @@ public class Rabbit(string name, Gender gender) : Entity
         return Result.Success();
     }
 
-    public Result CanPairWith(Rabbit otherRabbit)
+    public Result CanPairWith(BreedingRabbit otherRabbit)
     {
         if (Gender == otherRabbit.Gender)
             return Result.Failure(PairErrors.InvalidPairing);
@@ -55,7 +55,7 @@ public class Rabbit(string name, Gender gender) : Entity
            breedingStatus != BreedingStatus.Paired &&
            breedingStatus != BreedingStatus.Inapt)
         {
-            return Result.Failure(RabbitErrors.InvalidBreedingStatus);
+            return Result.Failure(BreedingRabbitErrors.InvalidBreedingStatus);
         }
 
         BreedingStatus = breedingStatus;

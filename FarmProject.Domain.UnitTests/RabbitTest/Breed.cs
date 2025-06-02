@@ -10,11 +10,11 @@ public class Breed
     [Fact]
     public void VerifyCreationOfBreedEvent()
     {
-        var femaleRabbit = new Rabbit("Female", Gender.Female)
+        var femaleRabbit = new BreedingRabbit("Female", Gender.Female)
         {
             Id = 1
         };
-        var maleRabbit = new Rabbit("Male", Gender.Male)
+        var maleRabbit = new BreedingRabbit("Male", Gender.Male)
         {
             Id = 2
         };
@@ -34,7 +34,7 @@ public class Breed
         femaleRabbit.DomainEvents.First()
             .Should()
             .BeOfType<BreedEvent>()
-            .Subject.RabbitIds
+            .Subject.BreedingRabbitIds
             .Should()
             .Contain([1, 2]);
     }
@@ -43,11 +43,11 @@ public class Breed
     [Fact]
     public void BreedEventNotSuccessful()
     {
-        var maleRabbit1 = new Rabbit("Female", Gender.Male)
+        var maleRabbit1 = new BreedingRabbit("Female", Gender.Male)
         {
             Id = 1
         };
-        var maleRabbit2 = new Rabbit("Male", Gender.Male)
+        var maleRabbit2 = new BreedingRabbit("Male", Gender.Male)
         {
             Id = 2
         };
@@ -61,11 +61,11 @@ public class Breed
     [Fact]
     public void VerifyOnlyOneRabbitHasEvents()
     {
-        var femaleRabbit = new Rabbit("Female", Gender.Female)
+        var femaleRabbit = new BreedingRabbit("Female", Gender.Female)
         {
             Id = 1
         };
-        var maleRabbit = new Rabbit("Male", Gender.Male)
+        var maleRabbit = new BreedingRabbit("Male", Gender.Male)
         {
             Id = 2
         };
