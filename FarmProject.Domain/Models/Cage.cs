@@ -22,6 +22,8 @@ public class Cage(string name) : Entity
         else
             MaleBreedingRabbit = breedingRabbit;
 
+        breedingRabbit.CageId = Id;
+
         return Result.Success();
     }
 
@@ -45,6 +47,8 @@ public class Cage(string name) : Entity
             rabbitToRemove = MaleBreedingRabbit;
             MaleBreedingRabbit = null;
         }
+
+        rabbitToRemove.CageId = null;
 
         return Result.Success(rabbitToRemove);
     }
