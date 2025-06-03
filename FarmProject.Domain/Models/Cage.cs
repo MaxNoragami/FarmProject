@@ -17,6 +17,9 @@ public class Cage(string name) : Entity
         if (breedingRabbit == null)
             return Result.Failure(CageErrors.InvalidAssignment);
 
+        if (breedingRabbit.CageId != null)
+            return Result.Failure(CageErrors.RabbitAlreadyInCage);
+
         if (breedingRabbit.Gender == Gender.Female)
             FemaleBreedingRabbit = breedingRabbit;
         else

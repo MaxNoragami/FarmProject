@@ -23,5 +23,12 @@ public class BreedingRabbitConfiguration : IEntityTypeConfiguration<BreedingRabb
             .IsRequired()
             .HasConversion<string>()
             .HasDefaultValue(BreedingStatus.Available);
+
+        builder.Property(r => r.CageId)
+            .IsRequired(false);
+
+        builder.HasIndex(r => r.CageId)
+            .HasFilter("[CageId] IS NOT NULL")
+            .IsUnique();
     }
 }

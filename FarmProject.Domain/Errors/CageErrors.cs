@@ -21,4 +21,7 @@ public class CageErrors
 
     public static readonly Error NotFound = new(
         "Cage.NotFound", "Cage not found");
+
+    public static readonly Error RabbitAlreadyInCage = new(
+        "Cage.RabbitAlreadyInCage", "The breeding rabbit is already in a cage");
 }
