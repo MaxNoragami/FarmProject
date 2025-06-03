@@ -18,4 +18,7 @@ public class CageErrors
 
     public static readonly Error OverOffspringNum = new(
         "Cage.OverOffspringNum", "Cannot remove more offsprings than available");
+
+    public static readonly Error NotFound = new(
+        "Cage.NotFound", "Cage not found");
 }

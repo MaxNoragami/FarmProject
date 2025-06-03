@@ -8,7 +8,7 @@ public interface ICageService
 {
     public Task<Result<Cage>> CreateCage(string name);
     public Task<Result<List<Cage>>> GetAllCages();
-    public Task<Result<List<Cage>>> GetCagesWithAvailableSpace(Gender gender);
+    public Task<Result<List<Cage>>> GetUnoccupiedCages(Gender gender);
     public Task<Result<Cage>> GetCageById(int cageId);
     public Task<Result<Cage>> AssignBreedingRabbitToCage(int cageId, int breedingRabbitId);
     public Task<Result<Cage>> RemoveBreedingRabbitFromCage(int cageId, Gender gender);
