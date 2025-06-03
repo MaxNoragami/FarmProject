@@ -13,5 +13,7 @@ public class ViewBreedingRabbitDto
 
     public Gender Gender { get; set; }
 
+    public int? CageId { get; set; }
+
     public BreedingStatus BreedingStatus { get; set; }
 }

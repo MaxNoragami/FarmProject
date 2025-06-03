@@ -1,0 +1,30 @@
+﻿@page
+@model FarmProject.Presentation.Pages.AllCagesModel
+@{
+    ViewData["Title"] = "All Cages";
+}
+
+<h1>All Cages</h1>
+
+@foreach(var cage in Model.Cages)
+{
+    <div class="card mt-4">
+        <div class="card-header">
+            Cage #@cage.Id
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">@cage.Name</h5>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <p><strong>Breeding Rabbit:</strong> #@((cage.FemaleBreedingRabbit == null)? "Uknown" : cage.FemaleBreedingRabbit.Id)</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Offspring Amount:</strong> @cage.OffspringCount</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Offspring Type:</strong> @cage.OffspringType</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}

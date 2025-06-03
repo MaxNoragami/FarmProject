@@ -1,0 +1,51 @@
+﻿@page
+@using FarmProject.Domain.Constants
+@model FarmProject.Presentation.Pages.CageDetailsModel
+@{
+    ViewData["Title"] = "Cage Details";
+    string breedingRabbitId = "Unknown";
+    if(Model.CageDto.FemaleBreedingRabbit != null)
+    {
+        breedingRabbitId = Model.CageDto.FemaleBreedingRabbit.Id.ToString();
+    }
+
+}
+
+@if(Model.CageDto != null)
+{
+    <h1>Cage Details</h1>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            Cage #@Model.CageDto.Id
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">@Model.CageDto.Name</h5>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <p><strong>Breeding Rabbit:</strong> #@breedingRabbitId</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Offspring Amount:</strong> @Model.CageDto.OffspringCount</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Offspring Type:</strong> @Model.CageDto.OffspringType</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a asp-page="/AllBreedingRabbits" class="btn btn-primary">All Cages</a>
+        </div>
+    </div>
+
+    <h1>Update Cage</h1>
+    <form method="post">
+        <select asp-for="UpdateCageDto.OffspringType" class="form-control">
+            <option value="">Select Offspring Type</option>
+            <option value=@OffspringType.Female>@OffspringType.Female</option>
+            <option value=@OffspringType.Male>@OffspringType.Male</option>
+            <option value=@OffspringType.Mixed>@OffspringType.Mixed</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+}
