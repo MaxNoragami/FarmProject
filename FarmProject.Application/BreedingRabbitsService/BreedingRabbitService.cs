@@ -9,18 +9,7 @@ public class BreedingRabbitService(IUnitOfWork unitOfWork) : IBreedingRabbitServ
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public async Task<Result<BreedingRabbit>> CreateBreedingRabbit(string name, Gender gender)
-    {
-        var requestBreedingRabbit = new BreedingRabbit(
-            name: name,
-            gender: gender
-        );
-        var createdBreedingRabbit = await _unitOfWork.BreedingRabbitRepository.AddAsync(requestBreedingRabbit);
-
-        return Result.Success(createdBreedingRabbit);
-    }
-
-    public async Task<Result<BreedingRabbit>> CreateBreedingRabbitInCage(string name, Gender gender, int cageId)
+    public async Task<Result<BreedingRabbit>> AddBreedingRabbitToFarm(string name, Gender gender, int cageId)
     {
         await _unitOfWork.BeginTransactionAsync();
         try

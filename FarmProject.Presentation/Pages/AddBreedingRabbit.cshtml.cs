@@ -40,7 +40,7 @@ public class AddBreedingRabbitModel(IBreedingRabbitService breedingRabbitService
             return Page();
         }
 
-        var result = await _breedingRabbitService.CreateBreedingRabbitInCage(
+        var result = await _breedingRabbitService.AddBreedingRabbitToFarm(
                            BreedingRabbit.Name, 
                            BreedingRabbit.Gender,
                            CageId);
