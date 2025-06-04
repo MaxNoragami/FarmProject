@@ -39,10 +39,6 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
                     b.Property<int?>("CageId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(52)
@@ -64,10 +60,7 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("FemaleBreedingRabbitId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("MaleBreedingRabbitId")
+                    b.Property<int?>("BreedingRabbitId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -86,9 +79,7 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FemaleBreedingRabbitId");
-
-                    b.HasIndex("MaleBreedingRabbitId");
+                    b.HasIndex("BreedingRabbitId");
 
                     b.ToTable("Cages");
                 });
@@ -135,10 +126,10 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("FemaleBreedingRabbitId")
+                    b.Property<int?>("FemaleRabbitId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("MaleBreedingRabbitId")
+                    b.Property<int>("MaleRabbitId")
                         .HasColumnType("int");
 
                     b.Property<string>("PairingStatus")
@@ -152,45 +143,29 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FemaleBreedingRabbitId");
-
-                    b.HasIndex("MaleBreedingRabbitId");
+                    b.HasIndex("FemaleRabbitId");
 
                     b.ToTable("Pairs");
                 });
 
             modelBuilder.Entity("FarmProject.Domain.Models.Cage", b =>
                 {
-                    b.HasOne("FarmProject.Domain.Models.BreedingRabbit", "FemaleBreedingRabbit")
+                    b.HasOne("FarmProject.Domain.Models.BreedingRabbit", "BreedingRabbit")
                         .WithMany()
-                        .HasForeignKey("FemaleBreedingRabbitId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("BreedingRabbitId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("FarmProject.Domain.Models.BreedingRabbit", "MaleBreedingRabbit")
-                        .WithMany()
-                        .HasForeignKey("MaleBreedingRabbitId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("FemaleBreedingRabbit");
-
-                    b.Navigation("MaleBreedingRabbit");
+                    b.Navigation("BreedingRabbit");
                 });
 
             modelBuilder.Entity("FarmProject.Domain.Models.Pair", b =>
                 {
-                    b.HasOne("FarmProject.Domain.Models.BreedingRabbit", "FemaleBreedingRabbit")
+                    b.HasOne("FarmProject.Domain.Models.BreedingRabbit", "FemaleRabbit")
                         .WithMany()
-                        .HasForeignKey("FemaleBreedingRabbitId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("FemaleRabbitId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("FarmProject.Domain.Models.BreedingRabbit", "MaleBreedingRabbit")
-                        .WithMany()
-                        .HasForeignKey("MaleBreedingRabbitId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("FemaleBreedingRabbit");
-
-                    b.Navigation("MaleBreedingRabbit");
+                    b.Navigation("FemaleRabbit");
                 });
 #pragma warning restore 612, 618
         }

@@ -9,7 +9,7 @@ public class BreedingRabbitService(IUnitOfWork unitOfWork) : IBreedingRabbitServ
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public async Task<Result<BreedingRabbit>> AddBreedingRabbitToFarm(string name, Gender gender, int cageId)
+    public async Task<Result<BreedingRabbit>> AddBreedingRabbitToFarm(string name, int cageId)
     {
         await _unitOfWork.BeginTransactionAsync();
         try
@@ -21,15 +21,15 @@ public class BreedingRabbitService(IUnitOfWork unitOfWork) : IBreedingRabbitServ
                 return Result.Failure<BreedingRabbit>(CageErrors.NotFound);
             }
 
-            var breedingRabbit = new BreedingRabbit(name, gender);
-            var createdRabbit = await _unitOfWork.BreedingRabbitRepository.AddAsync(breedingRabbit);
+            var breedingRabbit = new BreedingRabbit(name);
 
-            var assignmentResult = cage.AssignBreedingRabbit(createdRabbit);
+            var assignmentResult = cage.AssignBreedingRabbit(breedingRabbit);
             if (assignmentResult.IsFailure)
             {
                 await _unitOfWork.RollbackTransactionAsync();
                 return Result.Failure<BreedingRabbit>(assignmentResult.Error);
             }
+            var createdRabbit = await _unitOfWork.BreedingRabbitRepository.AddAsync(breedingRabbit);
             await _unitOfWork.CageRepository.UpdateAsync(cage);
 
             await _unitOfWork.CommitTransactionAsync();
@@ -41,7 +41,6 @@ public class BreedingRabbitService(IUnitOfWork unitOfWork) : IBreedingRabbitServ
             return Result.Failure<BreedingRabbit>(
                 new Error("BreedingRabbit.CreationFailed", ex.Message));
         }
-
     }
 
     public async Task<Result<List<BreedingRabbit>>> GetAllBreedingRabbits()
@@ -65,9 +64,7 @@ public class BreedingRabbitService(IUnitOfWork unitOfWork) : IBreedingRabbitServ
         if (requestBreedingRabbit == null)
             return Result.Failure<BreedingRabbit>(BreedingRabbitErrors.NotFound);
 
-        var setBreedStatusResult = requestBreedingRabbit.SetBreedingStatus(breedingStatus);
-        if (setBreedStatusResult.IsFailure)
-            return Result.Failure<BreedingRabbit>(setBreedStatusResult.Error);
+        requestBreedingRabbit.SetBreedingStatus(breedingStatus);
 
         var updatedBreedingRabbit = await _unitOfWork.BreedingRabbitRepository.UpdateAsync(requestBreedingRabbit);
 

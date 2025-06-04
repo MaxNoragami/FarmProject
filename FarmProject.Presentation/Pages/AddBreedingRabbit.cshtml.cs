@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Presentation.Models.BreedingRabbits;
-using FarmProject.Domain.Models;
-using FarmProject.Application.Common;
 using FarmProject.Application.CageService;
 using FarmProject.Presentation.Models.Cages;
 using System.ComponentModel.DataAnnotations;
@@ -41,8 +39,7 @@ public class AddBreedingRabbitModel(IBreedingRabbitService breedingRabbitService
         }
 
         var result = await _breedingRabbitService.AddBreedingRabbitToFarm(
-                           BreedingRabbit.Name, 
-                           BreedingRabbit.Gender,
+                           BreedingRabbit.Name,
                            CageId);
 
         if (result.IsSuccess)

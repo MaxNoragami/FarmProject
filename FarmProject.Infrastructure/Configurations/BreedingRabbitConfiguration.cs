@@ -15,10 +15,6 @@ public class BreedingRabbitConfiguration : IEntityTypeConfiguration<BreedingRabb
             .IsRequired()
             .HasMaxLength(52);
 
-        builder.Property(r => r.Gender)
-            .IsRequired()
-            .HasConversion<string>();
-
         builder.Property(r => r.BreedingStatus)
             .IsRequired()
             .HasConversion<string>()

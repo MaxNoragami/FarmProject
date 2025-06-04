@@ -4,11 +4,8 @@ namespace FarmProject.Domain.Errors;
 
 public class CageErrors
 {
-    public static readonly Error NoFemaleRabbit = new(
-        "Cage.NoFemaleRabbit", "No female breeding rabbit is assigned to this cage");
-
-    public static readonly Error NoMaleRabbit = new(
-        "Cage.NoMaleRabbit", "No male breeding rabbit is assigned to this cage");
+    public static readonly Error NoBreedingRabbit = new(
+        "Cage.NoBreedingRabbit", "No breeding rabbit is assigned to this cage");
 
     public static readonly Error InvalidAssignment = new(
         "Cage.InvalidAssignment", "No null reference of a breeding rabbit can be assigned to a cage");
@@ -27,4 +24,7 @@ public class CageErrors
 
     public static readonly Error RabbitNotInCage = new(
         "Cage.RabbitNotInCage", "The breeding rabbit is not currently in any cage");
+
+    public static readonly Error Occupied = new(
+        "Cage.Occupied", "This cage already has a breeding rabbit assigned.");
 }

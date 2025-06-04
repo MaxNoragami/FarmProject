@@ -16,10 +16,7 @@
             <h5 class="card-title">@cage.Name</h5>
             <div class="row mt-3">
                 <div class="col-md-6">
-                    <p><strong>Female Breeding Rabbit:</strong> #@((cage.FemaleBreedingRabbit == null)? "Uknown" : cage.FemaleBreedingRabbit.Id)</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Male Breeding Rabbit:</strong> #@((cage.MaleBreedingRabbit == null) ? "Uknown" : cage.MaleBreedingRabbit.Id)</p>
+                    <p><strong>Breeding Rabbit:</strong> #@((cage.BreedingRabbit == null)? "Uknown" : cage.BreedingRabbit.Id)</p>
                 </div>
                 <div class="col-md-6">
                     <p><strong>Offspring Amount:</strong> @cage.OffspringCount</p>

@@ -12,8 +12,7 @@ public class ViewCageDto
     [MinLength(3, ErrorMessage = "Name must be at least 3 characters.")]
     public string Name { get; set; }
 
-    public BreedingRabbit? MaleBreedingRabbit { get; set; }
-    public BreedingRabbit? FemaleBreedingRabbit { get; set; }
+    public BreedingRabbit? BreedingRabbit { get; set; }
     public int OffspringCount { get; set; } = 0;
     public OffspringType OffspringType { get; set; }
 }

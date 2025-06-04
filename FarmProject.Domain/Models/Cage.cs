@@ -7,8 +7,7 @@ namespace FarmProject.Domain.Models;
 public class Cage(string name) : Entity
 {
     public string Name { get; private set; } = name;
-    public BreedingRabbit? MaleBreedingRabbit { get; private set; }
-    public BreedingRabbit? FemaleBreedingRabbit { get; private set; }
+    public BreedingRabbit? BreedingRabbit { get; private set; }
     public int OffspringCount { get; private set; } = 0;
     public OffspringType OffspringType { get; private set; } = OffspringType.Mixed;
 
@@ -20,47 +19,24 @@ public class Cage(string name) : Entity
         if (breedingRabbit.CageId != null)
             return Result.Failure(CageErrors.RabbitAlreadyInCage);
 
-        if (breedingRabbit.Gender == Gender.Female)
-        {
-            if (FemaleBreedingRabbit != null)
-                return Result.Failure(new Error("Cage.GenderOccupied", "This cage already has a female breeding rabbit assigned."));
+        if (BreedingRabbit != null)
+                return Result.Failure(CageErrors.Occupied);
 
-            FemaleBreedingRabbit = breedingRabbit;
-        }
-        else
-        {
-            if (MaleBreedingRabbit != null)
-                return Result.Failure(new Error("Cage.GenderOccupied", "This cage already has a male breeding rabbit assigned."));
-
-            MaleBreedingRabbit = breedingRabbit;
-        }
-
+        BreedingRabbit = breedingRabbit;
         breedingRabbit.CageId = Id;
 
         return Result.Success();
     }
 
-    public Result<BreedingRabbit> RemoveBreedingRabbit(Gender gender)
+    public Result<BreedingRabbit> RemoveBreedingRabbit()
     {
         BreedingRabbit? rabbitToRemove;
 
-        if (gender == Gender.Female)
-        {
-            if (FemaleBreedingRabbit == null)
-                return Result.Failure<BreedingRabbit>(CageErrors.NoFemaleRabbit);
+        if (BreedingRabbit == null)
+            return Result.Failure<BreedingRabbit>(CageErrors.NoBreedingRabbit);
 
-            rabbitToRemove = FemaleBreedingRabbit;
-            FemaleBreedingRabbit = null;
-        }
-        else
-        {
-            if (MaleBreedingRabbit == null)
-                return Result.Failure<BreedingRabbit>(CageErrors.NoMaleRabbit);
-
-            rabbitToRemove = MaleBreedingRabbit;
-            MaleBreedingRabbit = null;
-        }
-
+        rabbitToRemove = BreedingRabbit;
+        BreedingRabbit = null;
         rabbitToRemove.CageId = null;
 
         return Result.Success(rabbitToRemove);

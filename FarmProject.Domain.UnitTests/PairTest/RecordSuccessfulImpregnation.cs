@@ -9,22 +9,20 @@ namespace FarmProject.Domain.UnitTests.PairTest
         [Fact]
         public void UpdatePairingSuccess()
         {
-            var rabbitMale = new BreedingRabbit("John", Gender.Male);
-            var rabbitFemale = new BreedingRabbit("Mary", Gender.Female);
+            var rabbitMaleId = 1;
+            var rabbitFemale = new BreedingRabbit("Mary");
             var endPairingDate = DateTime.Today;
 
-            rabbitMale.SetBreedingStatus(BreedingStatus.Paired);
-            rabbitMale.SetBreedingStatus(BreedingStatus.Paired);
-            
-            var pair = new Pair(rabbitMale, rabbitFemale, DateTime.Now);
+            rabbitFemale.SetBreedingStatus(BreedingStatus.Paired);
+
+            var pair = new Pair(rabbitMaleId, rabbitFemale, endPairingDate);
 
             var pairingResult = pair.RecordSuccessfulImpregnation(endPairingDate);
 
             Assert.Multiple(
                 () => Assert.True(pairingResult.IsSuccess),
                 () => Assert.Equal(PairingStatus.Successful, pair.PairingStatus),
-                () => Assert.Equal(BreedingStatus.Available, pair.MaleBreedingRabbit.BreedingStatus),
-                () => Assert.Equal(BreedingStatus.Pregnant, pair.FemaleBreedingRabbit.BreedingStatus),
+                () => Assert.Equal(BreedingStatus.Pregnant, pair.FemaleRabbit.BreedingStatus),
                 () => Assert.Equal(endPairingDate, pair.EndDate)
             );
         }
@@ -34,14 +32,13 @@ namespace FarmProject.Domain.UnitTests.PairTest
         [InlineData(PairingStatus.Failed)]
         public void DenoteChangeStatusOnOtherThanActivePairings(PairingStatus invalidPairingStatus)
         {
-            var rabbitMale = new BreedingRabbit("John", Gender.Male);
-            var rabbitFemale = new BreedingRabbit("Mary", Gender.Female);
+            var rabbitMaleId = 1;
+            var rabbitFemale = new BreedingRabbit("Mary");
             var endPairingDate = DateTime.Today;
 
-            rabbitMale.SetBreedingStatus(BreedingStatus.Paired);
-            rabbitMale.SetBreedingStatus(BreedingStatus.Paired);
+            rabbitFemale.SetBreedingStatus(BreedingStatus.Paired);
 
-            var pair = new Pair(rabbitMale, rabbitFemale, endPairingDate);
+            var pair = new Pair(rabbitMaleId, rabbitFemale, endPairingDate);
 
             pair.PairingStatus = invalidPairingStatus;
 

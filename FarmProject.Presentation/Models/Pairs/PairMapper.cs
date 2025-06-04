@@ -9,8 +9,8 @@ public static class PairMapper
         => new ViewPairDto()
             {
                 Id = pair.Id,
-                MaleBreedingRabbit = pair.MaleBreedingRabbit?.ToViewBreedingRabbitDto(),
-                FemaleBreedingRabbit = pair.FemaleBreedingRabbit?.ToViewBreedingRabbitDto(),
+                MaleRabbitId = pair.MaleRabbitId,
+                FemaleRabbit = pair.FemaleRabbit?.ToViewBreedingRabbitDto(),
                 StartDate = pair.StartDate,
                 EndDate = pair.EndDate,
                 PairingStatus = pair.PairingStatus

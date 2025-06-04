@@ -11,15 +11,10 @@ public class PairConfiguration : IEntityTypeConfiguration<Pair>
     {
         builder.HasKey(p => p.Id);
 
-        builder.HasOne(p => p.MaleBreedingRabbit)
+        builder.HasOne(p => p.FemaleRabbit)
             .WithMany()
-            .HasForeignKey("MaleBreedingRabbitId")
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(p => p.FemaleBreedingRabbit)
-            .WithMany()
-            .HasForeignKey("FemaleBreedingRabbitId")
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasForeignKey("FemaleRabbitId")
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(p => p.StartDate)
             .IsRequired();

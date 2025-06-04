@@ -22,16 +22,10 @@ public class CageConfiguration : IEntityTypeConfiguration<Cage>
             .IsRequired()
             .HasDefaultValue(0);
 
-        builder.HasOne(c => c.MaleBreedingRabbit)
+        builder.HasOne(c => c.BreedingRabbit)
             .WithMany()
-            .HasForeignKey("MaleBreedingRabbitId")
+            .HasForeignKey("BreedingRabbitId")
             .IsRequired(false)
-            .OnDelete(DeleteBehavior.NoAction);
-
-        builder.HasOne(c => c.FemaleBreedingRabbit)
-            .WithMany()
-            .HasForeignKey("FemaleBreedingRabbitId")
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
