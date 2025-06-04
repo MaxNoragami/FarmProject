@@ -51,68 +51,6 @@ public class CageService(IUnitOfWork unitOfWork) : ICageService
         return Result.Success(cage);
     }
 
-    public async Task<Result<Cage>> AssignBreedingRabbitToCage(int cageId, int breedingRabbitId)
-    {
-        var breedingRabbit = await _unitOfWork.BreedingRabbitRepository.GetByIdAsync(breedingRabbitId);
-        if (breedingRabbit == null)
-            return Result.Failure<Cage>(BreedingRabbitErrors.NotFound);
-
-        var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
-        if (cage == null)
-            return Result.Failure<Cage>(CageErrors.NotFound);
-
-        await _unitOfWork.BeginTransactionAsync();
-
-        try
-        {
-            var assignmentResult = cage.AssignBreedingRabbit(breedingRabbit);
-            if (assignmentResult.IsFailure)
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                return Result.Failure<Cage>(assignmentResult.Error);
-            }
-
-            await _unitOfWork.BreedingRabbitRepository.UpdateAsync(breedingRabbit);
-
-            await _unitOfWork.CommitTransactionAsync();
-            return Result.Success(cage);
-        }
-        catch (Exception ex)
-        {
-            await _unitOfWork.RollbackTransactionAsync();
-            return Result.Failure<Cage>(new Error("Cage.Failed", ex.Message));
-        }
-    }
-
-    public async Task<Result<Cage>> RemoveBreedingRabbitFromCage(int cageId, Gender gender)
-    {
-        var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
-        if (cage == null)
-            return Result.Failure<Cage>(CageErrors.NotFound);
-
-        await _unitOfWork.BeginTransactionAsync();
-
-        try
-        {
-            var removalResult = cage.RemoveBreedingRabbit(gender);
-            if (removalResult.IsFailure)
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                return Result.Failure<Cage>(removalResult.Error);
-            }
-
-            await _unitOfWork.BreedingRabbitRepository.UpdateAsync(removalResult.Value);
-
-            await _unitOfWork.CommitTransactionAsync();
-            return Result.Success(cage);
-        }
-        catch (Exception ex)
-        {
-            await _unitOfWork.RollbackTransactionAsync();
-            return Result.Failure<Cage>(new Error("Cage.Failed", ex.Message));
-        }
-    }
-
     public async Task<Result<Cage>> RemoveOffspringsFromCage(int cageId, int count)
     {
         var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
@@ -145,37 +83,41 @@ public class CageService(IUnitOfWork unitOfWork) : ICageService
         if (breedingRabbit == null)
             return Result.Failure<Cage>(BreedingRabbitErrors.NotFound);
 
-        if (breedingRabbit.CageId == null)
-            return Result.Failure<Cage>(CageErrors.RabbitNotInCage);
-
         var destinationCage = await _unitOfWork.CageRepository.GetByIdAsync(destinationCageId);
         if (destinationCage == null)
-            return Result.Failure<Cage>(CageErrors.NotFound);
-
-        var sourceCage = await _unitOfWork.CageRepository.GetByIdAsync(breedingRabbit.CageId.Value);
-        if (sourceCage == null)
             return Result.Failure<Cage>(CageErrors.NotFound);
 
         await _unitOfWork.BeginTransactionAsync();
 
         try
         {
-            var removalResult = sourceCage.RemoveBreedingRabbit(breedingRabbit.Gender);
-            if (removalResult.IsFailure)
+            if (breedingRabbit.CageId != null)
             {
-                await _unitOfWork.RollbackTransactionAsync();
-                return Result.Failure<Cage>(removalResult.Error);
-            }
-            await _unitOfWork.CageRepository.UpdateAsync(sourceCage);
+                var sourceCage = await _unitOfWork.CageRepository.GetByIdAsync(breedingRabbit.CageId.Value);
+                if (sourceCage == null)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return Result.Failure<Cage>(CageErrors.NotFound);
+                }
 
-            var assignmentResult = destinationCage.AssignBreedingRabbit(removalResult.Value);
+                var removalResult = sourceCage.RemoveBreedingRabbit(breedingRabbit.Gender);
+                if (removalResult.IsFailure)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return Result.Failure<Cage>(removalResult.Error);
+                }
+                await _unitOfWork.CageRepository.UpdateAsync(sourceCage);
+                breedingRabbit = removalResult.Value;
+            }
+
+            var assignmentResult = destinationCage.AssignBreedingRabbit(breedingRabbit);
             if (assignmentResult.IsFailure)
             {
                 await _unitOfWork.RollbackTransactionAsync();
                 return Result.Failure<Cage>(assignmentResult.Error);
             }
             await _unitOfWork.CageRepository.UpdateAsync(destinationCage);
-            await _unitOfWork.BreedingRabbitRepository.UpdateAsync(removalResult.Value);
+            await _unitOfWork.BreedingRabbitRepository.UpdateAsync(breedingRabbit);
 
             await _unitOfWork.CommitTransactionAsync();
             return Result.Success(destinationCage);
