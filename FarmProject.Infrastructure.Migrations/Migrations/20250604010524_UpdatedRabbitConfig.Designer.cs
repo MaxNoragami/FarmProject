@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmProject.Infrastructure.Migrations.Migrations
 {
     [DbContext(typeof(FarmDbContext))]
-    [Migration("20250602141651_FromRabbitToBreedingRabbit")]
-    partial class FromRabbitToBreedingRabbit
+    [Migration("20250604010524_UpdatedRabbitConfig")]
+    partial class UpdatedRabbitConfig
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,6 +39,9 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasDefaultValue("Available");
 
+                    b.Property<int?>("CageId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Gender")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -50,7 +53,47 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CageId")
+                        .HasFilter("[CageId] IS NOT NULL");
+
                     b.ToTable("BreedingRabbits");
+                });
+
+            modelBuilder.Entity("FarmProject.Domain.Models.Cage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("FemaleBreedingRabbitId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaleBreedingRabbitId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<int>("OffspringCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("OffspringType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FemaleBreedingRabbitId");
+
+                    b.HasIndex("MaleBreedingRabbitId");
+
+                    b.ToTable("Cages");
                 });
 
             modelBuilder.Entity("FarmProject.Domain.Models.FarmTask", b =>
@@ -117,6 +160,23 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
                     b.HasIndex("MaleBreedingRabbitId");
 
                     b.ToTable("Pairs");
+                });
+
+            modelBuilder.Entity("FarmProject.Domain.Models.Cage", b =>
+                {
+                    b.HasOne("FarmProject.Domain.Models.BreedingRabbit", "FemaleBreedingRabbit")
+                        .WithMany()
+                        .HasForeignKey("FemaleBreedingRabbitId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("FarmProject.Domain.Models.BreedingRabbit", "MaleBreedingRabbit")
+                        .WithMany()
+                        .HasForeignKey("MaleBreedingRabbitId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("FemaleBreedingRabbit");
+
+                    b.Navigation("MaleBreedingRabbit");
                 });
 
             modelBuilder.Entity("FarmProject.Domain.Models.Pair", b =>

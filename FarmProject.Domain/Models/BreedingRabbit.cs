@@ -9,6 +9,7 @@ public class BreedingRabbit(string name, Gender gender) : Entity
     public string Name { get; private set; } = name;
     public Gender Gender { get; private set; } = gender;
     public BreedingStatus BreedingStatus { get; private set; } = BreedingStatus.Available;
+    public int? CageId { get; set; }
 
     public Result Breed(BreedingRabbit otherRabbit, DateTime dateTimeNow)
     {

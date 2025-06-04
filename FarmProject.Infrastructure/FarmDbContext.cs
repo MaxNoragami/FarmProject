@@ -9,6 +9,7 @@ public class FarmDbContext(DbContextOptions<FarmDbContext> options) : DbContext(
     public DbSet<BreedingRabbit> BreedingRabbits { get; set; } = default!;
     public DbSet<Pair> Pairs { get; set; } = default!;
     public DbSet<FarmTask> FarmTasks { get; set; } = default!;
+    public DbSet<Cage> Cages { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

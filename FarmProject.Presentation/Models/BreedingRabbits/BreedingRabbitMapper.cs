@@ -10,6 +10,7 @@ public static class BreedingRabbitMapper
                 Id = breedingRabbit.Id,
                 Name = breedingRabbit.Name,
                 Gender = breedingRabbit.Gender,
-                BreedingStatus = breedingRabbit.BreedingStatus
+                BreedingStatus = breedingRabbit.BreedingStatus,
+                CageId = breedingRabbit.CageId
             };
 }

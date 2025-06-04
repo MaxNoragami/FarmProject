@@ -6,6 +6,7 @@ using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Domain.Events;
 using FarmProject.Infrastructure;
 using FarmProject.Infrastructure.Repositories;
+using FarmProject.Application.CageService;
 
 namespace FarmProject.Presentation.DependencyInjection;
 
@@ -15,7 +16,8 @@ public static class ServiceCollectionExtension
     {
         services.AddScoped<IBreedingRabbitService, BreedingRabbitService>()
             .AddScoped<IPairingService, PairingService>()
-            .AddScoped<IFarmTaskService, FarmTaskService>();
+            .AddScoped<IFarmTaskService, FarmTaskService>()
+            .AddScoped<ICageService, CageService>();
         return services;
     }
 
@@ -41,9 +43,10 @@ public static class ServiceCollectionExtension
             sqlServerOptions => sqlServerOptions.MigrationsAssembly(assemblyName)
         );
 
-        services.AddScoped<IBreedingRabbitRepository, BreedingRabbitRepository>();
-        services.AddScoped<IPairingRepository, PairingRepository>();
-        services.AddScoped<IFarmTaskRepository, FarmTaskRepository>();
+        services.AddScoped<IBreedingRabbitRepository, BreedingRabbitRepository>()
+            .AddScoped<IPairingRepository, PairingRepository>()
+            .AddScoped<IFarmTaskRepository, FarmTaskRepository>()
+            .AddScoped<ICageRepository, CageRepository>();
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

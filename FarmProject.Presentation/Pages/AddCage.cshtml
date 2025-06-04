@@ -1,0 +1,15 @@
+﻿@page
+@using FarmProject.Domain.Constants;
+@model FarmProject.Presentation.Pages.AddCageModel
+@{
+    ViewData["Title"] = "Add Cage";
+}
+
+<h1>Add Cage</h1>
+
+<form method="post">
+    <input type="text" asp-for="Cage.Name" placeholder="Name of the cage"/>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+  
+</form>
