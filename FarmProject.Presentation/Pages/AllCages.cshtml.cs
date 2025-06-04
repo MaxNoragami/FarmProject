@@ -1,8 +1,6 @@
-using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Application.CageService;
 using FarmProject.Application.Common;
 using FarmProject.Domain.Models;
-using FarmProject.Presentation.Models.BreedingRabbits;
 using FarmProject.Presentation.Models.Cages;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

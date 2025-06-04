@@ -2,7 +2,6 @@
 using FarmProject.Application.Events;
 using FarmProject.Application.PairingService;
 using FarmProject.Application.BreedingRabbitsService;
-using FarmProject.Domain.Constants;
 using FarmProject.Domain.Events;
 using FarmProject.Domain.Models;
 using FluentAssertions;
@@ -17,17 +16,13 @@ public class BreedEventTest
         IPairingRepository pairingRepository = new InMemoryPairingRepo();
         IBreedingRabbitRepository breedingRabbitRepository = new InMemoryBreedingRabbitRepo();
 
-        var femaleBreedingRabbit = new BreedingRabbit("Female", Gender.Female)
+        var femaleBreedingRabbit = new BreedingRabbit("Female")
         {
             Id = 1
         };
-        var maleBreedingRabbit = new BreedingRabbit("Male", Gender.Male)
-        { 
-            Id = 2
-        };
+        var maleRabbitId = 2;
 
         await breedingRabbitRepository.AddAsync(femaleBreedingRabbit);
-        await breedingRabbitRepository.AddAsync(maleBreedingRabbit);
 
         var eventConsumer = new BreedEventConsumer(pairingRepository, breedingRabbitRepository);
         var startDate = DateTime.Now;
@@ -43,8 +38,8 @@ public class BreedEventTest
 
         Assert.Single(pairingResult);
         consumeResult.IsSuccess.Should().BeTrue();
-        pairingResult[0].FemaleBreedingRabbit.Should().BeEquivalentTo(femaleBreedingRabbit);
-        pairingResult[0].MaleBreedingRabbit.Should().BeEquivalentTo(maleBreedingRabbit);
+        pairingResult[0].FemaleRabbit.Should().BeEquivalentTo(femaleBreedingRabbit);
+        pairingResult[0].MaleRabbitId.Should().Be(maleRabbitId);
 
     }
 }

@@ -100,7 +100,7 @@ public class CageService(IUnitOfWork unitOfWork) : ICageService
                     return Result.Failure<Cage>(CageErrors.NotFound);
                 }
 
-                var removalResult = sourceCage.RemoveBreedingRabbit(breedingRabbit.Gender);
+                var removalResult = sourceCage.RemoveBreedingRabbit();
                 if (removalResult.IsFailure)
                 {
                     await _unitOfWork.RollbackTransactionAsync();

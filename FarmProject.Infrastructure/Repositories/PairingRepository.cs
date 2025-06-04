@@ -17,14 +17,12 @@ public class PairingRepository(FarmDbContext context) : IPairingRepository
 
     public async Task<List<Pair>> GetAllAsync()
         => await _context.Pairs
-            .Include(p => p.MaleBreedingRabbit)
-            .Include(p => p.FemaleBreedingRabbit)
+            .Include(p => p.FemaleRabbit)
             .ToListAsync();
 
     public async Task<Pair?> GetByIdAsync(int pairId)
         => await _context.Pairs
-            .Include(p => p.MaleBreedingRabbit)
-            .Include(p => p.FemaleBreedingRabbit)
+            .Include(p => p.FemaleRabbit)
             .FirstOrDefaultAsync(p => p.Id == pairId);
 
     public async Task RemoveAsync(Pair pair)
@@ -46,14 +44,11 @@ public class PairingRepository(FarmDbContext context) : IPairingRepository
         return pair;
     }
 
-    public async Task<Pair?> GetMostRecentPairByBreedingRabbitIdsAsync(int breedingRabbitId1, int breedingRabbitId2)
+    public async Task<Pair?> GetMostRecentPairByBreedingRabbitIdsAsync(int breedingRabbitId, int maleRabbitId)
     {
         return await _context.Pairs
-            .Where(p =>
-                (p.MaleBreedingRabbit.Id == breedingRabbitId1 && p.FemaleBreedingRabbit.Id == breedingRabbitId2) ||
-                (p.MaleBreedingRabbit.Id == breedingRabbitId2 && p.FemaleBreedingRabbit.Id == breedingRabbitId1))
+            .Where(p => p.MaleRabbitId == maleRabbitId && p.FemaleRabbit!.Id == breedingRabbitId)
             .OrderByDescending(p => p.StartDate)
             .FirstOrDefaultAsync();
     }
-
 }

@@ -17,22 +17,16 @@ public class BreedEventConsumer(IPairingRepository pairingRepository,
 
     public async Task<Result> ConsumeAsync(BreedEvent domainEvent)
     {
-        var rabbit1 = await _breedingRabbitRepository
+        var breedingRabbit = await _breedingRabbitRepository
             .GetByIdAsync(domainEvent.BreedingRabbitIds[0]);
-        if (rabbit1 == null)
+        if (breedingRabbit == null)
             return Result.Failure(ConsumerErrors.BreedingRabbitNotFound);
 
-        var rabbit2 = await _breedingRabbitRepository
-            .GetByIdAsync(domainEvent.BreedingRabbitIds[1]);
-        if (rabbit2 == null)
-            return Result.Failure(ConsumerErrors.BreedingRabbitNotFound);
-
-        var femaleRabbit = (rabbit1.Gender == Gender.Female) ? rabbit1 : rabbit2;
-        var maleRabbit = (rabbit1.Gender == Gender.Male) ? rabbit1 : rabbit2;
+        var maleRabbitId = domainEvent.BreedingRabbitIds[1];
         
         try
         {
-            var pair = new Pair(maleRabbit, femaleRabbit, domainEvent.StartDate);
+            var pair = new Pair(maleRabbitId, breedingRabbit, domainEvent.StartDate);
             await _pairingRepository.AddAsync(pair);
             return Result.Success();
         }

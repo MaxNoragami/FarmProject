@@ -9,33 +9,6 @@
 
 <form method="post">
     <p>Female Rabbit ID:</p>
-    <input type="text" asp-for="Pair.MaleId" placeholder="Input Rabbit Id" />
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Name</th>
-                <th scope="col">Breeding Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var viewBreedingRabbitDto in Model.AllBreedingRabbitsDtos)
-            {
-                @if (viewBreedingRabbitDto.Gender == Gender.Female && 
-                     viewBreedingRabbitDto.BreedingStatus == BreedingStatus.Available)
-                {
-                    <tr>
-                        <th scope="row">@viewBreedingRabbitDto.Id</th>
-                        <td>@viewBreedingRabbitDto.Name</td>
-                        <td>@viewBreedingRabbitDto.BreedingStatus</td>
-                    </tr>
-                }
-            }
-        </tbody>
-    </table>
-
-    <p>Male Rabbit ID:</p>
     <input type="text" asp-for="Pair.FemaleId" placeholder="Input Rabbit Id" />
 
     <table class="table">
@@ -49,8 +22,7 @@
         <tbody>
             @foreach (var viewBreedingRabbitDto in Model.AllBreedingRabbitsDtos)
             {
-                @if (viewBreedingRabbitDto.Gender == Gender.Male && 
-                     viewBreedingRabbitDto.BreedingStatus == BreedingStatus.Available)
+                @if (viewBreedingRabbitDto.BreedingStatus == BreedingStatus.Available)
                 {
                     <tr>
                         <th scope="row">@viewBreedingRabbitDto.Id</th>
@@ -61,6 +33,9 @@
             }
         </tbody>
     </table>
+
+    <p>Male Rabbit ID:</p>
+    <input type="text" asp-for="Pair.MaleId" placeholder="Input Rabbit Id" />
 
     <button type="submit" class="btn btn-primary">Create</button>
 

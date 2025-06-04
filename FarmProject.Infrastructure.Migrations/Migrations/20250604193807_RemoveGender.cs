@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FarmProject.Infrastructure.Migrations.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdatedRabbitConfig : Migration
+    public partial class RemoveGender : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,7 +18,6 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(52)", maxLength: 52, nullable: false),
-                    Gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     BreedingStatus = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: "Available"),
                     CageId = table.Column<int>(type: "int", nullable: true)
                 },
@@ -51,8 +50,7 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
-                    MaleBreedingRabbitId = table.Column<int>(type: "int", nullable: true),
-                    FemaleBreedingRabbitId = table.Column<int>(type: "int", nullable: true),
+                    BreedingRabbitId = table.Column<int>(type: "int", nullable: true),
                     OffspringCount = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     OffspringType = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -60,15 +58,11 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
                 {
                     table.PrimaryKey("PK_Cages", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Cages_BreedingRabbits_FemaleBreedingRabbitId",
-                        column: x => x.FemaleBreedingRabbitId,
+                        name: "FK_Cages_BreedingRabbits_BreedingRabbitId",
+                        column: x => x.BreedingRabbitId,
                         principalTable: "BreedingRabbits",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Cages_BreedingRabbits_MaleBreedingRabbitId",
-                        column: x => x.MaleBreedingRabbitId,
-                        principalTable: "BreedingRabbits",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -77,8 +71,8 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MaleBreedingRabbitId = table.Column<int>(type: "int", nullable: true),
-                    FemaleBreedingRabbitId = table.Column<int>(type: "int", nullable: true),
+                    MaleRabbitId = table.Column<int>(type: "int", nullable: false),
+                    FemaleRabbitId = table.Column<int>(type: "int", nullable: true),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     PairingStatus = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: "Active")
@@ -87,17 +81,11 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
                 {
                     table.PrimaryKey("PK_Pairs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Pairs_BreedingRabbits_FemaleBreedingRabbitId",
-                        column: x => x.FemaleBreedingRabbitId,
+                        name: "FK_Pairs_BreedingRabbits_FemaleRabbitId",
+                        column: x => x.FemaleRabbitId,
                         principalTable: "BreedingRabbits",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Pairs_BreedingRabbits_MaleBreedingRabbitId",
-                        column: x => x.MaleBreedingRabbitId,
-                        principalTable: "BreedingRabbits",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -107,24 +95,14 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
                 filter: "[CageId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Cages_FemaleBreedingRabbitId",
+                name: "IX_Cages_BreedingRabbitId",
                 table: "Cages",
-                column: "FemaleBreedingRabbitId");
+                column: "BreedingRabbitId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Cages_MaleBreedingRabbitId",
-                table: "Cages",
-                column: "MaleBreedingRabbitId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Pairs_FemaleBreedingRabbitId",
+                name: "IX_Pairs_FemaleRabbitId",
                 table: "Pairs",
-                column: "FemaleBreedingRabbitId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Pairs_MaleBreedingRabbitId",
-                table: "Pairs",
-                column: "MaleBreedingRabbitId");
+                column: "FemaleRabbitId");
         }
 
         /// <inheritdoc />

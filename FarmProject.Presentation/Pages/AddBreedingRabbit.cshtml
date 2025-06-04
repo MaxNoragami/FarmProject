@@ -9,15 +9,6 @@
 
 <form method="post">
     <input type="text" asp-for="BreedingRabbit.Name" placeholder="Name of the rabbit"/>
-    
-    <select asp-for="BreedingRabbit.Gender">
-        <option value="">Select Gender</option>
-        @foreach (var gender in Enum.GetValues(typeof(Gender)))
-        {
-            <option value="@gender">@gender</option>
-        }
-
-    </select>
 
     <input type="number" asp-for="CageId" placeholder="Id of the cage" class="form-control" required />
 
@@ -32,8 +23,7 @@
         <tr>
             <th>ID</th>
             <th>Name</th>
-            <th>Male Rabbit</th>
-            <th>Female Rabbit</th>
+            <th>Breeding Rabbit</th>
             <th>Offspring Count</th>
             <th>Offspring Type</th>
         </tr>
@@ -44,8 +34,7 @@
             <tr>
                 <td>@cage.Id</td>
                 <td>@cage.Name</td>
-                <td>@(cage.MaleBreedingRabbit?.Name ?? "None")</td>
-                <td>@(cage.FemaleBreedingRabbit?.Name ?? "None")</td>
+                <td>@(cage.BreedingRabbit?.Name ?? "None")</td>
                 <td>@cage.OffspringCount</td>
                 <td>@cage.OffspringType</td>
             </tr>

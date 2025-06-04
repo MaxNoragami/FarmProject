@@ -9,8 +9,7 @@ public static class CageMapper
             {
                 Id = cage.Id,
                 Name = cage.Name,
-                FemaleBreedingRabbit = cage.FemaleBreedingRabbit,
-                MaleBreedingRabbit = cage.MaleBreedingRabbit,
+                BreedingRabbit = cage.BreedingRabbit,
                 OffspringCount = cage.OffspringCount,
                 OffspringType = cage.OffspringType
             };

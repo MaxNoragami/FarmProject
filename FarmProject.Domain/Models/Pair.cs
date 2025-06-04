@@ -7,16 +7,16 @@ namespace FarmProject.Domain.Models;
 
 public class Pair : Entity
 {
-    public BreedingRabbit? MaleBreedingRabbit { get; private set; }
-    public BreedingRabbit? FemaleBreedingRabbit { get; private set; }
+    public int MaleRabbitId { get; private set; }
+    public BreedingRabbit? FemaleRabbit { get; private set; }
     public DateTime StartDate { get; private set; }
     public DateTime? EndDate { get; private set; }
     public PairingStatus PairingStatus { get; set; }
 
-    public Pair(BreedingRabbit maleBreedingRabbit, BreedingRabbit femaleBreedingRabbit, DateTime startDate)
+    public Pair(int maleRabbitId, BreedingRabbit femaleRabbit, DateTime startDate)
     {
-        MaleBreedingRabbit = maleBreedingRabbit;
-        FemaleBreedingRabbit = femaleBreedingRabbit;
+        MaleRabbitId = maleRabbitId;
+        FemaleRabbit = femaleRabbit;
         StartDate = startDate;
         EndDate = null;
         PairingStatus = PairingStatus.Active;
@@ -34,7 +34,7 @@ public class Pair : Entity
 
         var dueDate = EndDate.Value.AddMonths(1).AddDays(-3);
 
-        var message = $"Prepare nest in cage for rabbit #{FemaleBreedingRabbit!.Id}";
+        var message = $"Prepare nest in cage for rabbit #{FemaleRabbit!.Id}";
 
         AddDomainEvent(new NestPrepEvent()
         {
@@ -51,8 +51,7 @@ public class Pair : Entity
         if (PairingStatus != PairingStatus.Active)
             return Result.Failure(PairErrors.InvalidStateChange);
 
-        MaleBreedingRabbit!.SetBreedingStatus(BreedingStatus.Available);
-        FemaleBreedingRabbit!.SetBreedingStatus(BreedingStatus.Available);
+        FemaleRabbit!.SetBreedingStatus(BreedingStatus.Available);
 
         PairingStatus = PairingStatus.Failed;
 
@@ -66,8 +65,7 @@ public class Pair : Entity
         if (PairingStatus != PairingStatus.Active)
             return Result.Failure(PairErrors.InvalidStateChange);
 
-        MaleBreedingRabbit.SetBreedingStatus(BreedingStatus.Available);
-        FemaleBreedingRabbit.SetBreedingStatus(BreedingStatus.Pregnant);
+        FemaleRabbit!.SetBreedingStatus(BreedingStatus.Pregnant);
 
         PairingStatus = PairingStatus.Successful;
 

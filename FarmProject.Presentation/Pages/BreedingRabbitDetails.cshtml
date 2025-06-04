@@ -17,9 +17,6 @@
             <h5 class="card-title">@Model.BreedingRabbitDto.Name</h5>
             <div class="row mt-3">
                 <div class="col-md-6">
-                    <p><strong>Gender:</strong> @Model.BreedingRabbitDto.Gender</p>
-                </div>
-                <div class="col-md-6">
                     <p><strong>Cage:</strong> #@Model.BreedingRabbitDto.CageId</p>
                 </div>
                 <div class="col-md-6">
@@ -54,8 +51,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
-                    <th>Male Rabbit</th>
-                    <th>Female Rabbit</th>
+                    <th>Breeding Rabbit</th>
                     <th>Offspring Count</th>
                     <th>Offspring Type</th>
                 </tr>
@@ -66,8 +62,7 @@
                     <tr>
                         <td>@cage.Id</td>
                         <td>@cage.Name</td>
-                        <td>@(cage.MaleBreedingRabbit?.Name ?? "None")</td>
-                        <td>@(cage.FemaleBreedingRabbit?.Name ?? "None")</td>
+                        <td>@(cage.BreedingRabbit?.Name ?? "None")</td>
                         <td>@cage.OffspringCount</td>
                         <td>@cage.OffspringType</td>
                     </tr>

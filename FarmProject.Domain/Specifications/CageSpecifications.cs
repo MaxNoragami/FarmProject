@@ -9,6 +9,5 @@ public class CageSpecificationByUnoccupied() : ISpecification<Cage>
     public Expression<Func<Cage, bool>> ToExpression()
         => cage =>
             cage.OffspringCount == 0
-            && (cage.MaleBreedingRabbit == null
-            || cage.FemaleBreedingRabbit == null);
+            && cage.BreedingRabbit == null;
 }

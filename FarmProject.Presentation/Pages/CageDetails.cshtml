@@ -3,18 +3,11 @@
 @model FarmProject.Presentation.Pages.CageDetailsModel
 @{
     ViewData["Title"] = "Cage Details";
-    string femaleBreedingRabbitId = "Unknown";
-    if(Model.CageDto.FemaleBreedingRabbit != null)
+    string breedingRabbitId = "Unknown";
+    if(Model.CageDto.BreedingRabbit != null)
     {
-        femaleBreedingRabbitId = Model.CageDto.FemaleBreedingRabbit.Id.ToString();
+        breedingRabbitId = Model.CageDto.BreedingRabbit.Id.ToString();
     }
-
-    string maleBreedingRabbitId = "Unknown";
-    if (Model.CageDto.MaleBreedingRabbit != null)
-    {
-        maleBreedingRabbitId = Model.CageDto.MaleBreedingRabbit.Id.ToString();
-    }
-
 }
 
 @if(Model.CageDto != null)
@@ -29,10 +22,7 @@
             <h5 class="card-title">@Model.CageDto.Name</h5>
             <div class="row mt-3">
                 <div class="col-md-6">
-                    <p><strong>Female Breeding Rabbit:</strong> #@femaleBreedingRabbitId</p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Male Breeding Rabbit:</strong> #@maleBreedingRabbitId</p>
+                    <p><strong>Breeding Rabbit:</strong> #@breedingRabbitId</p>
                 </div>
                 <div class="col-md-6">
                     <p><strong>Offspring Amount:</strong> @Model.CageDto.OffspringCount</p>
