@@ -20,6 +20,41 @@ public class BreedingRabbitService(IUnitOfWork unitOfWork) : IBreedingRabbitServ
         return Result.Success(createdBreedingRabbit);
     }
 
+    public async Task<Result<BreedingRabbit>> CreateBreedingRabbitInCage(string name, Gender gender, int cageId)
+    {
+        await _unitOfWork.BeginTransactionAsync();
+        try
+        {
+            var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
+            if (cage == null)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return Result.Failure<BreedingRabbit>(CageErrors.NotFound);
+            }
+
+            var breedingRabbit = new BreedingRabbit(name, gender);
+            var createdRabbit = await _unitOfWork.BreedingRabbitRepository.AddAsync(breedingRabbit);
+
+            var assignmentResult = cage.AssignBreedingRabbit(createdRabbit);
+            if (assignmentResult.IsFailure)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return Result.Failure<BreedingRabbit>(assignmentResult.Error);
+            }
+            await _unitOfWork.CageRepository.UpdateAsync(cage);
+
+            await _unitOfWork.CommitTransactionAsync();
+            return Result.Success(createdRabbit);
+        }
+        catch (Exception ex)
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            return Result.Failure<BreedingRabbit>(
+                new Error("BreedingRabbit.CreationFailed", ex.Message));
+        }
+
+    }
+
     public async Task<Result<List<BreedingRabbit>>> GetAllBreedingRabbits()
     {
         var breedingRabbits = await _unitOfWork.BreedingRabbitRepository.GetAllAsync();

@@ -18,14 +18,21 @@ public class CageRepository(FarmDbContext context) : ICageRepository
 
     public async Task<List<Cage>> FindAsync(ISpecification<Cage> specification)
         => await _context.Cages
+            .Include(c => c.MaleBreedingRabbit)
+            .Include(C => C.FemaleBreedingRabbit)
             .Where(specification.ToExpression())
             .ToListAsync();
 
     public async Task<List<Cage>> GetAllAsync()
-        => await _context.Cages.ToListAsync();
+        => await _context.Cages
+            .Include(c => c.MaleBreedingRabbit)
+            .Include(c => c.FemaleBreedingRabbit)
+            .ToListAsync();
 
     public async Task<Cage?> GetByIdAsync(int cageId)
         => await _context.Cages
+            .Include(c => c.MaleBreedingRabbit)
+            .Include(c => c.FemaleBreedingRabbit)
             .FirstOrDefaultAsync(c => c.Id == cageId);
 
     public async Task<Cage> UpdateAsync(Cage cage)

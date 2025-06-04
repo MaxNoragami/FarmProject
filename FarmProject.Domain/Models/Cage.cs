@@ -21,9 +21,19 @@ public class Cage(string name) : Entity
             return Result.Failure(CageErrors.RabbitAlreadyInCage);
 
         if (breedingRabbit.Gender == Gender.Female)
+        {
+            if (FemaleBreedingRabbit != null)
+                return Result.Failure(new Error("Cage.GenderOccupied", "This cage already has a female breeding rabbit assigned."));
+
             FemaleBreedingRabbit = breedingRabbit;
+        }
         else
+        {
+            if (MaleBreedingRabbit != null)
+                return Result.Failure(new Error("Cage.GenderOccupied", "This cage already has a male breeding rabbit assigned."));
+
             MaleBreedingRabbit = breedingRabbit;
+        }
 
         breedingRabbit.CageId = Id;
 

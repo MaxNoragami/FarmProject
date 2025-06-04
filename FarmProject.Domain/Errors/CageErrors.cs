@@ -24,4 +24,7 @@ public class CageErrors
 
     public static readonly Error RabbitAlreadyInCage = new(
         "Cage.RabbitAlreadyInCage", "The breeding rabbit is already in a cage");
+
+    public static readonly Error RabbitNotInCage = new(
+        "Cage.RabbitNotInCage", "The breeding rabbit is not currently in any cage");
 }

@@ -19,6 +19,42 @@
 
     </select>
 
+    <input type="number" asp-for="CageId" placeholder="Id of the cage" class="form-control" required />
+
     <button type="submit" class="btn btn-primary">Create</button>
   
 </form>
+
+
+<h3 class="mt-4">Available Cages</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Male Rabbit</th>
+            <th>Female Rabbit</th>
+            <th>Offspring Count</th>
+            <th>Offspring Type</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cage in Model.AvailableCages)
+        {
+            <tr>
+                <td>@cage.Id</td>
+                <td>@cage.Name</td>
+                <td>@(cage.MaleBreedingRabbit?.Name ?? "None")</td>
+                <td>@(cage.FemaleBreedingRabbit?.Name ?? "None")</td>
+                <td>@cage.OffspringCount</td>
+                <td>@cage.OffspringType</td>
+            </tr>
+        }
+        @if (!Model.AvailableCages.Any())
+        {
+            <tr>
+                <td colspan="6" class="text-center">No available cages found</td>
+            </tr>
+        }
+    </tbody>
+</table>

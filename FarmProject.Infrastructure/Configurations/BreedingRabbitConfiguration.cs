@@ -29,6 +29,6 @@ public class BreedingRabbitConfiguration : IEntityTypeConfiguration<BreedingRabb
 
         builder.HasIndex(r => r.CageId)
             .HasFilter("[CageId] IS NOT NULL")
-            .IsUnique();
+            .IsUnique(false);
     }
 }

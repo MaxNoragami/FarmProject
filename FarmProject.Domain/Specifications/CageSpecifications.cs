@@ -4,12 +4,11 @@ using System.Linq.Expressions;
 
 namespace FarmProject.Domain.Specifications;
 
-public class CageSpecificationByUnoccupied(Gender gender) : ISpecification<Cage>
+public class CageSpecificationByUnoccupied() : ISpecification<Cage>
 {
     public Expression<Func<Cage, bool>> ToExpression()
         => cage =>
-            cage.OffspringCount == 0 &&
-            (gender == Gender.Female
-                ? cage.FemaleBreedingRabbit == null
-                : cage.MaleBreedingRabbit == null);
+            cage.OffspringCount == 0
+            && (cage.MaleBreedingRabbit == null
+            || cage.FemaleBreedingRabbit == null);
 }

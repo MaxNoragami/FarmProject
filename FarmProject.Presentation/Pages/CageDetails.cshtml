@@ -3,10 +3,16 @@
 @model FarmProject.Presentation.Pages.CageDetailsModel
 @{
     ViewData["Title"] = "Cage Details";
-    string breedingRabbitId = "Unknown";
+    string femaleBreedingRabbitId = "Unknown";
     if(Model.CageDto.FemaleBreedingRabbit != null)
     {
-        breedingRabbitId = Model.CageDto.FemaleBreedingRabbit.Id.ToString();
+        femaleBreedingRabbitId = Model.CageDto.FemaleBreedingRabbit.Id.ToString();
+    }
+
+    string maleBreedingRabbitId = "Unknown";
+    if (Model.CageDto.MaleBreedingRabbit != null)
+    {
+        maleBreedingRabbitId = Model.CageDto.MaleBreedingRabbit.Id.ToString();
     }
 
 }
@@ -23,7 +29,10 @@
             <h5 class="card-title">@Model.CageDto.Name</h5>
             <div class="row mt-3">
                 <div class="col-md-6">
-                    <p><strong>Breeding Rabbit:</strong> #@breedingRabbitId</p>
+                    <p><strong>Female Breeding Rabbit:</strong> #@femaleBreedingRabbitId</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Male Breeding Rabbit:</strong> #@maleBreedingRabbitId</p>
                 </div>
                 <div class="col-md-6">
                     <p><strong>Offspring Amount:</strong> @Model.CageDto.OffspringCount</p>
@@ -34,7 +43,7 @@
             </div>
         </div>
         <div class="card-footer">
-            <a asp-page="/AllBreedingRabbits" class="btn btn-primary">All Cages</a>
+            <a asp-page="/AllCages" class="btn btn-primary">All Cages</a>
         </div>
     </div>
 
