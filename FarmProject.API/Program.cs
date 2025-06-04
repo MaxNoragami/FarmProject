@@ -1,3 +1,5 @@
+using FarmProject.API.DependencyInjection;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,6 +9,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddEventArchitecture();
+builder.Services.AddFarmServices();
+builder.Services.AddFarmInfrastructure(
+    builder.Configuration.GetConnectionString("FarmContext")!
+);
 
 var app = builder.Build();
 

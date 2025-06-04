@@ -8,7 +8,22 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.4" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FarmProject.Application\FarmProject.Application.csproj" />
+    <ProjectReference Include="..\FarmProject.Domain\FarmProject.Domain.csproj" />
+    <ProjectReference Include="..\FarmProject.Infrastructure.Migrations\FarmProject.Infrastructure.Migrations.csproj" />
+    <ProjectReference Include="..\FarmProject.Infrastructure\FarmProject.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
