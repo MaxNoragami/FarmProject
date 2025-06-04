@@ -22,14 +22,14 @@ public class BreedingRabbitService(IUnitOfWork unitOfWork) : IBreedingRabbitServ
             }
 
             var breedingRabbit = new BreedingRabbit(name);
-            var createdRabbit = await _unitOfWork.BreedingRabbitRepository.AddAsync(breedingRabbit);
 
-            var assignmentResult = cage.AssignBreedingRabbit(createdRabbit);
+            var assignmentResult = cage.AssignBreedingRabbit(breedingRabbit);
             if (assignmentResult.IsFailure)
             {
                 await _unitOfWork.RollbackTransactionAsync();
                 return Result.Failure<BreedingRabbit>(assignmentResult.Error);
             }
+            var createdRabbit = await _unitOfWork.BreedingRabbitRepository.AddAsync(breedingRabbit);
             await _unitOfWork.CageRepository.UpdateAsync(cage);
 
             await _unitOfWork.CommitTransactionAsync();
