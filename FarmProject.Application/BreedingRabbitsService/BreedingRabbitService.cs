@@ -64,7 +64,7 @@ public class BreedingRabbitService(IUnitOfWork unitOfWork) : IBreedingRabbitServ
         if (requestBreedingRabbit == null)
             return Result.Failure<BreedingRabbit>(BreedingRabbitErrors.NotFound);
 
-        requestBreedingRabbit.SetBreedingStatus(breedingStatus);
+        requestBreedingRabbit.BreedingStatus = breedingStatus;
 
         var updatedBreedingRabbit = await _unitOfWork.BreedingRabbitRepository.UpdateAsync(requestBreedingRabbit);
 

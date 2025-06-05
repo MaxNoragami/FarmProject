@@ -12,7 +12,7 @@ public class RecordFailedImpregnation
         var rabbitFemale = new BreedingRabbit("Mary");
         var endPairingDate = DateTime.Today;
 
-        rabbitFemale.SetBreedingStatus(BreedingStatus.Paired);
+        rabbitFemale.BreedingStatus = BreedingStatus.Paired;
 
         var pair = new Pair(rabbitMaleId, rabbitFemale, endPairingDate);
 
@@ -35,7 +35,7 @@ public class RecordFailedImpregnation
         var rabbitFemale = new BreedingRabbit("Mary");
         var endPairingDate = DateTime.Today;
 
-        rabbitFemale.SetBreedingStatus(BreedingStatus.Paired);
+        rabbitFemale.BreedingStatus = BreedingStatus.Paired;
 
         var pair = new Pair(rabbitMaleId, rabbitFemale, endPairingDate);
 

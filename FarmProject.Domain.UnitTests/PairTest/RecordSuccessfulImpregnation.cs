@@ -13,7 +13,7 @@ namespace FarmProject.Domain.UnitTests.PairTest
             var rabbitFemale = new BreedingRabbit("Mary");
             var endPairingDate = DateTime.Today;
 
-            rabbitFemale.SetBreedingStatus(BreedingStatus.Paired);
+            rabbitFemale.BreedingStatus = BreedingStatus.Paired;
 
             var pair = new Pair(rabbitMaleId, rabbitFemale, endPairingDate);
 
@@ -36,7 +36,7 @@ namespace FarmProject.Domain.UnitTests.PairTest
             var rabbitFemale = new BreedingRabbit("Mary");
             var endPairingDate = DateTime.Today;
 
-            rabbitFemale.SetBreedingStatus(BreedingStatus.Paired);
+            rabbitFemale.BreedingStatus = BreedingStatus.Paired;
 
             var pair = new Pair(rabbitMaleId, rabbitFemale, endPairingDate);
 
