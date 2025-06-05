@@ -51,7 +51,7 @@ public class Pair : Entity
         if (PairingStatus != PairingStatus.Active)
             return Result.Failure(PairErrors.InvalidStateChange);
 
-        FemaleRabbit!.SetBreedingStatus(BreedingStatus.Available);
+        FemaleRabbit!.BreedingStatus = BreedingStatus.Available;
 
         PairingStatus = PairingStatus.Failed;
 
@@ -65,7 +65,7 @@ public class Pair : Entity
         if (PairingStatus != PairingStatus.Active)
             return Result.Failure(PairErrors.InvalidStateChange);
 
-        FemaleRabbit!.SetBreedingStatus(BreedingStatus.Pregnant);
+        FemaleRabbit!.BreedingStatus = BreedingStatus.Pregnant;
 
         PairingStatus = PairingStatus.Successful;
 
