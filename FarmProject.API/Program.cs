@@ -19,6 +19,20 @@ builder.Services.AddFarmInfrastructure(
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseExceptionHandler(appError =>
+{
+    appError.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+
+        await context.Response.WriteAsJsonAsync(new
+        {
+            message = "An internal server error occurred"
+        });
+    });
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();

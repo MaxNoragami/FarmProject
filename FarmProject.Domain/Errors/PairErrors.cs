@@ -23,5 +23,8 @@ public static class PairErrors
         "Pair.NoEndDate", "Cannot create nest preparation for a pairing without an end date");
     
     public static readonly Error CreationFailed = new(
-        "Pair.CreationFailed", "Failed to create a Pair");
+        "Pair.CreationFailed", "An unexpected error occurred while creating a pair");
+
+    public static readonly Error UpdateFailed = new(
+        "Pair.UpdateFailed", "An unexpected error occurred while updating a pair");
 }

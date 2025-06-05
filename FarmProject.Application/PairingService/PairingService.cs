@@ -56,7 +56,7 @@ public class PairingService(IUnitOfWork unitOfWork,
         catch (Exception ex)
         {
             await _unitOfWork.RollbackTransactionAsync();
-            return Result.Failure<Pair>(new Error("Pair.Failed", ex.Message));
+            return Result.Failure<Pair>(PairErrors.CreationFailed);
         }
     }
 
@@ -141,7 +141,7 @@ public class PairingService(IUnitOfWork unitOfWork,
         catch (Exception ex)
         {
             await _unitOfWork.RollbackTransactionAsync();
-            return Result.Failure<Pair>(new Error("Pair.UpdateFailed", ex.Message));
+            return Result.Failure<Pair>(PairErrors.UpdateFailed);
         }
     }
 }

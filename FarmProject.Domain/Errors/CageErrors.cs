@@ -26,5 +26,8 @@ public class CageErrors
         "Cage.RabbitNotInCage", "The breeding rabbit is not currently in any cage");
 
     public static readonly Error Occupied = new(
-        "Cage.Occupied", "This cage already has a breeding rabbit assigned.");
+        "Cage.Occupied", "This cage already has a breeding rabbit assigned");
+
+    public static readonly Error MovementFailure = new(
+        "Cage.MovementFailure", "An unexpected error occurred while moving the breeding rabbit to another cage");
 }

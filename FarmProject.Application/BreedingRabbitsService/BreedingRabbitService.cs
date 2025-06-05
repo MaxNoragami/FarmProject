@@ -38,8 +38,7 @@ public class BreedingRabbitService(IUnitOfWork unitOfWork) : IBreedingRabbitServ
         catch (Exception ex)
         {
             await _unitOfWork.RollbackTransactionAsync();
-            return Result.Failure<BreedingRabbit>(
-                new Error("BreedingRabbit.CreationFailed", ex.Message));
+            return Result.Failure<BreedingRabbit>(BreedingRabbitErrors.CreationFailed);
         }
     }
 

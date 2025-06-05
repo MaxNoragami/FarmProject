@@ -125,7 +125,7 @@ public class CageService(IUnitOfWork unitOfWork) : ICageService
         catch (Exception ex)
         {
             await _unitOfWork.RollbackTransactionAsync();
-            return Result.Failure<Cage>(new Error("Cage.Failed", ex.Message));
+            return Result.Failure<Cage>(CageErrors.MovementFailure);
         }
     }
 }
