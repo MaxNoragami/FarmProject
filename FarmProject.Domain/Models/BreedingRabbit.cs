@@ -3,15 +3,18 @@ using FarmProject.Domain.Constants;
 using FarmProject.Domain.Events;
 
 namespace FarmProject.Domain.Models;
+
 public class BreedingRabbit(string name) : Entity
 {
     public string Name { get; private set; } = name;
-    public BreedingStatus BreedingStatus { get; private set; } = BreedingStatus.Available;
+    
+    public BreedingStatus BreedingStatus { get; set; } = BreedingStatus.Available;
+
     public int? CageId { get; set; }
 
     public Result Breed(int maleId, DateTime dateTimeNow)
     {
-        SetBreedingStatus(BreedingStatus.Paired);
+        BreedingStatus = BreedingStatus.Paired;
 
         AddDomainEvent(new BreedEvent()
             { 
@@ -22,7 +25,4 @@ public class BreedingRabbit(string name) : Entity
 
         return Result.Success();
     }
-
-    public void SetBreedingStatus(BreedingStatus breedingStatus)
-        => BreedingStatus = breedingStatus;
 }
