@@ -3,6 +3,7 @@ using FarmProject.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using FarmProject.Application.Common;
 using FarmProject.API.Dtos.Cages;
+using FarmProject.Domain.Common;
 
 namespace FarmProject.API.Controllers;
 
@@ -23,8 +24,7 @@ public class CageController(ICageService cageService) : AppBaseController
                 return Ok(cagesView);
             },
 
-            onFailure: error => 
-                StatusCode(500, new { message = "An internal error occurred" })
+            onFailure: error => HandleError(error)
         );
     }
 
@@ -33,18 +33,10 @@ public class CageController(ICageService cageService) : AppBaseController
     {
         var result = await _cageService.GetCageById(id);
 
-        return result.Match<ActionResult, Cage>(
-            onSuccess: cage =>
-            {
-                var cageView = cage.ToViewCageDto();
-                return Ok(cageView);
-            },
-            
-            onFailure: error =>
-                (error.Code == "Cage.NotFound")
-                    ? NotFound(new { code = error.Code, message = error.Description })
-                    : StatusCode(500, new { message = "An internal error occurred" })
-        );
+        if (result.IsSuccess)
+            return Ok(result.Value.ToViewCageDto());
+        else
+            return HandleError(result.Error);
     }
 
     [HttpPost]
@@ -52,16 +44,10 @@ public class CageController(ICageService cageService) : AppBaseController
     {
         var result = await _cageService.CreateCage(createCageDto.Name);
 
-        return result.Match<ActionResult, Cage>(
-            onSuccess: createdCage =>
-            {
-                var createdCageView = createdCage.ToViewCageDto();
-                return Ok(createdCageView);
-            },
-
-            onFailure: error =>
-                StatusCode(500, new { message = "An internal error occurred" })
-        );
+        if (result.IsSuccess)
+            return Ok(result.Value.ToViewCageDto());
+        else
+            return HandleError(result.Error);
     }
 
     [HttpPut("{id}")]
@@ -69,18 +55,14 @@ public class CageController(ICageService cageService) : AppBaseController
     {
         var result = await _cageService.UpdateOffspringType(id, updateCageDto.OffspringType);
 
-        return result.Match<ActionResult, Cage>(
-            onSuccess: updatedCage =>
-            {
-                var cageView = updatedCage.ToViewCageDto();
-                return Ok(cageView);
-            },
-
-            onFailure: error => 
-                (error.Code == "Cage.NotFound")
-                    ? NotFound(new { code = error.Code, message = error.Description })
-                    : StatusCode(500, new { message = "An internal error occurred" })
-        );
-
+        if (result.IsSuccess)
+            return Ok(result.Value.ToViewCageDto());
+        else
+            return HandleError(result.Error);
     }
+
+    private ActionResult HandleError(Error error)
+        => (error.Code == "Cage.NotFound")
+                ? NotFound(new { code = error.Code, message = error.Description })
+                : StatusCode(500, new { message = "An internal error occurred" });
 }

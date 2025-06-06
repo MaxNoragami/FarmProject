@@ -3,16 +3,21 @@ using FarmProject.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using FarmProject.Application.Common;
 using FarmProject.API.Dtos.BreedingRabbits;
+using FarmProject.Domain.Common;
+using FarmProject.Application.CageService;
+using FarmProject.Domain.Errors;
 
 
 namespace FarmProject.API.Controllers;
 
 [Route("api/breeding-rabbits")]
 public class BreedingRabbitController(
-        IBreedingRabbitService breedingRabbitService) 
+        IBreedingRabbitService breedingRabbitService,
+        ICageService cageService) 
     : AppBaseController
 {
-    private readonly IBreedingRabbitService _breedingRabbitService = breedingRabbitService; 
+    private readonly IBreedingRabbitService _breedingRabbitService = breedingRabbitService;
+    private readonly ICageService _cageService = cageService;
 
     [HttpGet]
     public async Task<ActionResult<List<ViewBreedingRabbitDto>>> GetBreedingRabbits()
@@ -26,9 +31,19 @@ public class BreedingRabbitController(
                 return Ok(breedingRabbitsView);
             },
 
-            onFailure: error =>
-                StatusCode(500, new { message = "An internal error occurred" })
+            onFailure: error => HandleError(error)
         );
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ViewBreedingRabbitDto>> GetBreedingRabbit(int id)
+    {
+        var result = await _breedingRabbitService.GetBreedingRabbitById(id);
+
+        if (result.IsSuccess)
+            return Ok(result.Value.ToViewBreedingRabbitDto());
+        else
+            return HandleError(result.Error);
     }
 
     [HttpPost]
@@ -38,33 +53,73 @@ public class BreedingRabbitController(
             .AddBreedingRabbitToFarm(createBreedingRabbitDto.Name, 
                 createBreedingRabbitDto.CageId);
 
-        return result.Match<ActionResult, BreedingRabbit>(
-            onSuccess: createdBreedingRabbit =>
-            {
-                var createdBreedingRabbitView = createdBreedingRabbit.ToViewBreedingRabbitDto();
-                return Ok(createdBreedingRabbitView);
-            },
-
-            onFailure: error =>
-            {
-                switch (error.Code)
-                {
-                    case string code when code.EndsWith(".NotFound"):
-                        return NotFound(new { code = error.Code, message = error.Description });
-
-                    case "Cage.InvalidAssignment":
-                    case "Cage.RabbitAlreadyInCage":
-                    case "Cage.Occupied":
-                        return BadRequest(new { code = error.Code, message = error.Description });
-
-                    case "BreedingRabbit.CreationFailed":
-                        return StatusCode(500, new { code = error.Code, message = error.Description });
-
-                    default:
-                        return StatusCode(500, new { message = "An internal error occurred" });
-                }
-            }
-        );
+        if (result.IsSuccess)
+            return Ok(result.Value.ToViewBreedingRabbitDto());
+        else
+            return HandleError(result.Error);
     }
 
+    [HttpPut("{id}")]
+    public async Task<ActionResult<ViewBreedingRabbitDto>> UpdateBreedingRabbit(
+        int id, 
+        UpdateBreedingRabbitDto? updateBreedingRabbitDto)
+    {
+        if (updateBreedingRabbitDto == null)
+            return HandleError(BreedingRabbitErrors.NoChangesRequested);
+
+        BreedingRabbit? updatedBreedingRabbit = null;
+
+        if (updateBreedingRabbitDto.BreedingStatus.HasValue)
+        {
+            var breedingStatusResult = await _breedingRabbitService
+                .UpdateBreedingStatus(id, updateBreedingRabbitDto.BreedingStatus.Value);
+
+            if (breedingStatusResult.IsFailure)
+                return HandleError(breedingStatusResult.Error);
+
+            updatedBreedingRabbit = breedingStatusResult.Value;
+        }
+
+        if (updateBreedingRabbitDto.CageId.HasValue)
+        {
+            var moveBreedingRabbitResult = await _cageService
+                .MoveBreedingRabbitToCage(id, updateBreedingRabbitDto.CageId.Value);
+
+            if (moveBreedingRabbitResult.IsFailure)
+                return HandleError(moveBreedingRabbitResult.Error);
+
+            var getBreedingRabbitResult = await _breedingRabbitService
+                .GetBreedingRabbitById(id);
+            if (getBreedingRabbitResult.IsFailure)
+                return HandleError(getBreedingRabbitResult.Error);
+
+            updatedBreedingRabbit = getBreedingRabbitResult.Value;
+        }
+
+        if (updatedBreedingRabbit == null)
+            return HandleError(BreedingRabbitErrors.NoChangesRequested);
+
+        return Ok(updatedBreedingRabbit.ToViewBreedingRabbitDto());
+    }
+
+    private ActionResult HandleError(Error error)
+    {
+        switch (error.Code)
+        {
+            case string code when code.EndsWith(".NotFound"):
+                return NotFound(new { code = error.Code, message = error.Description });
+
+            case "Cage.InvalidAssignment":
+            case "Cage.RabbitAlreadyInCage":
+            case "BreedingRabbit.NoChangesRequested":
+            case "Cage.Occupied":
+                return BadRequest(new { code = error.Code, message = error.Description });
+
+            case "BreedingRabbit.CreationFailed":
+                return StatusCode(500, new { code = error.Code, message = error.Description });
+
+            default:
+                return StatusCode(500, new { message = "An internal error occurred" });
+        }
+    }
 }

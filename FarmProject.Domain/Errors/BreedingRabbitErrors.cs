@@ -12,4 +12,7 @@ public static class BreedingRabbitErrors
 
     public static readonly Error CreationFailed = new(
         "BreedingRabbit.CreationFailed", "An unexpected error occurred while adding the breeding rabbit");
+
+    public static readonly Error NoChangesRequested = new(
+        "BreedingRabbit.NoChangesRequested", "No changes were specified in the request");
 }

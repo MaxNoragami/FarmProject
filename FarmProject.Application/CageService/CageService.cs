@@ -71,7 +71,7 @@ public class CageService(IUnitOfWork unitOfWork) : ICageService
         if (cage == null)
             return Result.Failure<Cage>(CageErrors.NotFound);
 
-        cage.SetOffspringType(offspringType);
+        cage.OffspringType = offspringType;
         await _unitOfWork.CageRepository.UpdateAsync(cage);
 
         return Result.Success(cage);
@@ -122,7 +122,7 @@ public class CageService(IUnitOfWork unitOfWork) : ICageService
             await _unitOfWork.CommitTransactionAsync();
             return Result.Success(destinationCage);
         }
-        catch (Exception ex)
+        catch
         {
             await _unitOfWork.RollbackTransactionAsync();
             return Result.Failure<Cage>(CageErrors.MovementFailure);

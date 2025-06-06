@@ -9,7 +9,7 @@ public class Cage(string name) : Entity
     public string Name { get; private set; } = name;
     public BreedingRabbit? BreedingRabbit { get; private set; }
     public int OffspringCount { get; private set; } = 0;
-    public OffspringType OffspringType { get; private set; } = OffspringType.Mixed;
+    public OffspringType OffspringType { get; set; } = OffspringType.None;
 
     public Result AssignBreedingRabbit(BreedingRabbit breedingRabbit)
     {
@@ -61,7 +61,4 @@ public class Cage(string name) : Entity
         OffspringCount -= count;
         return Result.Success();
     }
-
-    public void SetOffspringType(OffspringType offspringType)
-        => OffspringType = offspringType;
 }
