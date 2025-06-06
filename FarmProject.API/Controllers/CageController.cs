@@ -28,6 +28,25 @@ public class CageController(ICageService cageService) : AppBaseController
         );
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ViewCageDto>> GetCage(int id)
+    {
+        var result = await _cageService.GetCageById(id);
+
+        return result.Match<ActionResult, Cage>(
+            onSuccess: cage =>
+            {
+                var cageView = cage.ToViewCageDto();
+                return Ok(cageView);
+            },
+            
+            onFailure: error =>
+                (error.Code == "Cage.NotFound")
+                    ? NotFound(new { code = error.Code, message = error.Description })
+                    : StatusCode(500, new { message = "An internal error occurred" })
+        );
+    }
+
     [HttpPost]
     public async Task<ActionResult<ViewCageDto>> CreateCage(CreateCageDto createCageDto)
     {
@@ -43,5 +62,25 @@ public class CageController(ICageService cageService) : AppBaseController
             onFailure: error =>
                 StatusCode(500, new { message = "An internal error occurred" })
         );
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<ViewCageDto>> UpdateCage(int id, UpdateCageDto updateCageDto)
+    {
+        var result = await _cageService.UpdateOffspringType(id, updateCageDto.OffspringType);
+
+        return result.Match<ActionResult, Cage>(
+            onSuccess: updatedCage =>
+            {
+                var cageView = updatedCage.ToViewCageDto();
+                return Ok(cageView);
+            },
+
+            onFailure: error => 
+                (error.Code == "Cage.NotFound")
+                    ? NotFound(new { code = error.Code, message = error.Description })
+                    : StatusCode(500, new { message = "An internal error occurred" })
+        );
+
     }
 }
