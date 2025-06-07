@@ -1,5 +1,6 @@
 ﻿using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
+using FarmProject.Domain.Errors;
 
 namespace FarmProject.Domain.Models;
 
@@ -17,6 +18,9 @@ public class FarmTask(FarmTaskType farmTaskType,
 
     public Result MarkAsCompleted()
     {
+        if (IsCompleted)
+            return Result.Failure(FarmTaskErrors.AlreadyCompleted);
+
         IsCompleted = true;
         return Result.Success();
     }

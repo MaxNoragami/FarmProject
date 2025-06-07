@@ -27,8 +27,4 @@
     <ProjectReference Include="..\FarmProject.Infrastructure\FarmProject.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Dtos\FarmTasks\" />
-  </ItemGroup>
-
 </Project>
