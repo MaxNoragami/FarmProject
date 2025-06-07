@@ -51,7 +51,10 @@ public class CageController(ICageService cageService) : AppBaseController
         var result = await _cageService.CreateCage(createCageDto.Name);
 
         if (result.IsSuccess)
-            return Ok(result.Value.ToViewCageDto());
+        {
+            var createdCage = result.Value.ToViewCageDto();
+            return CreatedAtAction(nameof(GetCage), new { id = createdCage.Id }, createdCage);
+        }
         else
             return HandleError(result.Error);
     }

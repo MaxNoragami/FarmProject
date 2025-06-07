@@ -60,7 +60,11 @@ public class BreedingRabbitController(
                 createBreedingRabbitDto.CageId);
 
         if (result.IsSuccess)
-            return Ok(result.Value.ToViewBreedingRabbitDto());
+        {
+            var createdBreedingRabbit = result.Value.ToViewBreedingRabbitDto();
+            return CreatedAtAction(nameof(GetBreedingRabbit), 
+                new { id = createdBreedingRabbit.Id }, createdBreedingRabbit);
+        }
         else
             return HandleError(result.Error);
     }

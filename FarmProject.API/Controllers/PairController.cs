@@ -46,7 +46,10 @@ public class PairController(IPairingService pairingService) : AppBaseController
             .CreatePair(createPairDto.FemaleRabbitId, createPairDto.MaleRabbitId);
 
         if (result.IsSuccess)
-            return Ok(result.Value.ToViewPairDto());
+        {
+            var createdPair = result.Value.ToViewPairDto();
+            return CreatedAtAction(nameof(GetPair), new { id = createdPair.Id }, createdPair);
+        }
         else
             return HandleError(result.Error);
     }
