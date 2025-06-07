@@ -17,7 +17,7 @@ public class BreedingRabbit(string name) : Entity
     {
         if (BreedingStatus != BreedingStatus.Available)
             return Result.Failure(BreedingRabbitErrors.NotAvailableToPair);
-
+            
         BreedingStatus = BreedingStatus.Paired;
 
         AddDomainEvent(new BreedEvent()
