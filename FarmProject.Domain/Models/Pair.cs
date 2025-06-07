@@ -8,7 +8,7 @@ namespace FarmProject.Domain.Models;
 public class Pair : Entity
 {
     public int MaleRabbitId { get; private set; }
-    public BreedingRabbit? FemaleRabbit { get; private set; }
+    public BreedingRabbit FemaleRabbit { get; private set; }
     public DateTime StartDate { get; private set; }
     public DateTime? EndDate { get; private set; }
     public PairingStatus PairingStatus { get; set; }

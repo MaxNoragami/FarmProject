@@ -5,6 +5,7 @@ using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Domain.Events;
 using FarmProject.Domain.Models;
 using FluentAssertions;
+using FarmProject.Domain.Specifications;
 
 namespace FarmProject.Domain.UnitTests.ListnerTest;
 
@@ -52,6 +53,11 @@ internal class InMemoryBreedingRabbitRepo : IBreedingRabbitRepository
     {
         _breedingRabbits.Add(breedingRabbit);
         return Task.FromResult(breedingRabbit);
+    }
+
+    public Task<List<BreedingRabbit>> FindAsync(ISpecification<BreedingRabbit> specification)
+    {
+        throw new NotImplementedException();
     }
 
     public Task<List<BreedingRabbit>> GetAllAsync()

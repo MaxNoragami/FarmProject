@@ -5,8 +5,11 @@ namespace FarmProject.Domain.Errors;
 public class FarmTaskErrors
 {
     public static readonly Error NotFound = new(
-        "FarmTask.NotFound", "FarmTask not found");
+        "FarmTask.NotFound", "Farm task not found");
 
     public static readonly Error NullValue = new(
-        "FarmTask.NullValue", "FarmTask cannot be null");
+        "FarmTask.NullValue", "Farm task cannot be null");
+
+    public static readonly Error AlreadyCompleted = new(
+        "FarmTask.AlreadyCompleted", "Farm task is already marked as completed");
 }

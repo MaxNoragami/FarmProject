@@ -1,5 +1,6 @@
 ﻿using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Domain.Models;
+using FarmProject.Domain.Specifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace FarmProject.Infrastructure.Repositories;
@@ -14,6 +15,11 @@ public class BreedingRabbitRepository(FarmDbContext context) : IBreedingRabbitRe
         await _context.SaveChangesAsync();
         return breedingRabbit;
     }
+
+    public async Task<List<BreedingRabbit>> FindAsync(ISpecification<BreedingRabbit> specification)
+        => await _context.BreedingRabbits
+            .Where(specification.ToExpression())
+            .ToListAsync();
 
     public async Task<List<BreedingRabbit>> GetAllAsync()
         => await _context.BreedingRabbits.ToListAsync();

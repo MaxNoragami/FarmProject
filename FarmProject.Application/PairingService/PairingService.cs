@@ -53,10 +53,10 @@ public class PairingService(IUnitOfWork unitOfWork,
             await _unitOfWork.CommitTransactionAsync();
             return Result.Success(createdPair);
         }
-        catch (Exception ex)
+        catch
         {
             await _unitOfWork.RollbackTransactionAsync();
-            return Result.Failure<Pair>(new Error("Pair.Failed", ex.Message));
+            return Result.Failure<Pair>(PairErrors.CreationFailed);
         }
     }
 
@@ -138,10 +138,10 @@ public class PairingService(IUnitOfWork unitOfWork,
             await _unitOfWork.CommitTransactionAsync();
             return Result.Success(updatedPair);
         }
-        catch (Exception ex)
+        catch
         {
             await _unitOfWork.RollbackTransactionAsync();
-            return Result.Failure<Pair>(new Error("Pair.UpdateFailed", ex.Message));
+            return Result.Failure<Pair>(PairErrors.UpdateFailed);
         }
     }
 }
