@@ -15,4 +15,7 @@ public static class BreedingRabbitErrors
 
     public static readonly Error NoChangesRequested = new(
         "BreedingRabbit.NoChangesRequested", "No changes were specified in the request");
+
+    public static readonly Error NotAvailableToPair = new(
+        "BreedingRabbit.NotAvailableToPair", "The breeding rabbit is not available to pair");
 }
