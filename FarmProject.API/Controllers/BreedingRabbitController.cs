@@ -20,9 +20,15 @@ public class BreedingRabbitController(
     private readonly ICageService _cageService = cageService;
 
     [HttpGet]
-    public async Task<ActionResult<List<ViewBreedingRabbitDto>>> GetBreedingRabbits()
+    public async Task<ActionResult<List<ViewBreedingRabbitDto>>> GetBreedingRabbits(
+        [FromQuery] bool availableForBreeding = false)
     {
-        var result = await _breedingRabbitService.GetAllBreedingRabbits();
+        Result<List<BreedingRabbit>> result;
+
+        if (availableForBreeding)
+            result = await _breedingRabbitService.GetAllAvailableBreedingRabbits();
+        else
+            result = await _breedingRabbitService.GetAllBreedingRabbits();
 
         return result.Match<ActionResult, List<BreedingRabbit>>(
             onSuccess: breedingRabbits =>

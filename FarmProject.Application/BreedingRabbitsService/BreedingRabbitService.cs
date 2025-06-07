@@ -2,6 +2,7 @@
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Models;
+using FarmProject.Domain.Specifications;
 
 namespace FarmProject.Application.BreedingRabbitsService;
 
@@ -46,6 +47,13 @@ public class BreedingRabbitService(IUnitOfWork unitOfWork) : IBreedingRabbitServ
     {
         var breedingRabbits = await _unitOfWork.BreedingRabbitRepository.GetAllAsync();
         return Result.Success(breedingRabbits);
+    }
+    public async Task<Result<List<BreedingRabbit>>> GetAllAvailableBreedingRabbits()
+    {
+        var specification = new BreedingRabbitSpecificationByAvailable();
+        var availableBreedingRabbits = await _unitOfWork
+            .BreedingRabbitRepository.FindAsync(specification);
+        return Result.Success(availableBreedingRabbits);
     }
 
     public async Task<Result<BreedingRabbit>> GetBreedingRabbitById(int breedingRabbitId)

@@ -13,9 +13,15 @@ public class CageController(ICageService cageService) : AppBaseController
     private readonly ICageService _cageService = cageService;
 
     [HttpGet]
-    public async Task<ActionResult<List<ViewCageDto>>> GetCages()
+    public async Task<ActionResult<List<ViewCageDto>>> GetCages(
+        [FromQuery] bool unoccupiedCages = false)
     {
-        var result = await _cageService.GetAllCages();
+        Result<List<Cage>> result;
+
+        if (unoccupiedCages)
+            result = await _cageService.GetUnoccupiedCages();
+        else
+            result = await _cageService.GetAllCages();
 
         return result.Match<ActionResult, List<Cage>>(
             onSuccess: cages =>
