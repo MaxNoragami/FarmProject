@@ -1,6 +1,7 @@
 using FarmProject.API.DependencyInjection;
 using FarmProject.API.Middlewares;
 using FarmProject.Application.Common;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,9 @@ builder.Services.AddScoped<LoggingHelper>();
 builder.Services.AddEventArchitecture();
 builder.Services.AddFarmServices();
 
+builder.Host.UseSerilog((context, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration)
+);
 
 var app = builder.Build();
 
@@ -47,8 +51,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseHttpsRedirection();
+
+app.UseSerilogRequestLogging();
 
 app.UseAuthorization();
 

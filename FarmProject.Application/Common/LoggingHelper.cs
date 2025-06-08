@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace FarmProject.Application.Common;
 
-public class LoggingHelper(ILogger<LoggingHelper> logger)
+public sealed class LoggingHelper(ILogger<LoggingHelper> logger)
 {
     private readonly ILogger<LoggingHelper> _logger = logger;
 
@@ -27,7 +27,7 @@ public class LoggingHelper(ILogger<LoggingHelper> logger)
                 _logger.LogError(
                     "Operation failed {OperationName}, Error: {Error}, {DateTimeUtc}",
                     operationName,
-                    result.Error.Description,
+                    result.Error,
                     DateTime.UtcNow);
             else
                 _logger.LogInformation(
