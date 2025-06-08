@@ -23,14 +23,14 @@ public class CageController(ICageService cageService) : AppBaseController
         else
             result = await _cageService.GetAllCages();
 
-        return result.Match<ActionResult, List<Cage>>(
+        return result.Match<ActionResult<List<ViewCageDto>>, List<Cage>>(
             onSuccess: cages =>
             {
                 var cagesView = cages.Select(c => c.ToViewCageDto()).ToList();
                 return Ok(cagesView);
             },
 
-            onFailure: error => HandleError(error)
+            onFailure: error => HandleError<List<ViewCageDto>>(error)
         );
     }
 
@@ -42,7 +42,7 @@ public class CageController(ICageService cageService) : AppBaseController
         if (result.IsSuccess)
             return Ok(result.Value.ToViewCageDto());
         else
-            return HandleError(result.Error);
+            return HandleError<ViewCageDto>(result.Error);
     }
 
     [HttpPost]
@@ -56,7 +56,7 @@ public class CageController(ICageService cageService) : AppBaseController
             return CreatedAtAction(nameof(GetCage), new { id = createdCage.Id }, createdCage);
         }
         else
-            return HandleError(result.Error);
+            return HandleError<ViewCageDto>(result.Error);
     }
 
     [HttpPut("{id}")]
@@ -67,11 +67,6 @@ public class CageController(ICageService cageService) : AppBaseController
         if (result.IsSuccess)
             return Ok(result.Value.ToViewCageDto());
         else
-            return HandleError(result.Error);
+            return HandleError<ViewCageDto>(result.Error);
     }
-
-    private ActionResult HandleError(Error error)
-        => (error.Code == "Cage.NotFound")
-                ? NotFound(new { code = error.Code, message = error.Description })
-                : StatusCode(500, new { message = "An internal error occurred" });
 }

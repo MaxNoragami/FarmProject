@@ -18,14 +18,14 @@ public class FarmTaskController(IFarmTaskService farmTaskService) : AppBaseContr
         var taskDate = ParseDate(date);
         var result = await _farmTaskService.GetAllFarmTasksByDate(taskDate);
 
-        return result.Match<ActionResult, List<FarmTask>>(
+        return result.Match<ActionResult<List<ViewFarmTaskDto>>, List<FarmTask>>(
                 onSuccess: farmTasks =>
                 {
                     var farmTasksView = farmTasks.Select(ft => ft.ToViewFarmTaskDto()).ToList();
                     return Ok(farmTasksView);
                 },
 
-                onFailure: error => HandleError(error)
+                onFailure: error => HandleError<List<ViewFarmTaskDto>>(error)
             );
     }
 
@@ -37,7 +37,7 @@ public class FarmTaskController(IFarmTaskService farmTaskService) : AppBaseContr
         if (result.IsSuccess)
             return Ok(result.Value.ToViewFarmTaskDto());
         else
-            return HandleError(result.Error);
+            return HandleError<ViewFarmTaskDto>(result.Error);
     }
 
     private static DateTime ParseDate(string? dateInput)
@@ -49,21 +49,5 @@ public class FarmTaskController(IFarmTaskService farmTaskService) : AppBaseContr
             return result;
 
         return DateTime.Today;
-    }
-
-    private ActionResult HandleError(Error error)
-    {
-        switch (error.Code)
-        {
-            case string code when code.EndsWith(".NotFound"):
-                return NotFound(new { code = error.Code, message = error.Description });
-
-            case "FarmTask.NullValue":
-            case "FarmTask.AlreadyCompleted":
-                return BadRequest(new { code = error.Code, message = error.Description });
-
-            default:
-                return StatusCode(500, new { message = "An internal error occurred" });
-        }
     }
 }

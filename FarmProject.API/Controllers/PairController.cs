@@ -1,5 +1,4 @@
 ﻿using FarmProject.Application.PairingService;
-using FarmProject.Domain.Common;
 using FarmProject.Application.Common;
 using FarmProject.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -17,14 +16,14 @@ public class PairController(IPairingService pairingService) : AppBaseController
     {
         var result = await _pairingService.GetAllPairs();
 
-        return result.Match<ActionResult, List<Pair>>(
+        return result.Match<ActionResult<List<ViewPairDto>>, List<Pair>>(
             onSuccess: pairs =>
             {
                 var pairsView = pairs.Select(p => p.ToViewPairDto()).ToList();
                 return Ok(pairsView);
             },
 
-            onFailure: error => HandleError(error)
+            onFailure: error => HandleError<List<ViewPairDto>>(error)
         );
     }
 
@@ -36,7 +35,7 @@ public class PairController(IPairingService pairingService) : AppBaseController
         if (result.IsSuccess)
             return Ok(result.Value.ToViewPairDto());
         else
-            return HandleError(result.Error);
+            return HandleError<ViewPairDto>(result.Error);
     }
 
     [HttpPost]
@@ -51,7 +50,7 @@ public class PairController(IPairingService pairingService) : AppBaseController
             return CreatedAtAction(nameof(GetPair), new { id = createdPair.Id }, createdPair);
         }
         else
-            return HandleError(result.Error);
+            return HandleError<ViewPairDto>(result.Error);
     }
 
     [HttpPut("{id}")]
@@ -62,29 +61,6 @@ public class PairController(IPairingService pairingService) : AppBaseController
         if (result.IsSuccess)
             return Ok(result.Value.ToViewPairDto());
         else
-            return HandleError(result.Error);
-    }
-
-    private ActionResult HandleError(Error error)
-    {
-        switch (error.Code)
-        {
-            case string code when code.EndsWith(".NotFound"):
-                return NotFound(new { code = error.Code, message = error.Description });
-
-            case "BreedingRabbit.NotAvailableToPair":
-            case "Pair.InvalidStateChange":
-            case "Pair.NotSuccessful":
-            case "Pair.NoEndDate":
-            case "Pair.InvalidOutcome":
-                return BadRequest(new { code = error.Code, message = error.Description });
-
-            case "Pair.CreationFailed":
-            case "Pair.UpdateFailed":
-                return StatusCode(500, new { code = error.Code, message = error.Description });
-
-            default:
-                return StatusCode(500, new { message = "An internal error occurred" });
-        }
+            return HandleError<ViewPairDto>(result.Error);
     }
 }

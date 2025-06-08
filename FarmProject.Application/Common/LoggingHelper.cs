@@ -45,26 +45,10 @@ public sealed class LoggingHelper(ILogger<LoggingHelper> logger)
                 operationName,
                 DateTime.UtcNow);
 
-            if (typeof(TResult).IsGenericType)
-            {
-                var valueType = typeof(TResult).GenericTypeArguments[0];
-
-                var genericFailure = typeof(Result).GetMethod("Failure", new[] { typeof(Error) })
-                    .MakeGenericMethod(valueType)
-                    .Invoke(null, new object[] { new Error(
+            return (TResult)Result.Failure(new Error(
                 "UnhandledException",
                 "An unexpected error occurred while processing the request"
-            )});
-
-                return (TResult)genericFailure;
-            }
-            else
-            {
-                return (TResult)Result.Failure(new Error(
-                    "UnhandledException",
-                    "An unexpected error occurred while processing the request"
-                ));
-            }
+            ));
         }
     }
 }
