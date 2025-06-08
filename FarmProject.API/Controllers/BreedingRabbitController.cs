@@ -30,14 +30,14 @@ public class BreedingRabbitController(
         else
             result = await _breedingRabbitService.GetAllBreedingRabbits();
 
-        return result.Match<ActionResult, List<BreedingRabbit>>(
+        return result.Match<ActionResult<List<ViewBreedingRabbitDto>>, List<BreedingRabbit>>(
             onSuccess: breedingRabbits =>
             {
                 var breedingRabbitsView = breedingRabbits.Select(br => br.ToViewBreedingRabbitDto()).ToList();
                 return Ok(breedingRabbitsView);
             },
 
-            onFailure: error => HandleError(error)
+            onFailure: error => HandleError<List<ViewBreedingRabbitDto>>(error)
         );
     }
 
@@ -49,7 +49,7 @@ public class BreedingRabbitController(
         if (result.IsSuccess)
             return Ok(result.Value.ToViewBreedingRabbitDto());
         else
-            return HandleError(result.Error);
+            return HandleError<ViewBreedingRabbitDto>(result.Error);
     }
 
     [HttpPost]
@@ -66,7 +66,7 @@ public class BreedingRabbitController(
                 new { id = createdBreedingRabbit.Id }, createdBreedingRabbit);
         }
         else
-            return HandleError(result.Error);
+            return HandleError<ViewBreedingRabbitDto>(result.Error);
     }
 
     [HttpPut("{id}")]
@@ -75,7 +75,7 @@ public class BreedingRabbitController(
         UpdateBreedingRabbitDto? updateBreedingRabbitDto)
     {
         if (updateBreedingRabbitDto == null)
-            return HandleError(BreedingRabbitErrors.NoChangesRequested);
+            return HandleError<ViewBreedingRabbitDto>(BreedingRabbitErrors.NoChangesRequested);
 
         BreedingRabbit? updatedBreedingRabbit = null;
 
@@ -85,7 +85,7 @@ public class BreedingRabbitController(
                 .UpdateBreedingStatus(id, updateBreedingRabbitDto.BreedingStatus.Value);
 
             if (breedingStatusResult.IsFailure)
-                return HandleError(breedingStatusResult.Error);
+                return HandleError<ViewBreedingRabbitDto>(breedingStatusResult.Error);
 
             updatedBreedingRabbit = breedingStatusResult.Value;
         }
@@ -96,40 +96,19 @@ public class BreedingRabbitController(
                 .MoveBreedingRabbitToCage(id, updateBreedingRabbitDto.CageId.Value);
 
             if (moveBreedingRabbitResult.IsFailure)
-                return HandleError(moveBreedingRabbitResult.Error);
+                return HandleError<ViewBreedingRabbitDto>(moveBreedingRabbitResult.Error);
 
             var getBreedingRabbitResult = await _breedingRabbitService
                 .GetBreedingRabbitById(id);
             if (getBreedingRabbitResult.IsFailure)
-                return HandleError(getBreedingRabbitResult.Error);
+                return HandleError<ViewBreedingRabbitDto>(getBreedingRabbitResult.Error);
 
             updatedBreedingRabbit = getBreedingRabbitResult.Value;
         }
 
         if (updatedBreedingRabbit == null)
-            return HandleError(BreedingRabbitErrors.NoChangesRequested);
+            return HandleError<ViewBreedingRabbitDto>(BreedingRabbitErrors.NoChangesRequested);
 
         return Ok(updatedBreedingRabbit.ToViewBreedingRabbitDto());
-    }
-
-    private ActionResult HandleError(Error error)
-    {
-        switch (error.Code)
-        {
-            case string code when code.EndsWith(".NotFound"):
-                return NotFound(new { code = error.Code, message = error.Description });
-
-            case "Cage.InvalidAssignment":
-            case "Cage.RabbitAlreadyInCage":
-            case "BreedingRabbit.NoChangesRequested":
-            case "Cage.Occupied":
-                return BadRequest(new { code = error.Code, message = error.Description });
-
-            case "BreedingRabbit.CreationFailed":
-                return StatusCode(500, new { code = error.Code, message = error.Description });
-
-            default:
-                return StatusCode(500, new { message = "An internal error occurred" });
-        }
     }
 }
