@@ -1,5 +1,6 @@
 using FarmProject.API.DependencyInjection;
 using FarmProject.API.Middlewares;
+using FarmProject.Application.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,14 +9,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddEventArchitecture();
-builder.Services.AddFarmServices();
 builder.Services.AddFarmInfrastructure(
     builder.Configuration.GetConnectionString("FarmContext")!
 );
+
+builder.Services.AddScoped<LoggingHelper>();
+
+builder.Services.AddEventArchitecture();
+builder.Services.AddFarmServices();
+
 
 var app = builder.Build();
 
