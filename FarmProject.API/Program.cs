@@ -1,4 +1,5 @@
 using FarmProject.API.DependencyInjection;
+using FarmProject.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,9 @@ builder.Services.AddFarmInfrastructure(
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+app.UseTiming();
+
 app.UseExceptionHandler(appError =>
 {
     appError.Run(async context =>
