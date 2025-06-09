@@ -1,5 +1,6 @@
 using FarmProject.API.DependencyInjection;
 using FarmProject.API.Middlewares;
+using FarmProject.Application.CageService;
 using FarmProject.Application.Common;
 using Serilog;
 
@@ -19,6 +20,7 @@ builder.Services.AddFarmInfrastructure(
 builder.Services.AddScoped<LoggingHelper>();
 
 builder.Services.AddEventArchitecture();
+
 builder.Services.AddFarmServices();
 
 builder.Host.UseSerilog((context, configuration) =>

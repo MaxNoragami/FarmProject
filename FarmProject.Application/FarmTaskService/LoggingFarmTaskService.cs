@@ -1,0 +1,60 @@
+﻿using FarmProject.Application.Common;
+using FarmProject.Domain.Common;
+using FarmProject.Domain.Models;
+
+namespace FarmProject.Application.FarmTaskService;
+
+public class LoggingFarmTaskService(
+        IFarmTaskService farmTaskService,
+        LoggingHelper loggingHelper)
+    : IFarmTaskService
+{
+    private readonly IFarmTaskService _farmTaskService = farmTaskService;
+    private readonly LoggingHelper _loggingHelper = loggingHelper;
+
+    public async Task<Result<FarmTask>> CreateFarmTask(FarmTask farmTask)
+        => await _loggingHelper.LogOperation(
+            LoggingUtilities.FormatMethodCall(
+                nameof(CreateFarmTask),
+                (nameof(farmTask), farmTask)
+            ),
+            async () =>
+                await _farmTaskService.CreateFarmTask(farmTask));
+
+    public async Task<Result<List<FarmTask>>> GetAllFarmTasks()
+        => await _loggingHelper.LogOperation(
+            LoggingUtilities.FormatMethodCall(nameof(GetAllFarmTasks)),
+            GetAllFarmTasks);
+
+    public async Task<Result<List<FarmTask>>> GetAllFarmTasksByDate(DateTime date)
+        => await _loggingHelper.LogOperation(
+            LoggingUtilities.FormatMethodCall(
+                nameof(GetAllFarmTasksByDate),
+                (nameof(date), date)
+            ),
+            async () =>
+                await _farmTaskService.GetAllFarmTasksByDate(date));
+
+    public async Task<Result<List<FarmTask>>> GetAllPendingFarmTasks()
+        => await _loggingHelper.LogOperation(
+            LoggingUtilities.FormatMethodCall(nameof(GetAllPendingFarmTasks)),
+            GetAllPendingFarmTasks);
+
+    public async Task<Result<FarmTask>> GetFarmTaskById(int taskId)
+        => await _loggingHelper.LogOperation(
+            LoggingUtilities.FormatMethodCall(
+                nameof(GetFarmTaskById),
+                (nameof(taskId), taskId)
+            ),
+            async () =>
+                await _farmTaskService.GetFarmTaskById(taskId));
+
+    public async Task<Result<FarmTask>> MarkFarmTaskAsCompleted(int taskId)
+        => await _loggingHelper.LogOperation(
+            LoggingUtilities.FormatMethodCall(
+                nameof(MarkFarmTaskAsCompleted),
+                (nameof(taskId), taskId)
+            ),
+            async () =>
+                await _farmTaskService.MarkFarmTaskAsCompleted(taskId));
+}

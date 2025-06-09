@@ -52,3 +52,11 @@ public sealed class LoggingHelper(ILogger<LoggingHelper> logger)
         }
     }
 }
+public static class LoggingUtilities
+{
+    public static string FormatMethodCall(string methodName, params (string paramName, object paramValue)[] parameters)
+    {
+        var paramString = string.Join(", ", parameters.Select(p => $"{p.paramName}: {p.paramValue}"));
+        return $"{methodName}({paramString})";
+    }
+}

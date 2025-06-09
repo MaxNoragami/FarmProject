@@ -1,0 +1,57 @@
+﻿using FarmProject.Application.Common;
+using FarmProject.Domain.Common;
+using FarmProject.Domain.Constants;
+using FarmProject.Domain.Models;
+using System.Xml.Linq;
+
+namespace FarmProject.Application.BreedingRabbitsService;
+
+public class LoggingBreedingRabbitService(
+        IBreedingRabbitService breedingRabbitService,
+        LoggingHelper loggingHelper)
+    : IBreedingRabbitService
+{
+    private readonly IBreedingRabbitService _breedingRabbitService = breedingRabbitService;
+    private readonly LoggingHelper _loggingHelper = loggingHelper;
+
+    public async Task<Result<BreedingRabbit>> AddBreedingRabbitToFarm(string name, int cageId)
+        => await _loggingHelper.LogOperation(
+            LoggingUtilities.FormatMethodCall(
+                nameof(AddBreedingRabbitToFarm),
+                (nameof(name), name),
+                (nameof(cageId), cageId)
+            ),
+            async () =>
+                await _breedingRabbitService
+                    .AddBreedingRabbitToFarm(name, cageId));
+
+    public async Task<Result<List<BreedingRabbit>>> GetAllAvailableBreedingRabbits()
+        => await _loggingHelper.LogOperation(
+            LoggingUtilities.FormatMethodCall(nameof(GetAllAvailableBreedingRabbits)),
+            GetAllAvailableBreedingRabbits);
+
+    public async Task<Result<List<BreedingRabbit>>> GetAllBreedingRabbits()
+        => await _loggingHelper.LogOperation(
+            LoggingUtilities.FormatMethodCall(nameof(GetAllBreedingRabbits)),
+            GetAllBreedingRabbits);
+
+    public async Task<Result<BreedingRabbit>> GetBreedingRabbitById(int breedingRabbitId)
+        => await _loggingHelper.LogOperation(
+            LoggingUtilities.FormatMethodCall(
+                nameof(GetBreedingRabbitById), 
+                (nameof(breedingRabbitId), breedingRabbitId)
+            ),
+            async () =>
+                await _breedingRabbitService.GetBreedingRabbitById(breedingRabbitId));
+
+    public async Task<Result<BreedingRabbit>> UpdateBreedingStatus(int breedingRabbitId, BreedingStatus breedingStatus)
+        => await _loggingHelper.LogOperation(
+            LoggingUtilities.FormatMethodCall(
+                nameof(UpdateBreedingStatus),
+                (nameof(breedingRabbitId), breedingRabbitId),
+                (nameof(breedingStatus), breedingStatus)
+            ),
+            async () =>
+                await _breedingRabbitService
+                    .UpdateBreedingStatus(breedingRabbitId, breedingStatus));
+}

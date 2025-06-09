@@ -4,174 +4,129 @@ using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Models;
 using FarmProject.Domain.Specifications;
-using System.Xml.Linq;
 
 namespace FarmProject.Application.CageService;
 
-public class CageService(
-        IUnitOfWork unitOfWork,
-        LoggingHelper loggingHelper
-    ) : ICageService
+public class CageService(IUnitOfWork unitOfWork) : ICageService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly LoggingHelper _loggingHelper = loggingHelper;
 
     public async Task<Result<Cage>> CreateCage(string name)
     {
-        return await _loggingHelper.LogOperation(
-            $"CreateCage({name})",
-            async () =>
-        {
-            var createdCage = await _unitOfWork.CageRepository.AddAsync(new Cage(name));
-            return Result.Success(createdCage);
-        });
+        var createdCage = await _unitOfWork.CageRepository.AddAsync(new Cage(name));
+        return Result.Success(createdCage);
     }
 
     public async Task<Result<List<Cage>>> GetAllCages()
     {
-        return await _loggingHelper.LogOperation(
-            $"GetAllCages()",
-            async () =>
-        {
-            var cages = await _unitOfWork.CageRepository.GetAllAsync();
-            return Result.Success(cages);
-        });
+        var cages = await _unitOfWork.CageRepository.GetAllAsync();
+        return Result.Success(cages);
     }
 
     public async Task<Result<Cage>> GetCageById(int cageId)
     {
-        return await _loggingHelper.LogOperation(
-            $"GetCageById({cageId})",
-            async () =>
-        {
-            var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
-            if (cage == null)
-                return Result.Failure<Cage>(CageErrors.NotFound);
-            return Result.Success(cage);
-        });
+        var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
+        if (cage == null)
+            return Result.Failure<Cage>(CageErrors.NotFound);
+        return Result.Success(cage);
     }
 
     public async Task<Result<List<Cage>>> GetUnoccupiedCages()
     {
-        return await _loggingHelper.LogOperation(
-            $"GetUnoccupiedCages()",
-            async () =>
-        {
-            var specification = new CageSpecificationByUnoccupied();
-            var unoccupiedCages = await _unitOfWork.CageRepository.FindAsync(specification);
-            return Result.Success(unoccupiedCages);
-        });
+        var specification = new CageSpecificationByUnoccupied();
+        var unoccupiedCages = await _unitOfWork.CageRepository.FindAsync(specification);
+        return Result.Success(unoccupiedCages);
     }
 
     public async Task<Result<Cage>> AddOffspringsToCage(int cageId, int count)
     {
-        return await _loggingHelper.LogOperation(
-            $"AddOffspringsToCage({cageId}, {count})",
-            async () =>
-        {
-            var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
-            if (cage == null)
-                return Result.Failure<Cage>(CageErrors.NotFound);
+        var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
+        if (cage == null)
+            return Result.Failure<Cage>(CageErrors.NotFound);
 
-            var additionResult = cage.AddOffspring(count);
+        var additionResult = cage.AddOffspring(count);
 
-            if (additionResult.IsFailure)
-                return Result.Failure<Cage>(additionResult.Error);
+        if (additionResult.IsFailure)
+            return Result.Failure<Cage>(additionResult.Error);
 
-            return Result.Success(cage);
-        });
+        return Result.Success(cage);
     }
 
     public async Task<Result<Cage>> RemoveOffspringsFromCage(int cageId, int count)
     {
-        return await _loggingHelper.LogOperation(
-            $"RemoveOffspringsFromCage({cageId}, {count})",
-            async () =>
-        {
-            var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
-            if (cage == null)
-                return Result.Failure<Cage>(CageErrors.NotFound);
+        var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
+        if (cage == null)
+            return Result.Failure<Cage>(CageErrors.NotFound);
 
-            var subtractionResult = cage.RemoveOffspring(count);
+        var subtractionResult = cage.RemoveOffspring(count);
 
-            if (subtractionResult.IsFailure)
-                return Result.Failure<Cage>(subtractionResult.Error);
+        if (subtractionResult.IsFailure)
+            return Result.Failure<Cage>(subtractionResult.Error);
 
-            return Result.Success(cage);
-        });
+        return Result.Success(cage);
     }
 
     public async Task<Result<Cage>> UpdateOffspringType(int cageId, OffspringType offspringType)
     {
-        return await _loggingHelper.LogOperation(
-            $"UpdateOffspringType({cageId}, {offspringType})",
-            async () =>
-        {
-            var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
-            if (cage == null)
-                return Result.Failure<Cage>(CageErrors.NotFound);
+        var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
+        if (cage == null)
+            return Result.Failure<Cage>(CageErrors.NotFound);
 
-            cage.OffspringType = offspringType;
-            await _unitOfWork.CageRepository.UpdateAsync(cage);
+        cage.OffspringType = offspringType;
+        await _unitOfWork.CageRepository.UpdateAsync(cage);
 
-            return Result.Success(cage);
-        });
+        return Result.Success(cage);
     }
 
     public async Task<Result<Cage>> MoveBreedingRabbitToCage(int breedingRabbitId, int destinationCageId)
     {
-        return await _loggingHelper.LogOperation(
-            $"MoveBreedingRabbitToCage({breedingRabbitId}, {destinationCageId})",
-            async () =>
+        var breedingRabbit = await _unitOfWork.BreedingRabbitRepository.GetByIdAsync(breedingRabbitId);
+        if (breedingRabbit == null)
+            return Result.Failure<Cage>(BreedingRabbitErrors.NotFound);
+
+        var destinationCage = await _unitOfWork.CageRepository.GetByIdAsync(destinationCageId);
+        if (destinationCage == null)
+            return Result.Failure<Cage>(CageErrors.NotFound);
+
+        await _unitOfWork.BeginTransactionAsync();
+
+        try
         {
-            var breedingRabbit = await _unitOfWork.BreedingRabbitRepository.GetByIdAsync(breedingRabbitId);
-            if (breedingRabbit == null)
-                return Result.Failure<Cage>(BreedingRabbitErrors.NotFound);
-
-            var destinationCage = await _unitOfWork.CageRepository.GetByIdAsync(destinationCageId);
-            if (destinationCage == null)
-                return Result.Failure<Cage>(CageErrors.NotFound);
-
-            await _unitOfWork.BeginTransactionAsync();
-
-            try
+            if (breedingRabbit.CageId != null)
             {
-                if (breedingRabbit.CageId != null)
-                {
-                    var sourceCage = await _unitOfWork.CageRepository.GetByIdAsync(breedingRabbit.CageId.Value);
-                    if (sourceCage == null)
-                    {
-                        await _unitOfWork.RollbackTransactionAsync();
-                        return Result.Failure<Cage>(CageErrors.NotFound);
-                    }
-
-                    var removalResult = sourceCage.RemoveBreedingRabbit();
-                    if (removalResult.IsFailure)
-                    {
-                        await _unitOfWork.RollbackTransactionAsync();
-                        return Result.Failure<Cage>(removalResult.Error);
-                    }
-                    await _unitOfWork.CageRepository.UpdateAsync(sourceCage);
-                    breedingRabbit = removalResult.Value;
-                }
-
-                var assignmentResult = destinationCage.AssignBreedingRabbit(breedingRabbit);
-                if (assignmentResult.IsFailure)
+                var sourceCage = await _unitOfWork.CageRepository.GetByIdAsync(breedingRabbit.CageId.Value);
+                if (sourceCage == null)
                 {
                     await _unitOfWork.RollbackTransactionAsync();
-                    return Result.Failure<Cage>(assignmentResult.Error);
+                    return Result.Failure<Cage>(CageErrors.NotFound);
                 }
-                await _unitOfWork.CageRepository.UpdateAsync(destinationCage);
-                await _unitOfWork.BreedingRabbitRepository.UpdateAsync(breedingRabbit);
 
-                await _unitOfWork.CommitTransactionAsync();
-                return Result.Success(destinationCage);
+                var removalResult = sourceCage.RemoveBreedingRabbit();
+                if (removalResult.IsFailure)
+                {
+                    await _unitOfWork.RollbackTransactionAsync();
+                    return Result.Failure<Cage>(removalResult.Error);
+                }
+                await _unitOfWork.CageRepository.UpdateAsync(sourceCage);
+                breedingRabbit = removalResult.Value;
             }
-            catch
+
+            var assignmentResult = destinationCage.AssignBreedingRabbit(breedingRabbit);
+            if (assignmentResult.IsFailure)
             {
                 await _unitOfWork.RollbackTransactionAsync();
-                throw;
+                return Result.Failure<Cage>(assignmentResult.Error);
             }
-        });
+            await _unitOfWork.CageRepository.UpdateAsync(destinationCage);
+            await _unitOfWork.BreedingRabbitRepository.UpdateAsync(breedingRabbit);
+
+            await _unitOfWork.CommitTransactionAsync();
+            return Result.Success(destinationCage);
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
     }
 }

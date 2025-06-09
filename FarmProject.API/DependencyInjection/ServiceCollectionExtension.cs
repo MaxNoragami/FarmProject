@@ -7,6 +7,7 @@ using FarmProject.Application.PairingService;
 using FarmProject.Application;
 using FarmProject.Infrastructure.Repositories;
 using FarmProject.Infrastructure;
+using FarmProject.Application.Common;
 
 namespace FarmProject.API.DependencyInjection;
 
@@ -14,10 +15,35 @@ public static class ServiceCollectionExtension
 {
     public static IServiceCollection AddFarmServices(this IServiceCollection services)
     {
-        services.AddScoped<IBreedingRabbitService, BreedingRabbitService>()
-            .AddScoped<IPairingService, PairingService>()
-            .AddScoped<IFarmTaskService, FarmTaskService>()
-            .AddScoped<ICageService, CageService>();
+        services.AddScoped<CageService>();
+        services.AddScoped<BreedingRabbitService>();
+        services.AddScoped<FarmTaskService>();
+        services.AddScoped<PairingService>();
+
+        services.AddScoped<IBreedingRabbitService>(provider => {
+            var breedingRabbitService = provider.GetRequiredService<BreedingRabbitService>();
+            var loggingHelper = provider.GetRequiredService<LoggingHelper>();
+            return new LoggingBreedingRabbitService(breedingRabbitService, loggingHelper);
+        });
+
+        services.AddScoped<ICageService>(provider => {
+            var cageService = provider.GetRequiredService<CageService>();
+            var loggingHelper = provider.GetRequiredService<LoggingHelper>();
+            return new LoggingCageService(cageService, loggingHelper);
+        });
+
+        services.AddScoped<IFarmTaskService>(provider => {
+            var farmTaskService = provider.GetRequiredService<FarmTaskService>();
+            var loggingHelper = provider.GetRequiredService<LoggingHelper>();
+            return new LoggingFarmTaskService(farmTaskService, loggingHelper);
+        });
+
+        services.AddScoped<IPairingService>(provider => {
+            var pairingService = provider.GetRequiredService<PairingService>();
+            var loggingHelper = provider.GetRequiredService<LoggingHelper>();
+            return new LoggingPairingService(pairingService, loggingHelper);
+        });
+
         return services;
     }
 
