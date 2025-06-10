@@ -57,6 +57,43 @@ public class TestDataSeeder(FarmDbContext context)
         return rabbits;
     }
 
+    public async Task<Cage> SeedCageWithAssignedRabbit()
+    {
+        // Get next available IDs
+        int nextCageId = await _context.Cages.AnyAsync()
+            ? await _context.Cages.MaxAsync(c => c.Id) + 1
+            : 1;
+
+        int nextRabbitId = await _context.BreedingRabbits.AnyAsync()
+            ? await _context.BreedingRabbits.MaxAsync(r => r.Id) + 1
+            : 1;
+
+        // Create cage with the next available ID
+        var cage = new Cage($"Cage {nextCageId}")
+        {
+            Id = nextCageId
+        };
+
+        // Create rabbit with the next available ID
+        var rabbit = new BreedingRabbit($"Breeding Rabbit {nextRabbitId}")
+        {
+            Id = nextRabbitId
+        };
+
+        // Assign rabbit to cage
+        var result = cage.AssignBreedingRabbit(rabbit);
+        if (result.IsSuccess)
+        {
+            _context.Cages.Add(cage);
+            rabbit.CageId = cage.Id;
+            _context.BreedingRabbits.Add(rabbit);
+            await _context.SaveChangesAsync();
+        }
+
+        return cage;
+    }
+
+
     public async Task<List<Cage>> SeedCagesWithRabbits(int numberOfCages = 3)
     {
         var cages = await SeedCages(numberOfCages);
@@ -83,18 +120,12 @@ public class TestDataSeeder(FarmDbContext context)
 
     public async Task<List<Pair>> SeedPairs(int numberOfPairs = 2)
     {
-        var rabbits = await _context.BreedingRabbits.ToListAsync();
-        if (rabbits.Count < numberOfPairs)
-            rabbits = await SeedBreedingRabbits(numberOfPairs);
-
-        _context.Pairs.RemoveRange(_context.Pairs);
-        await _context.SaveChangesAsync();
-
+        var rabbits = await SeedBreedingRabbits(numberOfPairs);
         var pairs = new List<Pair>();
 
         for (int i = 0; i < numberOfPairs; i++)
         {
-            var maleId = 1000 + i;
+            var maleId = 1000 + i + 1;
             var pair = new Pair(maleId, rabbits[i], DateTime.UtcNow)
             {
                 Id = i + 1
