@@ -12,11 +12,12 @@ namespace FarmProject.API.IntegrationTests;
 
 public class CageControllerTests
 {
-    [Fact]
-    public async Task GetCages_ReturnsAllCages()
+    [Theory]
+    [InlineData(3)]
+    public async Task GetCages_ReturnsAllCages(int cagesAmount)
     {
         var (controller, factory) = await SetupTest("GetAllCagesTest",
-            async seeder => await seeder.SeedCages(5));
+            async seeder => await seeder.SeedCages(cagesAmount));
 
         using (factory)
         {
@@ -24,61 +25,75 @@ public class CageControllerTests
 
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
             var cages = Assert.IsAssignableFrom<List<ViewCageDto>>(okResult.Value);
-            Assert.Equal(5, cages.Count);
+            Assert.Equal(cagesAmount, cages.Count);
         }
     }
 
-    [Fact]
-    public async Task GetCages_WithUnoccupiedFlag_ReturnsOnlyUnoccupiedCages()
+    [Theory]
+    [InlineData(4)]
+    public async Task GetCages_WithUnoccupiedFlag_ReturnsOnlyUnoccupiedCages(int cagesAmount)
     {
-        var (controller, factory) = await SetupTest("GetUnoccupiedCagesTest");
+        var (controller, factory) = await SetupTest("GetUnoccupiedCagesTest",
+            async seeder => await seeder.SeedCages(cagesAmount));
         using (factory)
         {
             var result = await controller.GetCages(unoccupiedCages: true);
 
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
             var cages = Assert.IsAssignableFrom<List<ViewCageDto>>(okResult.Value);
-            Assert.Equal(2, cages.Count);
+            Assert.Equal(cagesAmount - 1, cages.Count);
             Assert.All(cages, cage => Assert.Null(cage.BreedingRabbitId));
         }
     }
 
-    [Fact]
-    public async Task GetCage_WithValidId_ReturnsCage()
+    [Theory]
+    [InlineData(4)]
+    public async Task GetCage_WithValidId_ReturnsCage(int cagesAmount)
     {
-        var (controller, factory) = await SetupTest("GetSingleCageTest");
+        var (controller, factory) = await SetupTest("GetSingleCageTest",
+            async seeder => await seeder.SeedCages(cagesAmount));
         using (factory)
         {
-            var result = await controller.GetCage(1);
+            var result = await controller.GetCage(cagesAmount);
 
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
             var cage = Assert.IsAssignableFrom<ViewCageDto>(okResult.Value);
-            Assert.Equal(1, cage.Id);
-            Assert.Equal("Cage 1", cage.Name);
+            Assert.Equal(cagesAmount, cage.Id);
+            Assert.Equal($"Cage {cagesAmount}", cage.Name);
         }
     }
 
-    [Fact]
-    public async Task GetCage_WithInvalidId_ReturnsNotFound()
+    [Theory]
+    [InlineData(2)]
+    public async Task GetCage_WithInvalidId_ReturnsNotFound(int cagesAmount)
     {
-        var (controller, factory) = await SetupTest("GetInvalidCageTest");
+        var (controller, factory) = await SetupTest("GetInvalidCageTest",
+            async seeder => await seeder.SeedCages(cagesAmount));
         using (factory)
         {
-            var result = await controller.GetCage(100);
+            var result = await controller.GetCage(cagesAmount + 1);
 
             Assert.IsType<NotFoundObjectResult>(result.Result);
         }
     }
 
-    [Fact]
-    public async Task CreateCage_ReturnsViewCageDto()
+    [Theory]
+    [InlineData(4)]
+    [InlineData(0)]
+    public async Task CreateCage_ReturnsViewCageDto(int cagesAmount)
     {
+        cagesAmount = (cagesAmount < 0) ? 0 : cagesAmount;
+
         var (controller, factory) = await SetupTest("CreateCageTest",
-            async seeder => await seeder.ClearDatabase());
+            async seeder =>
+            {
+                await seeder.ClearDatabase();
+                await seeder.SeedCages(cagesAmount);
+            });
 
         var expectedViewCageDto = new ViewCageDto()
         {
-            Id = 1,
+            Id = cagesAmount + 1,
             Name = "TestCage",
             BreedingRabbitId = null,
             OffspringCount = 0,
@@ -102,16 +117,17 @@ public class CageControllerTests
         }
     }
 
-    [Fact]
-    public async Task UpdateCage_ToFemaleOffspringType_ReturnsViewCageDto()
+    [Theory]
+    [InlineData(5)]
+    public async Task UpdateCage_ToFemaleOffspringType_ReturnsViewCageDto(int cagesAmount)
     {
         var (controller, factory) = await SetupTest("UpdateCageTest",
-            async seeder => await seeder.SeedCages(1, false));
+            async seeder => await seeder.SeedCages(cagesAmount, false));
 
         var expectedUpdatedViewCageDto = new ViewCageDto()
         {
-            Id = 1,
-            Name = "Cage 1",
+            Id = cagesAmount,
+            Name = $"Cage {cagesAmount}",
             BreedingRabbitId = null,
             OffspringCount = 0,
             OffspringType = OffspringType.Female
@@ -124,7 +140,7 @@ public class CageControllerTests
 
         using (factory)
         {
-            var result = await controller.UpdateCage(1, updateTestCageDto);
+            var result = await controller.UpdateCage(cagesAmount, updateTestCageDto);
 
             var okObjectResult = Assert.IsType<OkObjectResult>(result.Result);
             var returnedCageDto = Assert.IsAssignableFrom<ViewCageDto>(okObjectResult.Value);
@@ -136,17 +152,14 @@ public class CageControllerTests
 
     private async Task<(CageController controller, InMemoryDbContextFactory factory)> SetupTest(
         string databaseName,
-        Func<TestDataSeeder, Task>? setupAction = null)
+        Func<TestDataSeeder, Task> setupAction)
     {
         var factory = new InMemoryDbContextFactory(databaseName);
         var dbContext = factory.GetContext();
 
         var seeder = new TestDataSeeder(dbContext);
-
-        if (setupAction == null)
-            await seeder.SeedCages(3);
-        else
-            await setupAction(seeder);
+        
+        await setupAction(seeder);
 
         var cageRepository = new CageRepository(dbContext);
         var breedingRabbitRepository = new BreedingRabbitRepository(dbContext);

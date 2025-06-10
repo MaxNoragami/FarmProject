@@ -12,6 +12,8 @@ public class InMemoryDbContextFactory : IDisposable
     {
         var options = new DbContextOptionsBuilder<FarmDbContext>()
             .UseInMemoryDatabase(databaseName: dbName)
+            .ConfigureWarnings(warnings =>
+                warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.InMemoryEventId.TransactionIgnoredWarning))
             .Options;
 
         _context = new FarmDbContext(options);

@@ -23,7 +23,7 @@ public class TestDataSeeder(FarmDbContext context)
             };
 
             if (includeOccupiedCage && i == numberOfCages)
-                cage.AssignBreedingRabbit(new BreedingRabbit($"Test Rabbit {i}")
+                cage.AssignBreedingRabbit(new BreedingRabbit($"Breeding Rabbit {i}")
                 {
                     Id = i
                 });
@@ -110,10 +110,7 @@ public class TestDataSeeder(FarmDbContext context)
 
     public async Task ClearDatabase()
     {
-        _context.Pairs.RemoveRange(_context.Pairs);
-        _context.FarmTasks.RemoveRange(_context.FarmTasks);
-        _context.BreedingRabbits.RemoveRange(_context.BreedingRabbits);
-        _context.Cages.RemoveRange(_context.Cages);
-        await _context.SaveChangesAsync();
+        await _context.Database.EnsureDeletedAsync();
+        await _context.Database.EnsureCreatedAsync();
     }
 }

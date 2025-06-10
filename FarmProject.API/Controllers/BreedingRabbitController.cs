@@ -53,7 +53,7 @@ public class BreedingRabbitController(
     }
 
     [HttpPost]
-    public async Task<ActionResult<ViewBreedingRabbitDto>> CreateCage(CreateBreedingRabbitDto createBreedingRabbitDto)
+    public async Task<ActionResult<ViewBreedingRabbitDto>> CreateBreedingRabbit(CreateBreedingRabbitDto createBreedingRabbitDto)
     {
         var result = await _breedingRabbitService
             .AddBreedingRabbitToFarm(createBreedingRabbitDto.Name, 
