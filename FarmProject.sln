@@ -22,7 +22,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FarmProject.API", "FarmProj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FarmProject.API.IntegrationTests", "FarmProject.API.IntegrationTests\FarmProject.API.IntegrationTests.csproj", "{C7358717-C297-4CE0-81D0-0C2EC5F71B43}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FarmProject.Application.Tests", "FarmProject.Application.Tests\FarmProject.Application.Tests.csproj", "{0CDE33CB-0BCF-4796-BB8B-4CD5C5AC1559}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FarmProject.Application.UnitTests", "FarmProject.Application.Tests\FarmProject.Application.UnitTests.csproj", "{0CDE33CB-0BCF-4796-BB8B-4CD5C5AC1559}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
