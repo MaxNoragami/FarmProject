@@ -1,0 +1,141 @@
+﻿using FarmProject.API.Controllers;
+using FarmProject.API.IntegrationTests.Helpers;
+using FarmProject.Application.BreedingRabbitsService;
+using FarmProject.Application.CageService;
+using FarmProject.Application.Events;
+using FarmProject.Application.FarmTaskService;
+using FarmProject.Application.PairingService;
+using FarmProject.Application;
+using FarmProject.Domain.Events;
+using FarmProject.Infrastructure.Repositories;
+using FarmProject.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Mvc;
+using FarmProject.API.Dtos.Pairs;
+using FarmProject.Domain.Constants;
+using FluentAssertions;
+using FarmProject.API.Dtos.FarmTasks;
+
+namespace FarmProject.API.IntegrationTests;
+
+public class FarmTaskControllerTests
+{
+    [Fact]
+    public async Task GetFarmTaskByDate_DateWithTasks_ReturnsFarmTasks()
+    {
+        var (farmTaskController, pairController, factory) = await SetupTest("GetFarmTaskByDate",
+            async seeder =>
+            {
+                await seeder.ClearDatabase();
+                await seeder.SeedPairs(1);
+            });
+
+        var updatePairDto = new UpdatePairDto()
+        {
+            PairingStatus = PairingStatus.Successful
+        };
+
+        using (factory)
+        {
+            var pairUpdateResult = await pairController.UpdatePair(1, updatePairDto);
+            var okPairUpdateResult = Assert.IsType<OkObjectResult>(pairUpdateResult.Result);
+            var returnedPairDto = Assert.IsAssignableFrom<ViewPairDto>(okPairUpdateResult.Value);
+            
+            returnedPairDto.PairingStatus.Should().Be(PairingStatus.Successful);
+
+            var endDate = returnedPairDto.EndDate!.Value;
+            var expectedDueDate = endDate.AddMonths(1).AddDays(-3).Date;
+
+            var farmTaskResult = await farmTaskController.GetFarmTasksByDate(expectedDueDate.ToString("yyyy-MM-dd"));
+            var okFarmTaskResult = Assert.IsType<OkObjectResult>(farmTaskResult.Result);
+            var returnedFarmTaskDto = Assert.IsAssignableFrom<List<ViewFarmTaskDto>>(okFarmTaskResult.Value);
+
+            returnedFarmTaskDto.Should().NotBeEmpty();
+            returnedFarmTaskDto[0].DueOn.Date.Should().Be(expectedDueDate.Date);
+        }
+    }
+
+    [Fact]
+    public async Task MarkTaskCompleted_ReturnsFarmTask()
+    {
+        var (farmTaskController, pairController, factory) = await SetupTest("MarkTaskCompleted",
+            async seeder =>
+            {
+                await seeder.ClearDatabase();
+                await seeder.SeedPairs(1);
+            });
+
+        var updatePairDto = new UpdatePairDto()
+        {
+            PairingStatus = PairingStatus.Successful
+        };
+
+        using (factory)
+        {
+            var pairUpdateResult = await pairController.UpdatePair(1, updatePairDto);
+            var okPairUpdateResult = Assert.IsType<OkObjectResult>(pairUpdateResult.Result);
+            var returnedPairDto = Assert.IsAssignableFrom<ViewPairDto>(okPairUpdateResult.Value);
+
+            returnedPairDto.PairingStatus.Should().Be(PairingStatus.Successful);
+
+            var endDate = returnedPairDto.EndDate!.Value;
+            var expectedDueDate = endDate.AddMonths(1).AddDays(-3).Date;
+
+            var farmTaskResult = await farmTaskController.MarkTaskCompleted(1);
+            var okFarmTaskResult = Assert.IsType<OkObjectResult>(farmTaskResult.Result);
+            var returnedFarmTaskDto = Assert.IsAssignableFrom<ViewFarmTaskDto>(okFarmTaskResult.Value);
+
+            returnedFarmTaskDto.DueOn.Date.Should().Be(expectedDueDate.Date);
+            returnedFarmTaskDto.IsCompleted.Should().Be(true);
+        }
+    }
+
+    private async Task<(FarmTaskController farmTaskController, PairController pairController, InMemoryDbContextFactory factory)> SetupTest(
+        string databaseName,
+        Func<TestDataSeeder, Task> setupAction)
+    {
+        var factory = new InMemoryDbContextFactory(databaseName);
+        var dbContext = factory.GetContext();
+
+        var seeder = new TestDataSeeder(dbContext);
+
+        await setupAction(seeder);
+
+        var cageRepository = new CageRepository(dbContext);
+        var breedingRabbitRepository = new BreedingRabbitRepository(dbContext);
+        var farmTaskRepository = new FarmTaskRepository(dbContext);
+        var pairingRepository = new PairingRepository(dbContext);
+        var unitOfWork = new UnitOfWork(
+            dbContext,
+            breedingRabbitRepository,
+            pairingRepository,
+            farmTaskRepository,
+            cageRepository
+        );
+
+        var services = new ServiceCollection();
+
+        services.AddSingleton<IPairingRepository>(pairingRepository);
+        services.AddSingleton<IBreedingRabbitRepository>(breedingRabbitRepository);
+        services.AddSingleton<IFarmTaskRepository>(farmTaskRepository);
+        services.AddSingleton<ICageRepository>(cageRepository);
+
+        services.AddScoped<IEventConsumer<BreedEvent>, BreedEventConsumer>();
+        services.AddScoped<IEventConsumer<NestPrepEvent>, NestPrepEventConsumer>();
+
+        var breedingRabbitService = new BreedingRabbitService(unitOfWork);
+        services.AddSingleton<IBreedingRabbitService>(breedingRabbitService);
+        services.AddSingleton<IUnitOfWork>(unitOfWork);
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        var domainEventDispatcher = new DomainEventDispatcher(serviceProvider);
+        var pairingService = new PairingService(unitOfWork, breedingRabbitService, domainEventDispatcher);
+        var farmTaskService = new FarmTaskService(unitOfWork);
+
+        var pairController = new PairController(pairingService);
+        var farmTaskController = new FarmTaskController(farmTaskService);
+
+        return (farmTaskController, pairController, factory);
+    }
+}
