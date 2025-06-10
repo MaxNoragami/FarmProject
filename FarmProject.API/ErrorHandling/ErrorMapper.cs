@@ -9,7 +9,13 @@ public static class ErrorMapper
     public static ActionResult<T> ToActionResult<T>(this Error error)
     {
         var (statusCode, apiError) = MapToApiError(error);
-        return new ObjectResult(apiError) { StatusCode = statusCode };
+
+        return statusCode switch
+        {
+            StatusCodes.Status404NotFound => new NotFoundObjectResult(apiError),
+            StatusCodes.Status400BadRequest => new BadRequestObjectResult(apiError),
+            _ => new ObjectResult(apiError) { StatusCode = statusCode }
+        };
     }
 
     private static (int statusCode, ApiError apiError) MapToApiError(Error error)
