@@ -6,7 +6,7 @@ namespace FarmProject.Domain.UnitTests.PairTest;
 public class RecordFailedImpregnation
 {
     [Fact]
-    public void UpdatePairingFailure()
+    public void Record_FailedImpregnation_SetsPairingStatusToFailed()
     {
         var rabbitMaleId = 1;
         var rabbitFemale = new BreedingRabbit("Mary");
@@ -29,7 +29,8 @@ public class RecordFailedImpregnation
     [Theory]
     [InlineData(PairingStatus.Successful)]
     [InlineData(PairingStatus.Failed)]
-    public void DenoteChangeStatusOnOtherThanActivePairings(PairingStatus invalidPairingStatus)
+    public void RecordFailedImpregnation_OnInvalidPairingStatus_ReturnsFailure(
+        PairingStatus invalidPairingStatus)
     {
         var rabbitMaleId = 1;
         var rabbitFemale = new BreedingRabbit("Mary");

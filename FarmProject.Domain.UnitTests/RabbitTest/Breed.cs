@@ -7,7 +7,7 @@ namespace FarmProject.Domain.UnitTests.RabbitTest;
 public class Breed
 {
     [Fact]
-    public void VerifyCreationOfBreedEvent()
+    public void Breed_CheckForBreedEventCreation()
     {
         var femaleRabbit = new BreedingRabbit("Female")
         {

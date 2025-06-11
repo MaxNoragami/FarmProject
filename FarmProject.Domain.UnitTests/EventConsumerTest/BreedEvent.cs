@@ -12,7 +12,7 @@ namespace FarmProject.Domain.UnitTests.ListnerTest;
 public class BreedEventTest
 {
     [Fact]
-    public async Task SavePairOnBreedEventAsync()
+    public async Task Consume_BreedEvent_CreatesPair()
     {
         IPairingRepository pairingRepository = new InMemoryPairingRepo();
         IBreedingRabbitRepository breedingRabbitRepository = new InMemoryBreedingRabbitRepo();
