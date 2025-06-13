@@ -6,6 +6,7 @@ using FarmProject.API.Dtos.Cages;
 using FarmProject.Domain.Common;
 using FarmProject.Application.Common.Models;
 using FarmProject.API.Dtos;
+using FarmProject.Application.Common.Models.Dtos;
 
 namespace FarmProject.API.Controllers;
 
@@ -39,12 +40,14 @@ public class CageController(ICageService cageService) : AppBaseController
     [HttpGet("paginated")]
     public async Task<ActionResult<PaginatedResult<ViewCageDto>>> GetPaginatedCages(
     [FromQuery] int pageIndex = 1,
-    [FromQuery] int pageSize = 10)
+    [FromQuery] int pageSize = 10,
+    [FromQuery] CageFilterDto? filter = null)
     {
-        var request = new PaginatedRequest
+        var request = new PaginatedRequest<CageFilterDto>
         {
             PageIndex = pageIndex,
-            PageSize = pageSize
+            PageSize = pageSize,
+            Filter = filter ?? new CageFilterDto()
         };
 
         var result = await _cageService.GetPaginatedCages(request);

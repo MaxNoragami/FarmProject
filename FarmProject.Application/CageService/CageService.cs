@@ -1,4 +1,5 @@
-﻿using FarmProject.Application.Common;
+﻿using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
@@ -128,5 +129,12 @@ public class CageService(IUnitOfWork unitOfWork) : ICageService
             await _unitOfWork.RollbackTransactionAsync();
             throw;
         }
+    }
+
+    public async Task<Result<PaginatedResult<Cage>>> GetPaginatedCages(PaginatedRequest<CageFilterDto> request)
+    {
+        var cages = await _unitOfWork.CageRepository.GetPaginatedAsync(request);
+
+        return Result.Success(cages);
     }
 }
