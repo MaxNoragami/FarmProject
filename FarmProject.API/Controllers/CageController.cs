@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using FarmProject.Application.Common;
 using FarmProject.API.Dtos.Cages;
 using FarmProject.Domain.Common;
+using FarmProject.Application.Common.Models;
+using FarmProject.API.Dtos;
 
 namespace FarmProject.API.Controllers;
 
@@ -31,6 +33,32 @@ public class CageController(ICageService cageService) : AppBaseController
             },
 
             onFailure: error => HandleError<List<ViewCageDto>>(error)
+        );
+    }
+
+    [HttpGet("paginated")]
+    public async Task<ActionResult<PaginatedResult<ViewCageDto>>> GetPaginatedCages(
+    [FromQuery] int pageIndex = 1,
+    [FromQuery] int pageSize = 10)
+    {
+        var request = new PaginatedRequest
+        {
+            PageIndex = pageIndex,
+            PageSize = pageSize
+        };
+
+        var result = await _cageService.GetPaginatedCages(request);
+
+        return result.Match(
+            onSuccess: paginatedResult =>
+            {
+                var viewCageDtos = paginatedResult.Items.Select(c => c.ToViewCageDto()).ToList();
+
+                var paginatedDtos = paginatedResult.ToPaginatedResult(viewCageDtos);
+
+                return Ok(paginatedDtos);
+            },
+            onFailure: error => HandleError<PaginatedResult<ViewCageDto>>(error)
         );
     }
 
