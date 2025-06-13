@@ -1,4 +1,6 @@
 ﻿using FarmProject.Application.Common;
+using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Models;
@@ -28,6 +30,16 @@ public class LoggingPairingService(
         => await _loggingHelper.LogOperation(
             LoggingUtilities.FormatMethodCall(nameof(GetAllPairs)),
             GetAllPairs);
+
+    public async Task<Result<PaginatedResult<Pair>>> GetPaginatedPairs(PaginatedRequest<PairFilterDto> request)
+        => await _loggingHelper.LogOperation(
+            LoggingUtilities.FormatMethodCall(
+                nameof(GetPaginatedPairs),
+                (nameof(request), request)
+            ),
+            async () =>
+                await _pairingService
+                    .GetPaginatedPairs(request));
 
     public async Task<Result<Pair>> GetPairById(int pairId)
         => await _loggingHelper.LogOperation(

@@ -3,6 +3,9 @@ using FarmProject.Application.Common;
 using FarmProject.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using FarmProject.API.Dtos.Pairs;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.Common.Models;
+using FarmProject.API.Dtos;
 
 namespace FarmProject.API.Controllers;
 
@@ -24,6 +27,41 @@ public class PairController(IPairingService pairingService) : AppBaseController
             },
 
             onFailure: error => HandleError<List<ViewPairDto>>(error)
+        );
+    }
+
+    [HttpGet("paginated")]
+    public async Task<ActionResult<PaginatedResult<ViewPairDto>>> GetPaginatedPairs(
+    [FromQuery] int pageIndex = 1,
+    [FromQuery] int pageSize = 10,
+    [FromQuery] string sort = "",
+    [FromQuery] SortDirection defaultDirection = SortDirection.Ascending,
+    [FromQuery] PairFilterDto? filter = null)
+    {
+        var request = new PaginatedRequest<PairFilterDto>
+        {
+            PageIndex = pageIndex,
+            PageSize = pageSize,
+            Filter = filter ?? new PairFilterDto(),
+            Sort = new SortSpecification
+            {
+                Sort = sort,
+                SortDirection = defaultDirection
+            }
+        };
+
+        var result = await _pairingService.GetPaginatedPairs(request);
+
+        return result.Match(
+            onSuccess: paginatedResult =>
+            {
+                var viewPairsDtos = paginatedResult.Items.Select(p => p.ToViewPairDto()).ToList();
+
+                var paginatedDtos = paginatedResult.ToPaginatedResult(viewPairsDtos);
+
+                return Ok(paginatedDtos);
+            },
+            onFailure: error => HandleError<PaginatedResult<ViewPairDto>>(error)
         );
     }
 
