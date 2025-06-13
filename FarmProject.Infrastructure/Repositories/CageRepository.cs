@@ -1,6 +1,7 @@
 ﻿using FarmProject.Application.CageService;
 using FarmProject.Application.Common.Models;
 using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.Common.Models.SortConfigs;
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Models;
 using FarmProject.Domain.Specifications;
@@ -44,6 +45,10 @@ public class CageRepository(FarmDbContext context) : ICageRepository
 
         if (request.Filter != null)
             query = query.ApplyFilter(request.Filter);
+
+        var sortOrders = request.Sort?.ToSortOrders(CageSortingFields.AllowedSortFields)
+            ?? new List<SortOrder> { new SortOrder { PropertyName = "Id", Direction = SortDirection.Ascending } };
+        query = query.ApplySorting(sortOrders, CageSortingFields.PropertyPaths);
 
         var totalCount = await query.CountAsync();
         var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);

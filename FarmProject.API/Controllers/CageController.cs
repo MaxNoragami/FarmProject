@@ -41,13 +41,20 @@ public class CageController(ICageService cageService) : AppBaseController
     public async Task<ActionResult<PaginatedResult<ViewCageDto>>> GetPaginatedCages(
     [FromQuery] int pageIndex = 1,
     [FromQuery] int pageSize = 10,
+    [FromQuery] string sort = "",
+    [FromQuery] SortDirection defaultDirection = SortDirection.Ascending,
     [FromQuery] CageFilterDto? filter = null)
     {
         var request = new PaginatedRequest<CageFilterDto>
         {
             PageIndex = pageIndex,
             PageSize = pageSize,
-            Filter = filter ?? new CageFilterDto()
+            Filter = filter ?? new CageFilterDto(),
+            Sort = new SortSpecification
+            {
+                Sort = sort,
+                SortDirection = defaultDirection
+            }
         };
 
         var result = await _cageService.GetPaginatedCages(request);
