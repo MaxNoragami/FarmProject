@@ -62,12 +62,6 @@ public class PairingService(IUnitOfWork unitOfWork,
         }
     }
 
-    public async Task<Result<List<Pair>>> GetAllPairs()
-    {
-        var requestPairs = await _unitOfWork.PairingRepository.GetAllAsync();
-        return Result.Success(requestPairs);
-    }
-
     public async Task<Result<PaginatedResult<Pair>>> GetPaginatedPairs(PaginatedRequest<PairFilterDto> request)
     {
         var pairs = await _unitOfWork.PairingRepository.GetPaginatedAsync(request);

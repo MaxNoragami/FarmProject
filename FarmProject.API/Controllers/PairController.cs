@@ -15,22 +15,6 @@ public class PairController(IPairingService pairingService) : AppBaseController
     private readonly IPairingService _pairingService = pairingService;
 
     [HttpGet]
-    public async Task<ActionResult<List<ViewPairDto>>> GetPairs()
-    {
-        var result = await _pairingService.GetAllPairs();
-
-        return result.Match<ActionResult<List<ViewPairDto>>, List<Pair>>(
-            onSuccess: pairs =>
-            {
-                var pairsView = pairs.Select(p => p.ToViewPairDto()).ToList();
-                return Ok(pairsView);
-            },
-
-            onFailure: error => HandleError<List<ViewPairDto>>(error)
-        );
-    }
-
-    [HttpGet("paginated")]
     public async Task<ActionResult<PaginatedResult<ViewPairDto>>> GetPaginatedPairs(
     [FromQuery] int pageIndex = 1,
     [FromQuery] int pageSize = 10,

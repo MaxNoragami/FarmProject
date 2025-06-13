@@ -15,23 +15,6 @@ public class FarmTaskController(IFarmTaskService farmTaskService) : AppBaseContr
     private readonly IFarmTaskService _farmTaskService = farmTaskService;
 
     [HttpGet]
-    public async Task<ActionResult<List<ViewFarmTaskDto>>> GetFarmTasksByDate([FromQuery] string? date)
-    {
-        var taskDate = ParseDate(date);
-        var result = await _farmTaskService.GetAllFarmTasksByDate(taskDate);
-
-        return result.Match<ActionResult<List<ViewFarmTaskDto>>, List<FarmTask>>(
-                onSuccess: farmTasks =>
-                {
-                    var farmTasksView = farmTasks.Select(ft => ft.ToViewFarmTaskDto()).ToList();
-                    return Ok(farmTasksView);
-                },
-
-                onFailure: error => HandleError<List<ViewFarmTaskDto>>(error)
-            );
-    }
-
-    [HttpGet("paginated")]
     public async Task<ActionResult<PaginatedResult<ViewFarmTaskDto>>> GetPaginatedFarmTasks(
     [FromQuery] int pageIndex = 1,
     [FromQuery] int pageSize = 10,

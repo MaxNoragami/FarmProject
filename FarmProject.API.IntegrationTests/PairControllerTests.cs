@@ -14,6 +14,7 @@ using FarmProject.Domain.Constants;
 using FluentAssertions;
 using FarmProject.Application.CageService;
 using FarmProject.Application.FarmTaskService;
+using FarmProject.Application.Common.Models;
 
 namespace FarmProject.API.IntegrationTests;
 
@@ -32,11 +33,11 @@ public class PairControllerTests
 
         using (factory)
         {
-            var result = await controller.GetPairs();
+            var result = await controller.GetPaginatedPairs();
 
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var cages = Assert.IsAssignableFrom<List<ViewPairDto>>(okResult.Value);
-            Assert.Equal(pairsAmount, cages.Count);
+            var paginatedResult = Assert.IsAssignableFrom<PaginatedResult<ViewPairDto>>(okResult.Value);
+            Assert.Equal(pairsAmount, paginatedResult.Items.Count);
         }
     }
 

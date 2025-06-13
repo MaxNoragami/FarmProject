@@ -24,9 +24,6 @@ public class FarmTaskRepository(FarmDbContext context) : IFarmTaskRepository
             .Where(specification.ToExpression())
             .ToListAsync();
 
-    public async Task<List<FarmTask>> GetAllAsync()
-        => await _context.FarmTasks.ToListAsync();
-
     public async Task<FarmTask?> GetByIdAsync(int farmTaskId)
         => await _context.FarmTasks
             .FirstOrDefaultAsync(ft => ft.Id == farmTaskId);

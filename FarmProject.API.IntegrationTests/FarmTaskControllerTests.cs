@@ -15,6 +15,8 @@ using FarmProject.API.Dtos.Pairs;
 using FarmProject.Domain.Constants;
 using FluentAssertions;
 using FarmProject.API.Dtos.FarmTasks;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.Common.Models;
 
 namespace FarmProject.API.IntegrationTests;
 
@@ -46,12 +48,14 @@ public class FarmTaskControllerTests
             var endDate = returnedPairDto.EndDate!.Value;
             var expectedDueDate = endDate.AddMonths(1).AddDays(-3).Date;
 
-            var farmTaskResult = await farmTaskController.GetFarmTasksByDate(expectedDueDate.ToString("yyyy-MM-dd"));
-            var okFarmTaskResult = Assert.IsType<OkObjectResult>(farmTaskResult.Result);
-            var returnedFarmTaskDto = Assert.IsAssignableFrom<List<ViewFarmTaskDto>>(okFarmTaskResult.Value);
+            var filter = new FarmTaskFilterDto { DueOn = expectedDueDate.ToString("yyyy-MM-dd")};
+            var farmTaskResult = await farmTaskController.GetPaginatedFarmTasks(filter: filter);
 
-            returnedFarmTaskDto.Should().NotBeEmpty();
-            returnedFarmTaskDto[0].DueOn.Date.Should().Be(expectedDueDate.Date);
+            var okFarmTaskResult = Assert.IsType<OkObjectResult>(farmTaskResult.Result);
+            var returnedFarmTaskDto = Assert.IsAssignableFrom<PaginatedResult<ViewFarmTaskDto>>(okFarmTaskResult.Value);
+
+            returnedFarmTaskDto.Items.Should().NotBeEmpty();
+            returnedFarmTaskDto.Items.FirstOrDefault()?.DueOn.Date.Should().Be(expectedDueDate.Date);
         }
     }
 

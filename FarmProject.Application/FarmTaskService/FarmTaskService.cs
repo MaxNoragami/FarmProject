@@ -20,12 +20,6 @@ public class FarmTaskService(IUnitOfWork unitOfWork) : IFarmTaskService
         return Result.Success(createdTask);
     }
 
-    public async Task<Result<List<FarmTask>>> GetAllFarmTasks()
-    {
-        var allFarmTasks = await _unitOfWork.FarmTaskRepository.GetAllAsync();
-        return Result.Success(allFarmTasks);
-    }
-
     public async Task<Result<List<FarmTask>>> GetAllFarmTasksByDate(DateTime date)
     {
         var specification = new FarmTaskSpecificationsByDate(date);

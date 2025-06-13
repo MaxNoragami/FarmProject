@@ -1,4 +1,6 @@
 ﻿using FarmProject.Application.BreedingRabbitsService;
+using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Domain.Models;
 using FarmProject.Domain.Specifications;
 
@@ -26,11 +28,38 @@ public class MockBreedingRabbitRepository : IBreedingRabbitRepository
         return Task.FromResult(result);
     }
 
-    public Task<List<BreedingRabbit>> GetAllAsync()
-        => Task.FromResult(_breedingRabbits.ToList());
-
     public Task<BreedingRabbit?> GetByIdAsync(int breedingRabbitId)
         => Task.FromResult(_breedingRabbits.FirstOrDefault(r => r.Id == breedingRabbitId));
+
+    public Task<PaginatedResult<BreedingRabbit>> GetPaginatedAsync(PaginatedRequest<BreedingRabbitFilterDto> request)
+    {
+        IEnumerable<BreedingRabbit> query = _breedingRabbits;
+
+        if (request.Filter != null)
+        {
+            if (!string.IsNullOrEmpty(request.Filter.Name))
+            {
+                query = query.Where(r => r.Name.Contains(request.Filter.Name));
+            }
+        }
+
+        var totalCount = query.Count();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
+
+        var items = query
+            .Skip((request.PageIndex - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .ToList();
+
+        var result = new PaginatedResult<BreedingRabbit>(
+            request.PageIndex,
+            request.PageSize,
+            totalPages,
+            items
+        );
+
+        return Task.FromResult(result);
+    }
 
     public Task RemoveAsync(BreedingRabbit breedingRabbit)
     {

@@ -31,11 +31,6 @@ public class LoggingCageService(
             async () => 
                 await _cageService.CreateCage(name));
 
-    public async Task<Result<List<Cage>>> GetAllCages()
-        => await _loggingHelper.LogOperation(
-            LoggingUtilities.FormatMethodCall(nameof(GetAllCages)),
-            _cageService.GetAllCages);
-
     public async Task<Result<Cage>> GetCageById(int cageId)
         => await _loggingHelper.LogOperation(
             LoggingUtilities.FormatMethodCall(nameof(GetCageById), (nameof(cageId), cageId)),

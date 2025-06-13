@@ -26,11 +26,6 @@ public class CageRepository(FarmDbContext context) : ICageRepository
             .Where(specification.ToExpression())
             .ToListAsync();
 
-    public async Task<List<Cage>> GetAllAsync()
-        => await _context.Cages
-            .Include(c => c.BreedingRabbit)
-            .ToListAsync();
-
     public async Task<Cage?> GetByIdAsync(int cageId)
         => await _context.Cages
             .Include(c => c.BreedingRabbit)

@@ -16,28 +16,6 @@ public class CageController(ICageService cageService) : AppBaseController
     private readonly ICageService _cageService = cageService;
 
     [HttpGet]
-    public async Task<ActionResult<List<ViewCageDto>>> GetCages(
-        [FromQuery] bool unoccupiedCages = false)
-    {
-        Result<List<Cage>> result;
-
-        if (unoccupiedCages)
-            result = await _cageService.GetUnoccupiedCages();
-        else
-            result = await _cageService.GetAllCages();
-
-        return result.Match<ActionResult<List<ViewCageDto>>, List<Cage>>(
-            onSuccess: cages =>
-            {
-                var cagesView = cages.Select(c => c.ToViewCageDto()).ToList();
-                return Ok(cagesView);
-            },
-
-            onFailure: error => HandleError<List<ViewCageDto>>(error)
-        );
-    }
-
-    [HttpGet("paginated")]
     public async Task<ActionResult<PaginatedResult<ViewCageDto>>> GetPaginatedCages(
     [FromQuery] int pageIndex = 1,
     [FromQuery] int pageSize = 10,

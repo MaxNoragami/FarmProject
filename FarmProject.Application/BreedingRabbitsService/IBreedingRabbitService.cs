@@ -9,7 +9,6 @@ namespace FarmProject.Application.BreedingRabbitsService;
 public interface IBreedingRabbitService
 {
     public Task<Result<BreedingRabbit>> AddBreedingRabbitToFarm(string name, int cageId);
-    public Task<Result<List<BreedingRabbit>>> GetAllBreedingRabbits();
     public Task<Result<PaginatedResult<BreedingRabbit>>> GetPaginatedBreedingRabbits(
         PaginatedRequest<BreedingRabbitFilterDto> request);
     public Task<Result<List<BreedingRabbit>>> GetAllAvailableBreedingRabbits();

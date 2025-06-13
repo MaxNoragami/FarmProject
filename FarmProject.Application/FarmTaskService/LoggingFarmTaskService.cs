@@ -23,11 +23,6 @@ public class LoggingFarmTaskService(
             async () =>
                 await _farmTaskService.CreateFarmTask(farmTask));
 
-    public async Task<Result<List<FarmTask>>> GetAllFarmTasks()
-        => await _loggingHelper.LogOperation(
-            LoggingUtilities.FormatMethodCall(nameof(GetAllFarmTasks)),
-            GetAllFarmTasks);
-
     public async Task<Result<List<FarmTask>>> GetAllFarmTasksByDate(DateTime date)
         => await _loggingHelper.LogOperation(
             LoggingUtilities.FormatMethodCall(

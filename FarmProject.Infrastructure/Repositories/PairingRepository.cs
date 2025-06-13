@@ -18,11 +18,6 @@ public class PairingRepository(FarmDbContext context) : IPairingRepository
         return pair;
     }
 
-    public async Task<List<Pair>> GetAllAsync()
-        => await _context.Pairs
-            .Include(p => p.FemaleRabbit)
-            .ToListAsync();
-
     public async Task<Pair?> GetByIdAsync(int pairId)
         => await _context.Pairs
             .Include(p => p.FemaleRabbit)

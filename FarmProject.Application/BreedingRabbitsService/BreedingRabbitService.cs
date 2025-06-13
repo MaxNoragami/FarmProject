@@ -44,12 +44,6 @@ public class BreedingRabbitService(IUnitOfWork unitOfWork) : IBreedingRabbitServ
         }
     }
 
-    public async Task<Result<List<BreedingRabbit>>> GetAllBreedingRabbits()
-    {
-        var breedingRabbits = await _unitOfWork.BreedingRabbitRepository.GetAllAsync();
-        return Result.Success(breedingRabbits);
-    }
-
     public async Task<Result<List<BreedingRabbit>>> GetAllAvailableBreedingRabbits()
     {
         var specification = new BreedingRabbitSpecificationByAvailable();

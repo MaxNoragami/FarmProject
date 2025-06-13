@@ -6,6 +6,8 @@ using FarmProject.Domain.Events;
 using FarmProject.Domain.Models;
 using FluentAssertions;
 using FarmProject.Domain.Specifications;
+using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
 
 namespace FarmProject.Domain.UnitTests.ListnerTest;
 
@@ -35,12 +37,18 @@ public class BreedEventTest
 
         var consumeResult = await eventConsumer.ConsumeAsync(breedEvent);
 
-        var pairingResult = await pairingRepository.GetAllAsync();
+        var paginationRequest = new PaginatedRequest<PairFilterDto>
+        {
+            PageIndex = 1,
+            PageSize = 10
+        };
+        var paginatedResult = await pairingRepository.GetPaginatedAsync(paginationRequest);
+        var pairs = paginatedResult.Items.ToList();
 
-        Assert.Single(pairingResult);
+        Assert.Single(pairs);
         consumeResult.IsSuccess.Should().BeTrue();
-        pairingResult[0].FemaleRabbit.Should().BeEquivalentTo(femaleBreedingRabbit);
-        pairingResult[0].MaleRabbitId.Should().Be(maleRabbitId);
+        pairs[0].FemaleRabbit.Should().BeEquivalentTo(femaleBreedingRabbit);
+        pairs[0].MaleRabbitId.Should().Be(maleRabbitId);
 
     }
 }
@@ -60,14 +68,26 @@ internal class InMemoryBreedingRabbitRepo : IBreedingRabbitRepository
         throw new NotImplementedException();
     }
 
-    public Task<List<BreedingRabbit>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
-
     public Task<BreedingRabbit?> GetByIdAsync(int breedingRabbitId)
     {
         return Task.FromResult(_breedingRabbits.FirstOrDefault(r => r.Id == breedingRabbitId));
+    }
+
+    public Task<PaginatedResult<BreedingRabbit>> GetPaginatedAsync(PaginatedRequest<BreedingRabbitFilterDto> request)
+    {
+        var items = _breedingRabbits.Skip((request.PageIndex - 1) * request.PageSize)
+                                   .Take(request.PageSize)
+                                   .ToList();
+
+        var totalPages = (int)Math.Ceiling(_breedingRabbits.Count / (double)request.PageSize);
+        var result = new PaginatedResult<BreedingRabbit>(
+            request.PageIndex,
+            request.PageSize,
+            totalPages,
+            items
+        );
+
+        return Task.FromResult(result);
     }
 
     public Task RemoveAsync(BreedingRabbit breedingRabbit)
@@ -92,11 +112,6 @@ internal class InMemoryPairingRepo : IPairingRepository
         return Task.FromResult(pair);
     }
 
-    public Task<List<Pair>> GetAllAsync()
-    {
-        return Task.FromResult(_pairs);
-    }
-
     public Task<Pair?> GetByIdAsync(int pairId)
     {
         throw new NotImplementedException();
@@ -105,6 +120,23 @@ internal class InMemoryPairingRepo : IPairingRepository
     public Task<Pair?> GetMostRecentPairByBreedingRabbitIdsAsync(int breedingRabbitId1, int breedingRabbitId2)
     {
         throw new NotImplementedException();
+    }
+
+    public Task<PaginatedResult<Pair>> GetPaginatedAsync(PaginatedRequest<PairFilterDto> request)
+    {
+        var items = _pairs.Skip((request.PageIndex - 1) * request.PageSize)
+                         .Take(request.PageSize)
+                         .ToList();
+
+        var totalPages = (int)Math.Ceiling(_pairs.Count / (double)request.PageSize);
+        var result = new PaginatedResult<Pair>(
+            request.PageIndex,
+            request.PageSize,
+            totalPages,
+            items
+        );
+
+        return Task.FromResult(result);
     }
 
     public Task RemoveAsync(Pair pair)

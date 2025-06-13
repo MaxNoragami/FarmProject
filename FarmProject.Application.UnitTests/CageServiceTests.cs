@@ -1,4 +1,6 @@
-﻿using FarmProject.Application.UnitTests.Mocks;
+﻿using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.Common.Models;
+using FarmProject.Application.UnitTests.Mocks;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Models;
@@ -34,10 +36,16 @@ public class CageServiceTests
         var mockUnitOfWork = new MockUnitOfWork(cageRepository: mockCageRepo);
         var cageService = new CageService.CageService(mockUnitOfWork);
 
-        var result = await cageService.GetAllCages();
+        var paginatedRequest = new PaginatedRequest<CageFilterDto>
+        {
+            PageIndex = 1,
+            PageSize = 10
+        };
+
+        var result = await cageService.GetPaginatedCages(paginatedRequest);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().HaveCount(3);
+        result.Value.Items.Should().HaveCount(3);
     }
 
     [Fact]
@@ -47,10 +55,16 @@ public class CageServiceTests
         var mockUnitOfWork = new MockUnitOfWork(cageRepository: mockCageRepo);
         var cageService = new CageService.CageService(mockUnitOfWork);
 
-        var result = await cageService.GetAllCages();
+        var paginatedRequest = new PaginatedRequest<CageFilterDto>
+        {
+            PageIndex = 1,
+            PageSize = 10
+        };
+
+        var result = await cageService.GetPaginatedCages(paginatedRequest);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().BeEmpty();
+        result.Value.Items.Should().BeEmpty();
     }
 
     [Fact]

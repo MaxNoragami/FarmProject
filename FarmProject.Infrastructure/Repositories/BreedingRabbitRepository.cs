@@ -24,9 +24,6 @@ public class BreedingRabbitRepository(FarmDbContext context) : IBreedingRabbitRe
             .Where(specification.ToExpression())
             .ToListAsync();
 
-    public async Task<List<BreedingRabbit>> GetAllAsync()
-        => await _context.BreedingRabbits.ToListAsync();
-
     public async Task<BreedingRabbit?> GetByIdAsync(int breedingRabbitId)
         => await _context.BreedingRabbits
             .FirstOrDefaultAsync(r => r.Id == breedingRabbitId);

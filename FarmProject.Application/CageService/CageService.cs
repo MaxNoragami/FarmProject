@@ -18,12 +18,6 @@ public class CageService(IUnitOfWork unitOfWork) : ICageService
         return Result.Success(createdCage);
     }
 
-    public async Task<Result<List<Cage>>> GetAllCages()
-    {
-        var cages = await _unitOfWork.CageRepository.GetAllAsync();
-        return Result.Success(cages);
-    }
-
     public async Task<Result<Cage>> GetCageById(int cageId)
     {
         var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);

@@ -1,4 +1,6 @@
-﻿using FarmProject.Application.PairingService;
+﻿using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.PairingService;
 using FarmProject.Domain.Models;
 
 namespace FarmProject.Application.UnitTests.Mocks;
@@ -17,9 +19,6 @@ public class MockPairingRepository : IPairingRepository
         return Task.FromResult(pair);
     }
 
-    public Task<List<Pair>> GetAllAsync()
-        => Task.FromResult(_pairs.ToList());
-
     public Task<Pair?> GetByIdAsync(int pairId)
         => Task.FromResult(_pairs.FirstOrDefault(p => p.Id == pairId));
 
@@ -27,6 +26,42 @@ public class MockPairingRepository : IPairingRepository
     {
         return Task.FromResult(_pairs.FirstOrDefault(p =>
             p.FemaleRabbit?.Id == breedingRabbitId1 && p.MaleRabbitId == breedingRabbitId2));
+    }
+
+    public Task<PaginatedResult<Pair>> GetPaginatedAsync(PaginatedRequest<PairFilterDto> request)
+    {
+        IEnumerable<Pair> query = _pairs;
+
+        // Apply basic filtering if provided
+        if (request.Filter != null)
+        {
+            if (request.Filter.MaleRabbitId.HasValue)
+            {
+                query = query.Where(p => p.MaleRabbitId == request.Filter.MaleRabbitId.Value);
+            }
+
+            if (request.Filter.PairingStatus.HasValue)
+            {
+                query = query.Where(p => p.PairingStatus == request.Filter.PairingStatus.Value);
+            }
+        }
+
+        var totalCount = query.Count();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
+
+        var items = query
+            .Skip((request.PageIndex - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .ToList();
+
+        var result = new PaginatedResult<Pair>(
+            request.PageIndex,
+            request.PageSize,
+            totalPages,
+            items
+        );
+
+        return Task.FromResult(result);
     }
 
     public Task RemoveAsync(Pair pair)

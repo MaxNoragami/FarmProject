@@ -8,7 +8,6 @@ namespace FarmProject.Application.FarmTaskService;
 public interface IFarmTaskService
 {
     public Task<Result<FarmTask>> CreateFarmTask(FarmTask farmTask);
-    public Task<Result<List<FarmTask>>> GetAllFarmTasks();
     public Task<Result<PaginatedResult<FarmTask>>> GetPaginatedFarmTasks(PaginatedRequest<FarmTaskFilterDto> request);
     public Task<Result<List<FarmTask>>> GetAllPendingFarmTasks();
     public Task<Result<List<FarmTask>>> GetAllFarmTasksByDate(DateTime date);

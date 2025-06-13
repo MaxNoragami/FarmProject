@@ -26,11 +26,6 @@ public class LoggingPairingService(
                 await _pairingService
                     .CreatePair(breedingRabbitId, maleRabbitId));
 
-    public async Task<Result<List<Pair>>> GetAllPairs()
-        => await _loggingHelper.LogOperation(
-            LoggingUtilities.FormatMethodCall(nameof(GetAllPairs)),
-            GetAllPairs);
-
     public async Task<Result<PaginatedResult<Pair>>> GetPaginatedPairs(PaginatedRequest<PairFilterDto> request)
         => await _loggingHelper.LogOperation(
             LoggingUtilities.FormatMethodCall(

@@ -9,7 +9,6 @@ public interface IBreedingRabbitRepository
 {
     public Task<BreedingRabbit> AddAsync(BreedingRabbit breedingRabbit);
     public Task<BreedingRabbit?> GetByIdAsync(int breedingRabbitId);
-    public Task<List<BreedingRabbit>> GetAllAsync();
     public Task<PaginatedResult<BreedingRabbit>> GetPaginatedAsync(PaginatedRequest<BreedingRabbitFilterDto> request);
     public Task<List<BreedingRabbit>> FindAsync(ISpecification<BreedingRabbit> specification);
     public Task<BreedingRabbit> UpdateAsync(BreedingRabbit breedingRabbit);

@@ -23,28 +23,6 @@ public class BreedingRabbitController(
     private readonly ICageService _cageService = cageService;
 
     [HttpGet]
-    public async Task<ActionResult<List<ViewBreedingRabbitDto>>> GetBreedingRabbits(
-        [FromQuery] bool availableForBreeding = false)
-    {
-        Result<List<BreedingRabbit>> result;
-
-        if (availableForBreeding)
-            result = await _breedingRabbitService.GetAllAvailableBreedingRabbits();
-        else
-            result = await _breedingRabbitService.GetAllBreedingRabbits();
-
-        return result.Match<ActionResult<List<ViewBreedingRabbitDto>>, List<BreedingRabbit>>(
-            onSuccess: breedingRabbits =>
-            {
-                var breedingRabbitsView = breedingRabbits.Select(br => br.ToViewBreedingRabbitDto()).ToList();
-                return Ok(breedingRabbitsView);
-            },
-
-            onFailure: error => HandleError<List<ViewBreedingRabbitDto>>(error)
-        );
-    }
-
-    [HttpGet("paginated")]
     public async Task<ActionResult<PaginatedResult<ViewBreedingRabbitDto>>> GetPaginatedBreedingRabbits(
     [FromQuery] int pageIndex = 1,
     [FromQuery] int pageSize = 10,

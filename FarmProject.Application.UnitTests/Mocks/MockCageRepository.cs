@@ -1,4 +1,6 @@
 ﻿using FarmProject.Application.CageService;
+using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Domain.Models;
 using FarmProject.Domain.Specifications;
 
@@ -26,11 +28,43 @@ public class MockCageRepository : ICageRepository
         return Task.FromResult(result);
     }
 
-    public Task<List<Cage>> GetAllAsync()
-        => Task.FromResult(_cages.ToList());
-
     public Task<Cage?> GetByIdAsync(int cageId)
         => Task.FromResult(_cages.FirstOrDefault(c => c.Id == cageId));
+
+    public Task<PaginatedResult<Cage>> GetPaginatedAsync(PaginatedRequest<CageFilterDto> request)
+    {
+        IEnumerable<Cage> query = _cages;
+
+        if (request.Filter != null)
+        {
+            if (!string.IsNullOrEmpty(request.Filter.Name))
+                query = query.Where(c => c.Name.Contains(request.Filter.Name));
+
+            if (request.Filter.IsOccupied.HasValue)
+                query = query.Where(c =>
+                    (c.BreedingRabbit != null) == request.Filter.IsOccupied.Value);
+
+            if (request.Filter.OffspringType.HasValue)
+                query = query.Where(c => c.OffspringType == request.Filter.OffspringType.Value);
+        }
+
+        var totalCount = query.Count();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
+
+        var items = query
+            .Skip((request.PageIndex - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .ToList();
+
+        var result = new PaginatedResult<Cage>(
+            request.PageIndex,
+            request.PageSize,
+            totalPages,
+            items
+        );
+
+        return Task.FromResult(result);
+    }
 
     public Task RemoveAsync(Cage cage)
     {
