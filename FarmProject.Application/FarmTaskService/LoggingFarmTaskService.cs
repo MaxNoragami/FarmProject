@@ -1,4 +1,6 @@
 ﻿using FarmProject.Application.Common;
+using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Models;
 
@@ -48,6 +50,15 @@ public class LoggingFarmTaskService(
             ),
             async () =>
                 await _farmTaskService.GetFarmTaskById(taskId));
+
+    public async Task<Result<PaginatedResult<FarmTask>>> GetPaginatedFarmTasks(PaginatedRequest<FarmTaskFilterDto> request)
+        => await _loggingHelper.LogOperation(
+            LoggingUtilities.FormatMethodCall(
+                nameof(GetPaginatedFarmTasks),
+                (nameof(request), request)
+            ),
+            async () =>
+                await _farmTaskService.GetPaginatedFarmTasks(request));
 
     public async Task<Result<FarmTask>> MarkFarmTaskAsCompleted(int taskId)
         => await _loggingHelper.LogOperation(
