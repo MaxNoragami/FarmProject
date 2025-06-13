@@ -1,4 +1,7 @@
-﻿using FarmProject.Application.PairingService;
+﻿using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.Common.Models.SortConfigs;
+using FarmProject.Application.PairingService;
 using FarmProject.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,11 +17,6 @@ public class PairingRepository(FarmDbContext context) : IPairingRepository
         await _context.SaveChangesAsync();
         return pair;
     }
-
-    public async Task<List<Pair>> GetAllAsync()
-        => await _context.Pairs
-            .Include(p => p.FemaleRabbit)
-            .ToListAsync();
 
     public async Task<Pair?> GetByIdAsync(int pairId)
         => await _context.Pairs
@@ -50,5 +48,36 @@ public class PairingRepository(FarmDbContext context) : IPairingRepository
             .Where(p => p.MaleRabbitId == maleRabbitId && p.FemaleRabbit!.Id == breedingRabbitId)
             .OrderByDescending(p => p.StartDate)
             .FirstOrDefaultAsync();
+    }
+
+    public async Task<PaginatedResult<Pair>> GetPaginatedAsync(PaginatedRequest<PairFilterDto> request)
+    {
+        var query = _context.Pairs
+            .Include(p => p.FemaleRabbit)
+            .AsQueryable();
+
+        if (request.Filter != null)
+            query = query.ApplyFilter(request.Filter);
+
+        var sortOrders = request.Sort?.ToSortOrders(PairSortingFields.AllowedSortFields)
+            ?? new List<SortOrder> { new SortOrder { PropertyName = "Id", Direction = SortDirection.Ascending } };
+        query = query.ApplySorting(sortOrders, PairSortingFields.PropertyPaths);
+
+        var totalCount = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
+
+        var items = await query
+            .Skip((request.PageIndex - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .ToListAsync();
+
+        var result = new PaginatedResult<Pair>(
+            request.PageIndex,
+            request.PageSize,
+            totalPages,
+            items
+        );
+
+        return result;
     }
 }

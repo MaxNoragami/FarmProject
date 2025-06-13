@@ -2,6 +2,8 @@
 using FarmProject.API.Dtos.Cages;
 using FarmProject.API.IntegrationTests.Helpers;
 using FarmProject.Application.CageService;
+using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Domain.Constants;
 using FarmProject.Infrastructure;
 using FarmProject.Infrastructure.Repositories;
@@ -21,11 +23,12 @@ public class CageControllerTests
 
         using (factory)
         {
-            var result = await controller.GetCages();
+            var result = await controller.GetPaginatedCages();
 
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var cages = Assert.IsAssignableFrom<List<ViewCageDto>>(okResult.Value);
-            Assert.Equal(cagesAmount, cages.Count);
+            var paginatedResult = Assert.IsAssignableFrom<PaginatedResult<ViewCageDto>>(okResult.Value);
+            Assert.Equal(cagesAmount, paginatedResult.Items.Count);
+            Assert.Equal(1, paginatedResult.PageIndex);
         }
     }
 
@@ -37,12 +40,13 @@ public class CageControllerTests
             async seeder => await seeder.SeedCages(cagesAmount));
         using (factory)
         {
-            var result = await controller.GetCages(unoccupiedCages: true);
+            var filter = new CageFilterDto { IsOccupied = false };
+            var result = await controller.GetPaginatedCages(filter: filter);
 
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var cages = Assert.IsAssignableFrom<List<ViewCageDto>>(okResult.Value);
-            Assert.Equal(cagesAmount - 1, cages.Count);
-            Assert.All(cages, cage => Assert.Null(cage.BreedingRabbitId));
+            var paginatedResult = Assert.IsAssignableFrom<PaginatedResult<ViewCageDto>>(okResult.Value);
+            Assert.Equal(cagesAmount - 1, paginatedResult.Items.Count);
+            Assert.All(paginatedResult.Items, cage => Assert.Null(cage.BreedingRabbitId));
         }
     }
 

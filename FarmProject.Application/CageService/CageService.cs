@@ -1,4 +1,5 @@
-﻿using FarmProject.Application.Common;
+﻿using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
@@ -15,12 +16,6 @@ public class CageService(IUnitOfWork unitOfWork) : ICageService
     {
         var createdCage = await _unitOfWork.CageRepository.AddAsync(new Cage(name));
         return Result.Success(createdCage);
-    }
-
-    public async Task<Result<List<Cage>>> GetAllCages()
-    {
-        var cages = await _unitOfWork.CageRepository.GetAllAsync();
-        return Result.Success(cages);
     }
 
     public async Task<Result<Cage>> GetCageById(int cageId)
@@ -128,5 +123,12 @@ public class CageService(IUnitOfWork unitOfWork) : ICageService
             await _unitOfWork.RollbackTransactionAsync();
             throw;
         }
+    }
+
+    public async Task<Result<PaginatedResult<Cage>>> GetPaginatedCages(PaginatedRequest<CageFilterDto> request)
+    {
+        var cages = await _unitOfWork.CageRepository.GetPaginatedAsync(request);
+
+        return Result.Success(cages);
     }
 }

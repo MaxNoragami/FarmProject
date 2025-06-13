@@ -1,4 +1,7 @@
 ﻿using FarmProject.Application.BreedingRabbitsService;
+using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.Common.Models.SortConfigs;
 using FarmProject.Domain.Models;
 using FarmProject.Domain.Specifications;
 using Microsoft.EntityFrameworkCore;
@@ -21,12 +24,39 @@ public class BreedingRabbitRepository(FarmDbContext context) : IBreedingRabbitRe
             .Where(specification.ToExpression())
             .ToListAsync();
 
-    public async Task<List<BreedingRabbit>> GetAllAsync()
-        => await _context.BreedingRabbits.ToListAsync();
-
     public async Task<BreedingRabbit?> GetByIdAsync(int breedingRabbitId)
         => await _context.BreedingRabbits
             .FirstOrDefaultAsync(r => r.Id == breedingRabbitId);
+
+    public async Task<PaginatedResult<BreedingRabbit>> GetPaginatedAsync(PaginatedRequest<BreedingRabbitFilterDto> request)
+    {
+        var query = _context.BreedingRabbits
+            .AsQueryable();
+
+        if (request.Filter != null)
+            query = query.ApplyFilter(request.Filter);
+
+        var sortOrders = request.Sort?.ToSortOrders(BreedingRabbitSortingFields.AllowedSortFields)
+            ?? new List<SortOrder> { new SortOrder { PropertyName = "Id", Direction = SortDirection.Ascending } };
+        query = query.ApplySorting(sortOrders, BreedingRabbitSortingFields.PropertyPaths);
+
+        var totalCount = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
+
+        var items = await query
+            .Skip((request.PageIndex - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .ToListAsync();
+
+        var result = new PaginatedResult<BreedingRabbit>(
+            request.PageIndex,
+            request.PageSize,
+            totalPages,
+            items
+        );
+
+        return result;
+    }
 
     public async Task RemoveAsync(BreedingRabbit breedingRabbit)
     {

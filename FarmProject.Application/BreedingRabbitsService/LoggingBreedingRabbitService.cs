@@ -1,8 +1,9 @@
 ﻿using FarmProject.Application.Common;
+using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Models;
-using System.Xml.Linq;
 
 namespace FarmProject.Application.BreedingRabbitsService;
 
@@ -30,11 +31,6 @@ public class LoggingBreedingRabbitService(
             LoggingUtilities.FormatMethodCall(nameof(GetAllAvailableBreedingRabbits)),
             GetAllAvailableBreedingRabbits);
 
-    public async Task<Result<List<BreedingRabbit>>> GetAllBreedingRabbits()
-        => await _loggingHelper.LogOperation(
-            LoggingUtilities.FormatMethodCall(nameof(GetAllBreedingRabbits)),
-            GetAllBreedingRabbits);
-
     public async Task<Result<BreedingRabbit>> GetBreedingRabbitById(int breedingRabbitId)
         => await _loggingHelper.LogOperation(
             LoggingUtilities.FormatMethodCall(
@@ -43,6 +39,17 @@ public class LoggingBreedingRabbitService(
             ),
             async () =>
                 await _breedingRabbitService.GetBreedingRabbitById(breedingRabbitId));
+
+    public async Task<Result<PaginatedResult<BreedingRabbit>>> GetPaginatedBreedingRabbits(
+        PaginatedRequest<BreedingRabbitFilterDto> request
+    )
+        => await _loggingHelper.LogOperation(
+            LoggingUtilities.FormatMethodCall(
+                nameof(GetPaginatedBreedingRabbits),
+                (nameof(request), request)
+            ),
+            async () =>
+                await _breedingRabbitService.GetPaginatedBreedingRabbits(request));
 
     public async Task<Result<BreedingRabbit>> UpdateBreedingStatus(int breedingRabbitId, BreedingStatus breedingStatus)
         => await _loggingHelper.LogOperation(

@@ -1,4 +1,6 @@
-﻿using FarmProject.Application.FarmTaskService;
+﻿using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.FarmTaskService;
 using FarmProject.Domain.Models;
 using FarmProject.Domain.Specifications;
 
@@ -26,11 +28,30 @@ public class MockFarmTaskRepository : IFarmTaskRepository
         return Task.FromResult(result);
     }
 
-    public Task<List<FarmTask>> GetAllAsync()
-        => Task.FromResult(_tasks.ToList());
-
     public Task<FarmTask?> GetByIdAsync(int taskId)
         => Task.FromResult(_tasks.FirstOrDefault(t => t.Id == taskId));
+
+    public Task<PaginatedResult<FarmTask>> GetPaginatedAsync(PaginatedRequest<FarmTaskFilterDto> request)
+    {
+        IEnumerable<FarmTask> query = _tasks;
+
+        var totalCount = query.Count();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
+
+        var items = query
+            .Skip((request.PageIndex - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .ToList();
+
+        var result = new PaginatedResult<FarmTask>(
+            request.PageIndex,
+            request.PageSize,
+            totalPages,
+            items
+        );
+
+        return Task.FromResult(result);
+    }
 
     public Task RemoveAsync(FarmTask task)
     {

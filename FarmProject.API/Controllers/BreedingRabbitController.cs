@@ -6,6 +6,9 @@ using FarmProject.API.Dtos.BreedingRabbits;
 using FarmProject.Domain.Common;
 using FarmProject.Application.CageService;
 using FarmProject.Domain.Errors;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.Common.Models;
+using FarmProject.API.Dtos;
 
 
 namespace FarmProject.API.Controllers;
@@ -20,24 +23,37 @@ public class BreedingRabbitController(
     private readonly ICageService _cageService = cageService;
 
     [HttpGet]
-    public async Task<ActionResult<List<ViewBreedingRabbitDto>>> GetBreedingRabbits(
-        [FromQuery] bool availableForBreeding = false)
+    public async Task<ActionResult<PaginatedResult<ViewBreedingRabbitDto>>> GetPaginatedBreedingRabbits(
+    [FromQuery] int pageIndex = 1,
+    [FromQuery] int pageSize = 10,
+    [FromQuery] string sort = "",
+    [FromQuery] SortDirection defaultDirection = SortDirection.Ascending,
+    [FromQuery] BreedingRabbitFilterDto? filter = null)
     {
-        Result<List<BreedingRabbit>> result;
-
-        if (availableForBreeding)
-            result = await _breedingRabbitService.GetAllAvailableBreedingRabbits();
-        else
-            result = await _breedingRabbitService.GetAllBreedingRabbits();
-
-        return result.Match<ActionResult<List<ViewBreedingRabbitDto>>, List<BreedingRabbit>>(
-            onSuccess: breedingRabbits =>
+        var request = new PaginatedRequest<BreedingRabbitFilterDto>
+        {
+            PageIndex = pageIndex,
+            PageSize = pageSize,
+            Filter = filter ?? new BreedingRabbitFilterDto(),
+            Sort = new SortSpecification
             {
-                var breedingRabbitsView = breedingRabbits.Select(br => br.ToViewBreedingRabbitDto()).ToList();
-                return Ok(breedingRabbitsView);
-            },
+                Sort = sort,
+                SortDirection = defaultDirection
+            }
+        };
 
-            onFailure: error => HandleError<List<ViewBreedingRabbitDto>>(error)
+        var result = await _breedingRabbitService.GetPaginatedBreedingRabbits(request);
+
+        return result.Match(
+            onSuccess: paginatedResult =>
+            {
+                var viewBreedingRabbitsDtos = paginatedResult.Items.Select(br => br.ToViewBreedingRabbitDto()).ToList();
+
+                var paginatedDtos = paginatedResult.ToPaginatedResult(viewBreedingRabbitsDtos);
+
+                return Ok(paginatedDtos);
+            },
+            onFailure: error => HandleError<PaginatedResult<ViewBreedingRabbitDto>>(error)
         );
     }
 

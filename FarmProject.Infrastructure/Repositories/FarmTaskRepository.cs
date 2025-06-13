@@ -1,4 +1,7 @@
-﻿using FarmProject.Application.FarmTaskService;
+﻿using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.Common.Models.SortConfigs;
+using FarmProject.Application.FarmTaskService;
 using FarmProject.Domain.Models;
 using FarmProject.Domain.Specifications;
 using Microsoft.EntityFrameworkCore;
@@ -21,12 +24,39 @@ public class FarmTaskRepository(FarmDbContext context) : IFarmTaskRepository
             .Where(specification.ToExpression())
             .ToListAsync();
 
-    public async Task<List<FarmTask>> GetAllAsync()
-        => await _context.FarmTasks.ToListAsync();
-
     public async Task<FarmTask?> GetByIdAsync(int farmTaskId)
         => await _context.FarmTasks
             .FirstOrDefaultAsync(ft => ft.Id == farmTaskId);
+
+    public async Task<PaginatedResult<FarmTask>> GetPaginatedAsync(PaginatedRequest<FarmTaskFilterDto> request)
+    {
+        var query = _context.FarmTasks
+            .AsQueryable();
+
+        if (request.Filter != null)
+            query = query.ApplyFilter(request.Filter);
+
+        var sortOrders = request.Sort?.ToSortOrders(FarmTaskSortingFields.AllowedSortFields)
+            ?? new List<SortOrder> { new SortOrder { PropertyName = "Id", Direction = SortDirection.Ascending } };
+        query = query.ApplySorting(sortOrders, FarmTaskSortingFields.PropertyPaths);
+
+        var totalCount = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
+
+        var items = await query
+            .Skip((request.PageIndex - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .ToListAsync();
+
+        var result = new PaginatedResult<FarmTask>(
+            request.PageIndex,
+            request.PageSize,
+            totalPages,
+            items
+        );
+
+        return result;
+    }
 
     public async Task RemoveAsync(FarmTask farmTask)
     {

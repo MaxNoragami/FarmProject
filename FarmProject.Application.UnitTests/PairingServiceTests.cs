@@ -3,6 +3,8 @@ using FarmProject.Application.UnitTests.Mocks;
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Models;
 using FluentAssertions;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.Common.Models;
 
 namespace FarmProject.Application.UnitTests;
 
@@ -72,11 +74,17 @@ public class PairingServiceTests
             null!,
             mockEventDispatcher);
 
-        var result = await pairingService.GetAllPairs();
+        var paginatedRequest = new PaginatedRequest<PairFilterDto>
+        {
+            PageIndex = 1,
+            PageSize = 10
+        };
+
+        var result = await pairingService.GetPaginatedPairs(paginatedRequest);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().HaveCount(2);
-        result.Value.Should().Contain(p => p.Id == 1);
-        result.Value.Should().Contain(p => p.Id == 2);
+        result.Value.Items.Should().HaveCount(2);
+        result.Value.Items.Should().Contain(p => p.Id == 1);
+        result.Value.Items.Should().Contain(p => p.Id == 2);
     }
 }

@@ -4,6 +4,8 @@ using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Models;
+using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
 
 namespace FarmProject.Application.PairingService;
 
@@ -60,10 +62,11 @@ public class PairingService(IUnitOfWork unitOfWork,
         }
     }
 
-    public async Task<Result<List<Pair>>> GetAllPairs()
+    public async Task<Result<PaginatedResult<Pair>>> GetPaginatedPairs(PaginatedRequest<PairFilterDto> request)
     {
-        var requestPairs = await _unitOfWork.PairingRepository.GetAllAsync();
-        return Result.Success(requestPairs);
+        var pairs = await _unitOfWork.PairingRepository.GetPaginatedAsync(request);
+
+        return Result.Success(pairs);
     }
 
     public async Task<Result<Pair>> GetPairById(int pairId)

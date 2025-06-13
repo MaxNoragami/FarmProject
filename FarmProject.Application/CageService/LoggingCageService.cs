@@ -1,8 +1,9 @@
 ﻿using FarmProject.Application.Common;
+using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Models;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace FarmProject.Application.CageService;
 
@@ -30,16 +31,17 @@ public class LoggingCageService(
             async () => 
                 await _cageService.CreateCage(name));
 
-    public async Task<Result<List<Cage>>> GetAllCages()
-        => await _loggingHelper.LogOperation(
-            LoggingUtilities.FormatMethodCall(nameof(GetAllCages)),
-            _cageService.GetAllCages);
-
     public async Task<Result<Cage>> GetCageById(int cageId)
         => await _loggingHelper.LogOperation(
             LoggingUtilities.FormatMethodCall(nameof(GetCageById), (nameof(cageId), cageId)),
             async () =>
                 await _cageService.GetCageById(cageId));
+
+    public async Task<Result<PaginatedResult<Cage>>> GetPaginatedCages(PaginatedRequest<CageFilterDto> request)
+        => await _loggingHelper.LogOperation(
+            LoggingUtilities.FormatMethodCall(nameof(GetPaginatedCages), (nameof(request), request)),
+            async () =>
+                await _cageService.GetPaginatedCages(request));
 
     public async Task<Result<List<Cage>>> GetUnoccupiedCages()
         => await _loggingHelper.LogOperation(

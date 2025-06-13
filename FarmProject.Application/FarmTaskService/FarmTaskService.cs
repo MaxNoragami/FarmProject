@@ -1,4 +1,6 @@
-﻿using FarmProject.Domain.Common;
+﻿using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Domain.Common;
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Models;
 using FarmProject.Domain.Specifications;
@@ -16,12 +18,6 @@ public class FarmTaskService(IUnitOfWork unitOfWork) : IFarmTaskService
 
         var createdTask = await _unitOfWork.FarmTaskRepository.AddAsync(farmTask);
         return Result.Success(createdTask);
-    }
-
-    public async Task<Result<List<FarmTask>>> GetAllFarmTasks()
-    {
-        var allFarmTasks = await _unitOfWork.FarmTaskRepository.GetAllAsync();
-        return Result.Success(allFarmTasks);
     }
 
     public async Task<Result<List<FarmTask>>> GetAllFarmTasksByDate(DateTime date)
@@ -44,6 +40,13 @@ public class FarmTaskService(IUnitOfWork unitOfWork) : IFarmTaskService
         if (requestTask == null)
             return Result.Failure<FarmTask>(FarmTaskErrors.NotFound);
         return Result.Success(requestTask);
+    }
+
+    public async Task<Result<PaginatedResult<FarmTask>>> GetPaginatedFarmTasks(PaginatedRequest<FarmTaskFilterDto> request)
+    {
+        var farmTasks = await _unitOfWork.FarmTaskRepository.GetPaginatedAsync(request);
+
+        return Result.Success(farmTasks);
     }
 
     public async Task<Result<FarmTask>> MarkFarmTaskAsCompleted(int taskId)

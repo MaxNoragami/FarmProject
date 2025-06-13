@@ -3,6 +3,9 @@ using FarmProject.Application.Common;
 using FarmProject.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using FarmProject.API.Dtos.Pairs;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.Common.Models;
+using FarmProject.API.Dtos;
 
 namespace FarmProject.API.Controllers;
 
@@ -12,18 +15,37 @@ public class PairController(IPairingService pairingService) : AppBaseController
     private readonly IPairingService _pairingService = pairingService;
 
     [HttpGet]
-    public async Task<ActionResult<List<ViewPairDto>>> GetPairs()
+    public async Task<ActionResult<PaginatedResult<ViewPairDto>>> GetPaginatedPairs(
+    [FromQuery] int pageIndex = 1,
+    [FromQuery] int pageSize = 10,
+    [FromQuery] string sort = "",
+    [FromQuery] SortDirection defaultDirection = SortDirection.Ascending,
+    [FromQuery] PairFilterDto? filter = null)
     {
-        var result = await _pairingService.GetAllPairs();
-
-        return result.Match<ActionResult<List<ViewPairDto>>, List<Pair>>(
-            onSuccess: pairs =>
+        var request = new PaginatedRequest<PairFilterDto>
+        {
+            PageIndex = pageIndex,
+            PageSize = pageSize,
+            Filter = filter ?? new PairFilterDto(),
+            Sort = new SortSpecification
             {
-                var pairsView = pairs.Select(p => p.ToViewPairDto()).ToList();
-                return Ok(pairsView);
-            },
+                Sort = sort,
+                SortDirection = defaultDirection
+            }
+        };
 
-            onFailure: error => HandleError<List<ViewPairDto>>(error)
+        var result = await _pairingService.GetPaginatedPairs(request);
+
+        return result.Match(
+            onSuccess: paginatedResult =>
+            {
+                var viewPairsDtos = paginatedResult.Items.Select(p => p.ToViewPairDto()).ToList();
+
+                var paginatedDtos = paginatedResult.ToPaginatedResult(viewPairsDtos);
+
+                return Ok(paginatedDtos);
+            },
+            onFailure: error => HandleError<PaginatedResult<ViewPairDto>>(error)
         );
     }
 

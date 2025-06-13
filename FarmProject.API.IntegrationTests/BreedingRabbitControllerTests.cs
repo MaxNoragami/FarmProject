@@ -3,6 +3,7 @@ using FarmProject.API.Dtos.BreedingRabbits;
 using FarmProject.API.IntegrationTests.Helpers;
 using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Application.CageService;
+using FarmProject.Application.Common.Models;
 using FarmProject.Domain.Constants;
 using FarmProject.Infrastructure;
 using FarmProject.Infrastructure.Repositories;
@@ -23,11 +24,11 @@ public class BreedingRabbitControllerTests
 
         using (factory)
         {
-            var result = await controller.GetBreedingRabbits();
+            var result = await controller.GetPaginatedBreedingRabbits();
 
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var breedingRabbits = Assert.IsAssignableFrom<List<ViewBreedingRabbitDto>>(okResult.Value);
-            Assert.Equal(breedingRabbitsAmount, breedingRabbits.Count);
+            var paginatedResult = Assert.IsAssignableFrom<PaginatedResult<ViewBreedingRabbitDto>>(okResult.Value);
+            Assert.Equal(breedingRabbitsAmount, paginatedResult.Items.Count);
         }
     }
 
