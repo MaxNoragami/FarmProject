@@ -61,6 +61,11 @@ public class MockBreedingRabbitRepository : IBreedingRabbitRepository
         return Task.FromResult(result);
     }
 
+    public Task<bool> IsNameUsedAsync(string name, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task RemoveAsync(BreedingRabbit breedingRabbit)
     {
         _breedingRabbits.Remove(breedingRabbit);

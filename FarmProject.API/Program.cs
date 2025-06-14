@@ -23,6 +23,8 @@ builder.Services.AddEventArchitecture();
 
 builder.Services.AddFarmServices();
 
+builder.Services.AddValidation();
+
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration)
 );

@@ -1,5 +1,6 @@
 ﻿using FarmProject.Domain.Events;
 using FarmProject.Application.BreedingRabbitsService;
+using FarmProject.Application.BreedingRabbitsService.Validators;
 using FarmProject.Application.CageService;
 using FarmProject.Application.Events;
 using FarmProject.Application.FarmTaskService;
@@ -8,6 +9,7 @@ using FarmProject.Application;
 using FarmProject.Infrastructure.Repositories;
 using FarmProject.Infrastructure;
 using FarmProject.Application.Common;
+using FluentValidation;
 
 namespace FarmProject.API.DependencyInjection;
 
@@ -15,15 +17,21 @@ public static class ServiceCollectionExtension
 {
     public static IServiceCollection AddFarmServices(this IServiceCollection services)
     {
+        services.AddScoped<ValidationHelper>();
+
         services.AddScoped<CageService>();
         services.AddScoped<BreedingRabbitService>();
         services.AddScoped<FarmTaskService>();
         services.AddScoped<PairingService>();
 
         services.AddScoped<IBreedingRabbitService>(provider => {
-            var breedingRabbitService = provider.GetRequiredService<BreedingRabbitService>();
+            var baseService = provider.GetRequiredService<BreedingRabbitService>();
+
+            var validationHelper = provider.GetRequiredService<ValidationHelper>();
+            var validatedService = new ValidationBreedingRabbitService(baseService, validationHelper);
+
             var loggingHelper = provider.GetRequiredService<LoggingHelper>();
-            return new LoggingBreedingRabbitService(breedingRabbitService, loggingHelper);
+            return new LoggingBreedingRabbitService(validatedService, loggingHelper);
         });
 
         services.AddScoped<ICageService>(provider => {
@@ -43,6 +51,13 @@ public static class ServiceCollectionExtension
             var loggingHelper = provider.GetRequiredService<LoggingHelper>();
             return new LoggingPairingService(pairingService, loggingHelper);
         });
+
+        return services;
+    }
+
+    public static IServiceCollection AddValidation(this IServiceCollection services)
+    {
+        services.AddScoped<IValidator<AddBreedingRabbitParam>, AddBreedingRabbitParamValidator>();
 
         return services;
     }

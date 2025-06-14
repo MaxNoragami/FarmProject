@@ -58,6 +58,10 @@ public class BreedingRabbitRepository(FarmDbContext context) : IBreedingRabbitRe
         return result;
     }
 
+    public async Task<bool> IsNameUsedAsync(string name, CancellationToken cancellationToken = default)
+        => await _context.BreedingRabbits
+            .AnyAsync(br => br.Name == name, cancellationToken);
+
     public async Task RemoveAsync(BreedingRabbit breedingRabbit)
     {
         var toDelete = await _context.BreedingRabbits
