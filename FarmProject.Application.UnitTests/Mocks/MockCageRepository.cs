@@ -41,8 +41,12 @@ public class MockCageRepository : ICageRepository
                 query = query.Where(c => c.Name.Contains(request.Filter.Name));
 
             if (request.Filter.IsOccupied.HasValue)
-                query = query.Where(c =>
-                    (c.BreedingRabbit != null) == request.Filter.IsOccupied.Value);
+            {
+                bool isOccupied = request.Filter.IsOccupied.Value;
+               
+                query = query.Where(c => 
+                    (c.BreedingRabbit != null || c.OffspringCount > 0) == isOccupied);
+            }
 
             if (request.Filter.OffspringType.HasValue)
                 query = query.Where(c => c.OffspringType == request.Filter.OffspringType.Value);
@@ -64,6 +68,11 @@ public class MockCageRepository : ICageRepository
         );
 
         return Task.FromResult(result);
+    }
+
+    public Task<bool> IsNameUsedAsync(string name, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
     }
 
     public Task RemoveAsync(Cage cage)

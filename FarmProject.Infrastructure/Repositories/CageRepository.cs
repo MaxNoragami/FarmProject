@@ -2,7 +2,6 @@
 using FarmProject.Application.Common.Models;
 using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Application.Common.Models.SortConfigs;
-using FarmProject.Domain.Common;
 using FarmProject.Domain.Models;
 using FarmProject.Domain.Specifications;
 using Microsoft.EntityFrameworkCore;
@@ -62,6 +61,10 @@ public class CageRepository(FarmDbContext context) : ICageRepository
 
         return result;
     }
+
+    public async Task<bool> IsNameUsedAsync(string name, CancellationToken cancellationToken = default)
+        => await _context.Cages
+            .AnyAsync(c => c.Name == name, cancellationToken);
 
     public async Task<Cage> UpdateAsync(Cage cage)
     {

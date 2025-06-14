@@ -41,6 +41,9 @@ public class MockBreedingRabbitRepository : IBreedingRabbitRepository
             {
                 query = query.Where(r => r.Name.Contains(request.Filter.Name));
             }
+
+            if (request.Filter.BreedingStatus.HasValue)
+                query = query.Where(r => r.BreedingStatus == request.Filter.BreedingStatus.Value);
         }
 
         var totalCount = query.Count();
@@ -59,6 +62,11 @@ public class MockBreedingRabbitRepository : IBreedingRabbitRepository
         );
 
         return Task.FromResult(result);
+    }
+
+    public Task<bool> IsNameUsedAsync(string name, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
     }
 
     public Task RemoveAsync(BreedingRabbit breedingRabbit)

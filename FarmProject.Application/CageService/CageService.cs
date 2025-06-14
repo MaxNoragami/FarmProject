@@ -26,13 +26,6 @@ public class CageService(IUnitOfWork unitOfWork) : ICageService
         return Result.Success(cage);
     }
 
-    public async Task<Result<List<Cage>>> GetUnoccupiedCages()
-    {
-        var specification = new CageSpecificationByUnoccupied();
-        var unoccupiedCages = await _unitOfWork.CageRepository.FindAsync(specification);
-        return Result.Success(unoccupiedCages);
-    }
-
     public async Task<Result<Cage>> AddOffspringsToCage(int cageId, int count)
     {
         var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);

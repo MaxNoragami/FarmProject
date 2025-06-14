@@ -13,4 +13,5 @@ public interface IBreedingRabbitRepository
     public Task<List<BreedingRabbit>> FindAsync(ISpecification<BreedingRabbit> specification);
     public Task<BreedingRabbit> UpdateAsync(BreedingRabbit breedingRabbit);
     public Task RemoveAsync(BreedingRabbit breedingRabbit);
+    public Task<bool> IsNameUsedAsync(string name, CancellationToken cancellationToken = default);
 }

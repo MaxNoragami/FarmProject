@@ -35,6 +35,9 @@ public static class ErrorMapper
             || error.Code.Equals(PairErrors.NotSuccessful.Code, StringComparison.OrdinalIgnoreCase)
             || error.Code.Equals(PairErrors.NoEndDate.Code, StringComparison.OrdinalIgnoreCase)
             || error.Code.Equals(PairErrors.InvalidOutcome.Code, StringComparison.OrdinalIgnoreCase)
+            || error.Code.Equals(ValidationErrors.Codes.ValidationFailed, StringComparison.OrdinalIgnoreCase)
+            || error.Code.Equals(ValidationErrors.Codes.DuplicateName, StringComparison.OrdinalIgnoreCase)
+            || error.Code.Equals(ValidationErrors.Codes.InvalidInput, StringComparison.OrdinalIgnoreCase)
         )
             statusCode = StatusCodes.Status400BadRequest;
         else

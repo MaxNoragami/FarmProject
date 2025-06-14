@@ -90,6 +90,11 @@ internal class InMemoryBreedingRabbitRepo : IBreedingRabbitRepository
         return Task.FromResult(result);
     }
 
+    public Task<bool> IsNameUsedAsync(string name, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task RemoveAsync(BreedingRabbit breedingRabbit)
     {
         throw new NotImplementedException();
