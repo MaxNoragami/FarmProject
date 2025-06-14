@@ -1,4 +1,6 @@
 ﻿using FarmProject.Application.BreedingRabbitsService;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.Common.Models;
 using FarmProject.Application.UnitTests.Mocks;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
@@ -129,13 +131,23 @@ public class BreedingRabbitServiceTests
         var mockUnitOfWork = new MockUnitOfWork(breedingRabbitRepository: mockRabbitRepo);
         var rabbitService = new BreedingRabbitService(mockUnitOfWork);
 
-        var result = await rabbitService.GetAllAvailableBreedingRabbits();
+        var paginatedRequest = new PaginatedRequest<BreedingRabbitFilterDto>
+        {
+            PageIndex = 1,
+            PageSize = 50,
+            Filter = new BreedingRabbitFilterDto
+            {
+                BreedingStatus = BreedingStatus.Available
+            }
+        };
+
+        var result = await rabbitService.GetPaginatedBreedingRabbits(paginatedRequest);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().HaveCount(2);
-        result.Value.Should().Contain(r => r.Id == availableRabbit1.Id);
-        result.Value.Should().Contain(r => r.Id == availableRabbit2.Id);
-        result.Value.Should().NotContain(r => r.Id == pregnantRabbit.Id);
-        result.Value.Should().NotContain(r => r.Id == nursingRabbit.Id);
+        result.Value.Items.Should().HaveCount(2);
+        result.Value.Items.Should().Contain(r => r.Id == availableRabbit1.Id);
+        result.Value.Items.Should().Contain(r => r.Id == availableRabbit2.Id);
+        result.Value.Items.Should().NotContain(r => r.Id == pregnantRabbit.Id);
+        result.Value.Items.Should().NotContain(r => r.Id == nursingRabbit.Id);
     }
 }

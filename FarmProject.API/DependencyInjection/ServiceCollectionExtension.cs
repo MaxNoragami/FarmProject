@@ -10,6 +10,10 @@ using FarmProject.Infrastructure.Repositories;
 using FarmProject.Infrastructure;
 using FarmProject.Application.Common;
 using FluentValidation;
+using FarmProject.Application.CageService.Validators;
+using FarmProject.Application.PairingService.Validators;
+using FarmProject.Application.Common.Validators;
+using FarmProject.Application.Common.Models.Dtos;
 
 namespace FarmProject.API.DependencyInjection;
 
@@ -35,21 +39,33 @@ public static class ServiceCollectionExtension
         });
 
         services.AddScoped<ICageService>(provider => {
-            var cageService = provider.GetRequiredService<CageService>();
+            var baseService = provider.GetRequiredService<CageService>();
+
+            var validationHelper = provider.GetRequiredService<ValidationHelper>();
+            var validatedService = new ValidationCageService(baseService, validationHelper);
+
             var loggingHelper = provider.GetRequiredService<LoggingHelper>();
-            return new LoggingCageService(cageService, loggingHelper);
+            return new LoggingCageService(validatedService, loggingHelper);
         });
 
         services.AddScoped<IFarmTaskService>(provider => {
-            var farmTaskService = provider.GetRequiredService<FarmTaskService>();
+            var baseService = provider.GetRequiredService<FarmTaskService>();
+
+            var validationHelper = provider.GetRequiredService<ValidationHelper>();
+            var validatedService = new ValidationFarmTaskService(baseService, validationHelper);
+
             var loggingHelper = provider.GetRequiredService<LoggingHelper>();
-            return new LoggingFarmTaskService(farmTaskService, loggingHelper);
+            return new LoggingFarmTaskService(validatedService, loggingHelper);
         });
 
         services.AddScoped<IPairingService>(provider => {
-            var pairingService = provider.GetRequiredService<PairingService>();
+            var baseService = provider.GetRequiredService<PairingService>();
+
+            var validationHelper = provider.GetRequiredService<ValidationHelper>();
+            var validatedService = new ValidationPairingService(baseService, validationHelper);
+
             var loggingHelper = provider.GetRequiredService<LoggingHelper>();
-            return new LoggingPairingService(pairingService, loggingHelper);
+            return new LoggingPairingService(validatedService, loggingHelper);
         });
 
         return services;
@@ -58,6 +74,17 @@ public static class ServiceCollectionExtension
     public static IServiceCollection AddValidation(this IServiceCollection services)
     {
         services.AddScoped<IValidator<AddBreedingRabbitParam>, AddBreedingRabbitParamValidator>();
+        services.AddScoped<IValidator<UpdateBreedingStatusParam>, UpdateBreedingStatusParamValidator>();
+
+        services.AddScoped<IValidator<CreateCageParam>, CreateCageParamValidator>();
+        services.AddScoped<IValidator<UpdateOffspringTypeParam>, UpdateOffspringTypeParamValidator>();
+
+        services.AddScoped<IValidator<UpdatePairingStatusParam>, UpdatePairingStatusParamValidator>();
+
+        services.AddScoped<IValidator<PaginatedRequestParam<BreedingRabbitFilterDto>>, PaginatedRequestParamValidator<BreedingRabbitFilterDto>>();
+        services.AddScoped<IValidator<PaginatedRequestParam<CageFilterDto>>, PaginatedRequestParamValidator<CageFilterDto>>();
+        services.AddScoped<IValidator<PaginatedRequestParam<FarmTaskFilterDto>>, PaginatedRequestParamValidator<FarmTaskFilterDto>>();
+        services.AddScoped<IValidator<PaginatedRequestParam<PairFilterDto>>, PaginatedRequestParamValidator<PairFilterDto>>();
 
         return services;
     }

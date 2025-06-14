@@ -44,14 +44,6 @@ public class BreedingRabbitService(IUnitOfWork unitOfWork) : IBreedingRabbitServ
         }
     }
 
-    public async Task<Result<List<BreedingRabbit>>> GetAllAvailableBreedingRabbits()
-    {
-        var specification = new BreedingRabbitSpecificationByAvailable();
-        var availableBreedingRabbits = await _unitOfWork
-            .BreedingRabbitRepository.FindAsync(specification);
-        return Result.Success(availableBreedingRabbits);
-    }
-
     public async Task<Result<BreedingRabbit>> GetBreedingRabbitById(int breedingRabbitId)
     {
         var requestBreedingRabbit = await _unitOfWork.BreedingRabbitRepository.GetByIdAsync(breedingRabbitId);
@@ -67,6 +59,9 @@ public class BreedingRabbitService(IUnitOfWork unitOfWork) : IBreedingRabbitServ
         var requestBreedingRabbit = await _unitOfWork.BreedingRabbitRepository.GetByIdAsync(breedingRabbitId);
         if (requestBreedingRabbit == null)
             return Result.Failure<BreedingRabbit>(BreedingRabbitErrors.NotFound);
+        
+        if (requestBreedingRabbit.BreedingStatus == breedingStatus)
+            return Result.Success(requestBreedingRabbit);
 
         requestBreedingRabbit.BreedingStatus = breedingStatus;
 

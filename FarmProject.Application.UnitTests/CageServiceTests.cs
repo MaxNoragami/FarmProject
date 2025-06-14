@@ -113,14 +113,24 @@ public class CageServiceTests
         var mockUnitOfWork = new MockUnitOfWork(cageRepository: mockCageRepo);
         var cageService = new CageService.CageService(mockUnitOfWork);
 
-        var result = await cageService.GetUnoccupiedCages();
+        var paginatedRequest = new PaginatedRequest<CageFilterDto>
+        {
+            PageIndex = 1,
+            PageSize = 50,
+            Filter = new CageFilterDto
+            {
+                IsOccupied = false
+            }
+        };
+
+        var result = await cageService.GetPaginatedCages(paginatedRequest);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().HaveCount(2);
-        result.Value.Should().Contain(c => c.Id == cage1.Id);
-        result.Value.Should().Contain(c => c.Id == cage3.Id);
-        result.Value.Should().NotContain(c => c.Id == cage2.Id);
-        result.Value.Should().NotContain(c => c.Id == cage4.Id);
+        result.Value.Items.Should().HaveCount(2);
+        result.Value.Items.Should().Contain(c => c.Id == cage1.Id);
+        result.Value.Items.Should().Contain(c => c.Id == cage3.Id);
+        result.Value.Items.Should().NotContain(c => c.Id == cage2.Id);
+        result.Value.Items.Should().NotContain(c => c.Id == cage4.Id);
     }
 
     [Fact]
@@ -136,10 +146,20 @@ public class CageServiceTests
         var mockUnitOfWork = new MockUnitOfWork(cageRepository: mockCageRepo);
         var cageService = new CageService.CageService(mockUnitOfWork);
 
-        var result = await cageService.GetUnoccupiedCages();
+        var paginatedRequest = new PaginatedRequest<CageFilterDto>
+        {
+            PageIndex = 1,
+            PageSize = 50,
+            Filter = new CageFilterDto
+            {
+                IsOccupied = false
+            }
+        };
+
+        var result = await cageService.GetPaginatedCages(paginatedRequest);
 
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().BeEmpty();
+        result.Value.Items.Should().BeEmpty();
     }
 
     [Fact]

@@ -1,6 +1,7 @@
 ﻿using FarmProject.Application.Common;
 using FarmProject.Application.Common.Models;
 using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.Common.Validators;
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Models;
@@ -20,19 +21,19 @@ public class ValidationBreedingRabbitService(
                 new AddBreedingRabbitParam(name, cageId),
                 () => _inner.AddBreedingRabbitToFarm(name, cageId));
 
-    public Task<Result<List<BreedingRabbit>>> GetAllAvailableBreedingRabbits()
-    {
-        throw new NotImplementedException();
-    }
-
     public Task<Result<BreedingRabbit>> GetBreedingRabbitById(int breedingRabbitId)
         => _inner.GetBreedingRabbitById(breedingRabbitId);
 
     public Task<Result<PaginatedResult<BreedingRabbit>>> GetPaginatedBreedingRabbits(PaginatedRequest<BreedingRabbitFilterDto> request)
-        => _inner.GetPaginatedBreedingRabbits(request);
+        => _validationHelper.ValidateAndExecute(
+                new PaginatedRequestParam<BreedingRabbitFilterDto>(request),
+                () => _inner.GetPaginatedBreedingRabbits(request));
 
     public Task<Result<BreedingRabbit>> UpdateBreedingStatus(int breedingRabbitId, BreedingStatus breedingStatus)
-        => _inner.UpdateBreedingStatus(breedingRabbitId, breedingStatus);
+        => _validationHelper.ValidateAndExecute(
+                new UpdateBreedingStatusParam(breedingRabbitId, breedingStatus),
+                () => _inner.UpdateBreedingStatus(breedingRabbitId, breedingStatus));
 }
 
 public record AddBreedingRabbitParam(string Name, int CageId);
+public record UpdateBreedingStatusParam(int BreedingRabbitId, BreedingStatus BreedingStatus);

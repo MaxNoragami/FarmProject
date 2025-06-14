@@ -43,11 +43,6 @@ public class LoggingCageService(
             async () =>
                 await _cageService.GetPaginatedCages(request));
 
-    public async Task<Result<List<Cage>>> GetUnoccupiedCages()
-        => await _loggingHelper.LogOperation(
-            LoggingUtilities.FormatMethodCall(nameof(GetUnoccupiedCages)),
-            _cageService.GetUnoccupiedCages);
-
     public async Task<Result<Cage>> MoveBreedingRabbitToCage(int breedingRabbitId, int destinationCageId)
         => await _loggingHelper.LogOperation(
                 LoggingUtilities.FormatMethodCall(

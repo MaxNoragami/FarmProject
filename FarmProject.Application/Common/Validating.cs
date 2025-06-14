@@ -10,8 +10,8 @@ public class ValidationHelper(IServiceProvider serviceProvider)
     private readonly IServiceProvider _serviceProvider = serviceProvider;
 
     public async Task<TResult> ValidateAndExecute<TParam, TResult>(
-        TParam parameter,
-        Func<Task<TResult>> operation)
+    TParam parameter,
+    Func<Task<TResult>> operation)
     where TResult : Result
     {
         var validator = _serviceProvider.GetService<IValidator<TParam>>();
@@ -29,30 +29,39 @@ public class ValidationHelper(IServiceProvider serviceProvider)
 
                 var error = new Error(errorCode, firstError.ErrorMessage);
 
-                var resultType = typeof(TResult);
-                var genericType = resultType.GetGenericArguments().FirstOrDefault();
-
-                if (genericType != null)
-                {
-                    var failureMethod = typeof(Result)
-                        .GetMethods()
-                        .FirstOrDefault(m => m.Name == "Failure" &&
-                               m.IsGenericMethod &&
-                               m.GetParameters().Length == 1 &&
-                               m.GetParameters()[0].ParameterType == typeof(Error));
-
-                    if (failureMethod != null)
-                    {
-                        return (TResult)failureMethod
-                            .MakeGenericMethod(genericType)
-                            .Invoke(null, [error])!;
-                    }
-                }
-
-                return (TResult)Result.Failure(error);
+                return CreateFailureResult<TResult>(error);
             }
         }
 
         return await operation();
+    }
+
+    private static TResult CreateFailureResult<TResult>(Error error) where TResult : Result
+    {
+        var resultType = typeof(TResult);
+
+        if (resultType.IsGenericType)
+        {
+            var genericResultType = resultType.GetGenericTypeDefinition();
+            if (genericResultType == typeof(Result<>))
+            {
+                var innerType = resultType.GenericTypeArguments[0];
+
+                var failureMethod = typeof(Result)
+                    .GetMethods()
+                    .FirstOrDefault(m => m.Name == nameof(Result.Failure) &&
+                               m.IsGenericMethod &&
+                               m.GetParameters().Length == 1 &&
+                               m.GetParameters()[0].ParameterType == typeof(Error));
+
+                if (failureMethod != null)
+                {
+                    var typedFailureMethod = failureMethod.MakeGenericMethod(innerType);
+                    return (TResult)typedFailureMethod.Invoke(null, [error])!;
+                }
+            }
+        }
+
+        return (TResult)Result.Failure(error);
     }
 }

@@ -26,11 +26,6 @@ public class LoggingBreedingRabbitService(
                 await _breedingRabbitService
                     .AddBreedingRabbitToFarm(name, cageId));
 
-    public async Task<Result<List<BreedingRabbit>>> GetAllAvailableBreedingRabbits()
-        => await _loggingHelper.LogOperation(
-            LoggingUtilities.FormatMethodCall(nameof(GetAllAvailableBreedingRabbits)),
-            GetAllAvailableBreedingRabbits);
-
     public async Task<Result<BreedingRabbit>> GetBreedingRabbitById(int breedingRabbitId)
         => await _loggingHelper.LogOperation(
             LoggingUtilities.FormatMethodCall(

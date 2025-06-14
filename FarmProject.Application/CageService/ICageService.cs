@@ -9,7 +9,6 @@ namespace FarmProject.Application.CageService;
 public interface ICageService
 {
     public Task<Result<Cage>> CreateCage(string name);
-    public Task<Result<List<Cage>>> GetUnoccupiedCages();
     public Task<Result<PaginatedResult<Cage>>> GetPaginatedCages(PaginatedRequest<CageFilterDto> request);
     public Task<Result<Cage>> GetCageById(int cageId);
     public Task<Result<Cage>> AddOffspringsToCage (int cageId, int count);

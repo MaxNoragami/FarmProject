@@ -12,4 +12,5 @@ public interface ICageRepository
     public Task<PaginatedResult<Cage>> GetPaginatedAsync(PaginatedRequest<CageFilterDto> request);
     public Task<List<Cage>> FindAsync(ISpecification<Cage> specification);
     public Task<Cage> UpdateAsync(Cage cage);
+    public Task<bool> IsNameUsedAsync(string name, CancellationToken cancellationToken = default);
 }

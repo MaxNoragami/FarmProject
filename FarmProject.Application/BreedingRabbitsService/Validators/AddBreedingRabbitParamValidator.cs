@@ -30,7 +30,7 @@ public class AddBreedingRabbitParamValidator : AbstractValidator<AddBreedingRabb
 
         RuleFor(x => x.CageId)
             .GreaterThan(0)
-            .WithMessage("Cage ID must be a positive number")
+            .WithMessage("Cage Id must be a positive number")
             .WithErrorCode(ValidationErrors.Codes.InvalidInput);
     }
 

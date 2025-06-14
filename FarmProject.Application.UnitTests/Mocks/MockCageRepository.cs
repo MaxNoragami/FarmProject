@@ -66,6 +66,11 @@ public class MockCageRepository : ICageRepository
         return Task.FromResult(result);
     }
 
+    public Task<bool> IsNameUsedAsync(string name, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task RemoveAsync(Cage cage)
     {
         _cages.Remove(cage);
