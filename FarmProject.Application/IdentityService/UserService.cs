@@ -2,7 +2,6 @@
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Identity;
 using Microsoft.AspNetCore.Identity;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace FarmProject.Application.IdentityService;
@@ -63,16 +62,11 @@ public class UserService(
         await _userManager.AddToRoleAsync(identity, roleName);
         newClaims.Add(new Claim(ClaimTypes.Role, roleName));
 
-        // Create ClaimsIdentity, used for generating the JWT eventually
-        var claimsIdentity = new ClaimsIdentity(new Claim[]
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, identity.Email),
-            new Claim(JwtRegisteredClaimNames.Email, identity.Email)
-        });
-        claimsIdentity.AddClaims(newClaims);
-
-        var token = _identityService.CreateSecurityToken(claimsIdentity);
-        return Result.Success(new AuthenticationResult(_identityService.WriteToken(token)));
+        // Generating the JWT
+        return Result.Success(await _identityService.GenerateAuthenticationResultAsync(
+            identity.Email,
+            newClaims,
+            new[] { roleName }));
     }
 
     public async Task<Result<AuthenticationResult>> LoginUserAsync(LoginUserRequest request)
@@ -91,18 +85,10 @@ public class UserService(
         var claims = await _userManager.GetClaimsAsync(user);
         var roles = await _userManager.GetRolesAsync(user);
 
-        // Create JWT for user
-        var claimsIdentity = new ClaimsIdentity(new Claim[]
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email)
-        });
-
-        claimsIdentity.AddClaims(claims);
-        foreach (var role in roles)
-            claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, role));
-
-        var token = _identityService.CreateSecurityToken(claimsIdentity);
-        return Result.Success(new AuthenticationResult(_identityService.WriteToken(token)));
+        // Generating the JWT
+        return Result.Success(await _identityService.GenerateAuthenticationResultAsync(
+            user.Email!,
+            claims,
+            roles));
     }
 }

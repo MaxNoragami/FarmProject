@@ -1,4 +1,5 @@
 ﻿using FarmProject.Application.IdentityService;
+using FarmProject.Domain.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -49,4 +50,23 @@ public class IdentityService : IIdentityService
                     new SymmetricSecurityKey(_key),
                     SecurityAlgorithms.HmacSha256Signature)
             };
+
+    public async Task<AuthenticationResult> GenerateAuthenticationResultAsync(
+        string email,
+        IEnumerable<Claim> claims,
+        IEnumerable<string> roles)
+    {
+        var claimsIdentity = new ClaimsIdentity(new[]
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, email),
+            new Claim(JwtRegisteredClaimNames.Email, email)
+        });
+
+        claimsIdentity.AddClaims(claims);
+        foreach (var role in roles)
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, role));
+
+        var token = CreateSecurityToken(claimsIdentity);
+        return new AuthenticationResult(WriteToken(token));
+    }
 }
