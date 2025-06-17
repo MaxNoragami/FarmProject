@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FarmProject.API.Attributes;
+using FarmProject.Domain.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
@@ -9,20 +11,19 @@ namespace FarmProject.API.Controllers;
 public class TestRolesController : AppBaseController
 {
     [HttpGet]
-    [Route("logistics-worker")]
-    [Authorize(Roles = "Logistics, Worker")]
+    [AuthorizeRoles(UserRole.Worker, UserRole.Logistics)]
     public async Task<IActionResult> TestLogisticsWorkerRole()
         => Ok();
 
     [HttpGet]
     [Route("logistics")]
-    [Authorize(Roles = "Logistics")]
+    [AuthorizeRoles(UserRole.Logistics)]
     public async Task<IActionResult> TestLogisticsRole()
         => Ok();
 
     [HttpGet]
     [Route("worker")]
-    [Authorize(Roles = "Worker")]
+    [AuthorizeRoles(UserRole.Worker)]
     public async Task<IActionResult> TestWorkerRole()
         => Ok();
 }

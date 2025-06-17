@@ -1,15 +1,18 @@
 ﻿using FarmProject.Application.FarmTaskService;
-using FarmProject.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using FarmProject.Application.Common;
 using FarmProject.API.Dtos;
 using FarmProject.API.Dtos.FarmTasks;
 using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Application.Common.Models;
+using Microsoft.AspNetCore.Authorization;
+using FarmProject.API.Attributes;
+using FarmProject.Domain.Identity;
 
 namespace FarmProject.API.Controllers;
 
 [Route("api/farm-tasks")]
+[AuthorizeRoles(UserRole.Worker, UserRole.Logistics)]
 public class FarmTaskController(IFarmTaskService farmTaskService) : AppBaseController
 {
     private readonly IFarmTaskService _farmTaskService = farmTaskService;

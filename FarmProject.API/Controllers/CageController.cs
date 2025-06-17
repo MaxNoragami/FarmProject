@@ -1,16 +1,18 @@
 ﻿using FarmProject.Application.CageService;
-using FarmProject.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using FarmProject.Application.Common;
 using FarmProject.API.Dtos.Cages;
-using FarmProject.Domain.Common;
 using FarmProject.Application.Common.Models;
 using FarmProject.API.Dtos;
 using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.API.Attributes;
+using FarmProject.Domain.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FarmProject.API.Controllers;
 
 [Route("api/cages")]
+[AuthorizeRoles(UserRole.Worker, UserRole.Logistics)]
 public class CageController(ICageService cageService) : AppBaseController
 {
     private readonly ICageService _cageService = cageService;

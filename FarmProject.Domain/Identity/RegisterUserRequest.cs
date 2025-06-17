@@ -9,6 +9,6 @@ public record RegisterUserRequest(
 
 public enum UserRole
 {
-    Logisitics,
+    Logistics,
     Worker
 }

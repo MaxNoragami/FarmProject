@@ -5,10 +5,14 @@ using FarmProject.API.Dtos.Pairs;
 using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Application.Common.Models;
 using FarmProject.API.Dtos;
+using Microsoft.AspNetCore.Authorization;
+using FarmProject.API.Attributes;
+using FarmProject.Domain.Identity;
 
 namespace FarmProject.API.Controllers;
 
 [Route("api/pairs")]
+[AuthorizeRoles(UserRole.Worker, UserRole.Logistics)]
 public class PairController(IPairingService pairingService) : AppBaseController
 {
     private readonly IPairingService _pairingService = pairingService;
