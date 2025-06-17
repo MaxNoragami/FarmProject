@@ -4,19 +4,16 @@ using FarmProject.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace FarmProject.Infrastructure.Migrations.Migrations
+namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
 {
     [DbContext(typeof(FarmDbContext))]
-    [Migration("20250604193807_RemoveGender")]
-    partial class RemoveGender
+    partial class FarmDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -129,7 +126,7 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("FemaleRabbitId")
+                    b.Property<int>("FemaleRabbitId")
                         .HasColumnType("int");
 
                     b.Property<int>("MaleRabbitId")
@@ -166,7 +163,8 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
                     b.HasOne("FarmProject.Domain.Models.BreedingRabbit", "FemaleRabbit")
                         .WithMany()
                         .HasForeignKey("FemaleRabbitId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("FemaleRabbit");
                 });

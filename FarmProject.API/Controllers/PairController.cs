@@ -1,6 +1,5 @@
 ﻿using FarmProject.Application.PairingService;
 using FarmProject.Application.Common;
-using FarmProject.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using FarmProject.API.Dtos.Pairs;
 using FarmProject.Application.Common.Models.Dtos;
