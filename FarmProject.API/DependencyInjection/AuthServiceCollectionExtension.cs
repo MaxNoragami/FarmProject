@@ -1,10 +1,15 @@
 using System.Text;
+using FarmProject.Application.BreedingRabbitsService.Validators;
+using FarmProject.Application.BreedingRabbitsService;
+using FarmProject.Application.Common;
 using FarmProject.Application.IdentityService;
 using FarmProject.Infrastructure.Authentication;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using FarmProject.Application.IdentityService.Validators;
 
 namespace FarmProject.API.DependencyInjection;
 
@@ -79,18 +84,51 @@ public static class AuthServiceCollectionExtension
                 jwt.ClaimsIssuer = jwtSettings.Issuer;
             });
 
+        return services;
+    }
+
+    public static IServiceCollection AddIdentityConfig(this IServiceCollection services)
+    {
         // Add Identity Core
         services.AddIdentityCore<IdentityUser>(options =>
-            {
-                options.Password.RequireDigit = true;
-                options.Password.RequiredLength = 8;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireNonAlphanumeric = false;
-            })
+        {
+            options.Password.RequireDigit = true;
+            options.Password.RequiredLength = 8;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequireNonAlphanumeric = false;
+        })
             .AddRoles<IdentityRole>()
             .AddSignInManager()
             .AddEntityFrameworkStores<AppIdentityDbContext>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddIdentityServices(this IServiceCollection services)
+    {
+        services.AddScoped<IUserService>(provider =>
+        {
+            var baseService = new UserService(
+                provider.GetRequiredService<UserManager<IdentityUser>>(),
+                provider.GetRequiredService<RoleManager<IdentityRole>>(),
+                provider.GetRequiredService<SignInManager<IdentityUser>>(),
+                provider.GetRequiredService<IIdentityService>());
+
+            var validationHelper = provider.GetRequiredService<ValidationHelper>();
+            var validatedService = new ValidationUserService(baseService, validationHelper);
+
+            var loggingHelper = provider.GetRequiredService<LoggingHelper>();
+            return new LoggingUserService(validatedService, loggingHelper);
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection AddIdentityValidation(this IServiceCollection services)
+    {
+        services.AddScoped<IValidator<RegisterUserParam>, RegisterUserParamValidator>();
+        services.AddScoped<IValidator<LoginUserParam>, LoginUserParamValidator>();
 
         return services;
     }

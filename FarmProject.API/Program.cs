@@ -22,11 +22,18 @@ builder.Services.AddScoped<LoggingHelper>();
 
 builder.Services.AddEventArchitecture();
 
-builder.Services.AddFarmServices();
-
 builder.Services.AddValidation();
 
+builder.Services.AddFarmServices();
+
 builder.Services.AddAuth(builder.Configuration);
+
+builder.Services.AddIdentityConfig();
+
+builder.Services.AddIdentityValidation();
+
+builder.Services.AddIdentityServices();
+
 
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration)
