@@ -38,6 +38,10 @@ public static class ErrorMapper
             || error.Code.Equals(ValidationErrors.Codes.ValidationFailed, StringComparison.OrdinalIgnoreCase)
             || error.Code.Equals(ValidationErrors.Codes.DuplicateName, StringComparison.OrdinalIgnoreCase)
             || error.Code.Equals(ValidationErrors.Codes.InvalidInput, StringComparison.OrdinalIgnoreCase)
+            || error.Code.Equals(IdentityErrors.InvalidCredentials.Code, StringComparison.OrdinalIgnoreCase)
+            || error.Code.Equals(IdentityErrors.UserAlreadyExists.Code, StringComparison.OrdinalIgnoreCase)
+            || error.Code.Equals(IdentityErrors.InvalidRole.Code, StringComparison.OrdinalIgnoreCase)
+            || error.Code.Equals(IdentityErrors.Codes.RegistrationFailed, StringComparison.OrdinalIgnoreCase)
         )
             statusCode = StatusCodes.Status400BadRequest;
         else

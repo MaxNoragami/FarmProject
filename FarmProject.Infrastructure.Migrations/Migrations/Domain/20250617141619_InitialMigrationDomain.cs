@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace FarmProject.Infrastructure.Migrations.Migrations
+namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
 {
     /// <inheritdoc />
-    public partial class RemoveGender : Migration
+    public partial class InitialMigrationDomain : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -72,7 +72,7 @@ namespace FarmProject.Infrastructure.Migrations.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MaleRabbitId = table.Column<int>(type: "int", nullable: false),
-                    FemaleRabbitId = table.Column<int>(type: "int", nullable: true),
+                    FemaleRabbitId = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     PairingStatus = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: "Active")

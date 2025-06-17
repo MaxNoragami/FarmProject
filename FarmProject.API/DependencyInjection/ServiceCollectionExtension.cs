@@ -5,9 +5,6 @@ using FarmProject.Application.CageService;
 using FarmProject.Application.Events;
 using FarmProject.Application.FarmTaskService;
 using FarmProject.Application.PairingService;
-using FarmProject.Application;
-using FarmProject.Infrastructure.Repositories;
-using FarmProject.Infrastructure;
 using FarmProject.Application.Common;
 using FluentValidation;
 using FarmProject.Application.CageService.Validators;
@@ -28,7 +25,8 @@ public static class ServiceCollectionExtension
         services.AddScoped<FarmTaskService>();
         services.AddScoped<PairingService>();
 
-        services.AddScoped<IBreedingRabbitService>(provider => {
+        services.AddScoped<IBreedingRabbitService>(provider =>
+        {
             var baseService = provider.GetRequiredService<BreedingRabbitService>();
 
             var validationHelper = provider.GetRequiredService<ValidationHelper>();
@@ -38,7 +36,8 @@ public static class ServiceCollectionExtension
             return new LoggingBreedingRabbitService(validatedService, loggingHelper);
         });
 
-        services.AddScoped<ICageService>(provider => {
+        services.AddScoped<ICageService>(provider =>
+        {
             var baseService = provider.GetRequiredService<CageService>();
 
             var validationHelper = provider.GetRequiredService<ValidationHelper>();
@@ -48,7 +47,8 @@ public static class ServiceCollectionExtension
             return new LoggingCageService(validatedService, loggingHelper);
         });
 
-        services.AddScoped<IFarmTaskService>(provider => {
+        services.AddScoped<IFarmTaskService>(provider =>
+        {
             var baseService = provider.GetRequiredService<FarmTaskService>();
 
             var validationHelper = provider.GetRequiredService<ValidationHelper>();
@@ -58,7 +58,8 @@ public static class ServiceCollectionExtension
             return new LoggingFarmTaskService(validatedService, loggingHelper);
         });
 
-        services.AddScoped<IPairingService>(provider => {
+        services.AddScoped<IPairingService>(provider =>
+        {
             var baseService = provider.GetRequiredService<PairingService>();
 
             var validationHelper = provider.GetRequiredService<ValidationHelper>();
@@ -94,28 +95,6 @@ public static class ServiceCollectionExtension
         services.AddScoped<IEventConsumer<BreedEvent>, BreedEventConsumer>();
         services.AddScoped<IEventConsumer<NestPrepEvent>, NestPrepEventConsumer>();
         services.AddScoped<DomainEventDispatcher>();
-
-        return services;
-    }
-
-    public static IServiceCollection AddFarmInfrastructure(this IServiceCollection services, string connectionString)
-    {
-        var assemblyName = typeof(Infrastructure.Migrations.Marker)
-            .Assembly
-            .GetName()
-            .Name;
-
-        services.AddSqlServer<FarmDbContext>(
-            connectionString,
-            sqlServerOptions => sqlServerOptions.MigrationsAssembly(assemblyName)
-        );
-
-        services.AddScoped<IBreedingRabbitRepository, BreedingRabbitRepository>()
-            .AddScoped<IPairingRepository, PairingRepository>()
-            .AddScoped<IFarmTaskRepository, FarmTaskRepository>()
-            .AddScoped<ICageRepository, CageRepository>();
-
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;
     }
