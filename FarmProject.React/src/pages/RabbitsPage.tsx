@@ -155,7 +155,7 @@ const RabbitsPage = () => {
                         }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                                 <Typography variant="h5">
-                                    Breeding Rabbits
+                                    Rabbits
                                 </Typography>
 
                                 <Box sx={{ display: 'flex', gap: 1 }}>
