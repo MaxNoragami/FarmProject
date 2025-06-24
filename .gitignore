@@ -665,3 +665,5 @@ Task1VersionControl/Imgs/
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio,dotnetcore,csharp,visualstudiocode,jetbrains+all,react,node
 
 **/appsettings.Development.json
+
+**/*.lock
