@@ -1,11 +1,29 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HelmetProvider } from 'react-helmet-async'
 import './index.css'
-import App from './App.tsx'
+import BaseLayout from './BaseLayout'
+import RabbitsPage from './pages/RabbitsPage'
+import TasksPage from './pages/TasksPage'
+import CagesPage from './pages/CagesPage'
+import PairsPage from './pages/PairsPage'
 
-// Takes all of our UI components and mounts them to the DOM
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <HelmetProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<BaseLayout />}>
+            <Route index element={<Navigate to="/rabbits" replace />} />
+            <Route path="rabbits" element={<RabbitsPage />} />
+            <Route path="tasks" element={<TasksPage />} />
+            <Route path="cages" element={<CagesPage />} />
+            <Route path="pairs" element={<PairsPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </HelmetProvider>
   </StrictMode>,
 )

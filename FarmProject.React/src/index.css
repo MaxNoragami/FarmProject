@@ -49,9 +49,56 @@ button {
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+button:focus-visible,
+button:active,
+.MuiButton-root:focus,
+.MuiButton-root:focus-visible,
+.MuiButton-root:active,
+.MuiIconButton-root:focus,
+.MuiIconButton-root:focus-visible,
+.MuiIconButton-root:active,
+.MuiBottomNavigationAction-root:focus,
+.MuiBottomNavigationAction-root:focus-visible,
+.MuiBottomNavigationAction-root:active,
+.MuiListItemButton-root:focus,
+.MuiListItemButton-root:focus-visible,
+.MuiListItemButton-root:active,
+.MuiChip-root:focus,
+.MuiChip-root:focus-visible,
+.MuiChip-root:active,
+.MuiTableSortLabel-root:focus,
+.MuiTableSortLabel-root:focus-visible,
+.MuiTableSortLabel-root:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+@media screen and (max-width: 900px) {
+  html {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+  
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
 }
 
 @media (prefers-color-scheme: light) {
