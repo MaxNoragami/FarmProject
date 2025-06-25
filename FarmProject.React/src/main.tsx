@@ -8,22 +8,25 @@ import RabbitsPage from './pages/RabbitsPage'
 import TasksPage from './pages/TasksPage'
 import CagesPage from './pages/CagesPage'
 import PairsPage from './pages/PairsPage'
+import { UserProvider } from './contexts/UserContext'
 
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HelmetProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<BaseLayout />}>
-            <Route index element={<Navigate to="/rabbits" replace />} />
-            <Route path="rabbits" element={<RabbitsPage />} />
-            <Route path="tasks" element={<TasksPage />} />
-            <Route path="cages" element={<CagesPage />} />
-            <Route path="pairs" element={<PairsPage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <UserProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<BaseLayout />}>
+              <Route index element={<Navigate to="/rabbits" replace />} />
+              <Route path="rabbits" element={<RabbitsPage />} />
+              <Route path="tasks" element={<TasksPage />} />
+              <Route path="cages" element={<CagesPage />} />
+              <Route path="pairs" element={<PairsPage />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </UserProvider>
     </HelmetProvider>
   </StrictMode>,
 )

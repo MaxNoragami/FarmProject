@@ -15,6 +15,7 @@ import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { Assignment, Bento, CrueltyFree, Favorite } from '@mui/icons-material';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import UserAvatar from './components/common/UserAvatar';
 
 const drawerWidth = 41;
 
@@ -73,10 +74,11 @@ const BaseLayout = () => {
             }}>
                 <CssBaseline />
                 <AppBar position="fixed" sx={{ width: '100%' }}>
-                    <Toolbar>
+                    <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
                         <Typography variant="h6" noWrap component="div">
                             Farm Project
                         </Typography>
+                        <UserAvatar />
                     </Toolbar>
                 </AppBar>
                 
@@ -126,10 +128,11 @@ const BaseLayout = () => {
         <Box sx={{ display: 'flex', height: '100vh', width: '100vw' }}>
             <CssBaseline />
             <AppBar position="fixed" sx={{ width: '100%' }}>
-                <Toolbar>
+                <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="h6" noWrap component="div">
                         Farm Project
                     </Typography>
+                    <UserAvatar />
                 </Toolbar>
             </AppBar>
             <Drawer variant="permanent">
