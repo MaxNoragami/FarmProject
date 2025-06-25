@@ -27,7 +27,7 @@ const CageCard: React.FC<CageCardProps> = ({ cage }) => {
                             CAGE ID
                         </Typography>
                         <Typography variant="body1" fontWeight="medium">
-                            {cage.cageId}
+                            {cage.id}
                         </Typography>
                     </Box>
                     <Box>

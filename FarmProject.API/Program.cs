@@ -13,6 +13,18 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerJwtAuth();
 
+// Add CORS configuration BEFORE other services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 builder.Services.AddFarmInfrastructure(
     builder.Configuration.GetConnectionString("FarmContext")!,
     builder.Configuration.GetConnectionString("FarmIdentity")!
@@ -43,6 +55,9 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
+// CORS must be FIRST middleware
+app.UseCors("AllowReactApp");
+
 app.UseTiming();
 
 app.UseErrorHandling();
@@ -53,6 +68,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 app.UseHttpsRedirection();
 
 app.UseSerilogRequestLogging();

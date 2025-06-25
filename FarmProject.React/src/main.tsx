@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
@@ -12,7 +12,7 @@ import { UserProvider } from './contexts/UserContext'
 
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+  <React.StrictMode>
     <HelmetProvider>
       <UserProvider>
         <BrowserRouter>
@@ -28,29 +28,5 @@ createRoot(document.getElementById('root')!).render(
         </BrowserRouter>
       </UserProvider>
     </HelmetProvider>
-  </StrictMode>,
+  </React.StrictMode>,
 )
-
-// Prevent Edge trackpad navigation gestures
-if (navigator.userAgent.includes('Edg')) {
-  // Prevent swipe gestures from triggering browser navigation
-  window.addEventListener('wheel', (e) => {
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-      e.preventDefault();
-    }
-  }, { passive: false });
-
-  // Prevent touch gestures
-  window.addEventListener('touchstart', (e) => {
-    if (e.touches.length > 1) {
-      e.preventDefault();
-    }
-  }, { passive: false });
-
-  // Prevent pointer events that could trigger navigation
-  window.addEventListener('pointerdown', (e) => {
-    if (e.pointerType === 'touch' && e.isPrimary === false) {
-      e.preventDefault();
-    }
-  }, { passive: false });
-}

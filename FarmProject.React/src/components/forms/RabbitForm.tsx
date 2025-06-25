@@ -41,8 +41,8 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel }) => {
   const totalCagePages = Math.ceil(unoccupiedCages.length / cagesPerPage);
 
   const handleCageSelect = (cage: CageData) => {
-    setSelectedCageId(cage.cageId);
-    setValue('cageId', cage.cageId);
+    setSelectedCageId(cage.id);
+    setValue('cageId', cage.id);
   };
 
   const handleFormSubmit = async (data: AddRabbitFormFields) => {
@@ -79,8 +79,8 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel }) => {
                   key={cage.id}
                   sx={{ 
                     cursor: 'pointer',
-                    border: selectedCageId === cage.cageId ? 2 : 1,
-                    borderColor: selectedCageId === cage.cageId 
+                    border: selectedCageId === cage.id ? 2 : 1,
+                    borderColor: selectedCageId === cage.id 
                       ? 'primary.main' 
                       : errors.cageId && selectedCageId === null
                         ? 'error.main' 
@@ -98,7 +98,7 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel }) => {
                         {cage.name}
                       </Typography>
                       <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                        ID: {cage.cageId}
+                        ID: {cage.id}
                       </Typography>
                       <Chip 
                         label="Empty" 
