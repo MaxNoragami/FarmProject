@@ -95,13 +95,13 @@ const RabbitsPage = () => {
         }
         
         setFilters(newFilters);
-        setPage(0); // Reset to first page when filters change
+        setPage(0);
     };
 
     const handleRemoveFilter = (filterId: string) => {
         const filterToRemove = filters.find(f => f.id === filterId);
         removeFilter(filterId);
-        setPage(0); // Reset to first page when filter is removed
+        setPage(0);
         
         if (filterToRemove) {
             if (filterToRemove.column === 'name') {

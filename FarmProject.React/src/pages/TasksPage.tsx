@@ -22,7 +22,6 @@ const TasksPage = () => {
     
     // Date state (using dayjs)
     const [selectedDate, setSelectedDate] = React.useState(dayjs());
-    const [datePickerOpen, setDatePickerOpen] = React.useState(false);
 
     // Filter state
     const {

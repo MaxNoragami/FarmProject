@@ -8,6 +8,8 @@ import CageCard from '../components/cages/CageCard';
 import CageFilterDialog from '../components/cages/CageFilterDialog';
 import { useCageSorting } from '../hooks/useCageSorting';
 import { getSortableCageColumns } from '../constants/cageColumns';
+import AddCageModal from '../components/modals/AddCageModal';
+import type { AddCageFormFields } from '../schemas/cageSchemas';
 
 const CagesPage = () => {
     const theme = useTheme();
@@ -45,9 +47,27 @@ const CagesPage = () => {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(12);
 
+    // Add modal state
+    const [addModalOpen, setAddModalOpen] = React.useState(false);
+
     // Handlers
     const handleAddCage = () => {
-        console.log('Add cage clicked');
+        setAddModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setAddModalOpen(false);
+    };
+
+    const handleSubmitNewCage = async (data: AddCageFormFields) => {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        
+        // Here you would typically call your API to create the cage
+        console.log('New cage data:', data);
+        
+        // Close modal on success
+        setAddModalOpen(false);
     };
 
     const clearNameFilter = () => {
@@ -352,6 +372,12 @@ const CagesPage = () => {
                     </Paper>
                 </>
             )}
+
+            <AddCageModal
+                open={addModalOpen}
+                onClose={handleModalClose}
+                onSubmit={handleSubmitNewCage}
+            />
 
             <CageFilterDialog
                 open={filterDialogOpen}
