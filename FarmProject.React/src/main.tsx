@@ -30,3 +30,27 @@ createRoot(document.getElementById('root')!).render(
     </HelmetProvider>
   </StrictMode>,
 )
+
+// Prevent Edge trackpad navigation gestures
+if (navigator.userAgent.includes('Edg')) {
+  // Prevent swipe gestures from triggering browser navigation
+  window.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  // Prevent touch gestures
+  window.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 1) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  // Prevent pointer events that could trigger navigation
+  window.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'touch' && e.isPrimary === false) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+}

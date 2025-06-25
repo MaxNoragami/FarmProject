@@ -56,10 +56,6 @@ const TasksPage = () => {
     }>({ taskId: '', taskType: '', isCompleted: null });
 
     // Handlers
-    const handleAddTask = () => {
-        console.log('Add task clicked');
-    };
-
     const handleToggleTaskComplete = (taskId: string, newStatus: boolean) => {
         setTasks(prevTasks => 
             prevTasks.map(task => 
@@ -235,14 +231,6 @@ const TasksPage = () => {
                                     >
                                         Filter
                                     </Button>
-                                    <Button
-                                        variant="contained"
-                                        startIcon={<Add />}
-                                        onClick={handleAddTask}
-                                        size="small"
-                                    >
-                                        Add
-                                    </Button>
                                 </Box>
                             </Box>
 
@@ -389,13 +377,6 @@ const TasksPage = () => {
                                 onClick={() => setFilterDialogOpen(true)}
                             >
                                 Filter
-                            </Button>
-                            <Button
-                                variant="contained"
-                                startIcon={<Add />}
-                                onClick={handleAddTask}
-                            >
-                                Add
                             </Button>
                         </Box>
                     </Box>

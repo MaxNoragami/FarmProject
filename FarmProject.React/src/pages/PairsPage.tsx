@@ -8,6 +8,8 @@ import { usePairSorting } from '../hooks/usePairSorting';
 import { getSortablePairColumns } from '../constants/pairColumns';
 import PairCard from '../components/pairs/PairCard';
 import PairFilterDialog from '../components/pairs/PairFilterDialog';
+import AddPairModal from '../components/modals/AddPairModal';
+import type { AddPairFormFields } from '../schemas/pairSchemas';
 
 const PairsPage = () => {
     const theme = useTheme();
@@ -44,9 +46,27 @@ const PairsPage = () => {
         status: string;
     }>({ pairId: '', status: '' });
 
+    // Add modal state
+    const [addModalOpen, setAddModalOpen] = React.useState(false);
+
     // Handlers
     const handleAddPair = () => {
-        console.log('Add pair clicked');
+        setAddModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setAddModalOpen(false);
+    };
+
+    const handleSubmitNewPair = async (data: AddPairFormFields) => {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        
+        // Here you would typically call your API to create the pair
+        console.log('New pair data:', data);
+        
+        // Close modal on success
+        setAddModalOpen(false);
     };
 
     const clearPairIdFilter = () => {
@@ -349,6 +369,12 @@ const PairsPage = () => {
                 sortOrder={order}
                 onSortOrderChange={setOrder}
                 sortableColumns={getSortablePairColumns()}
+            />
+
+            <AddPairModal
+                open={addModalOpen}
+                onClose={handleModalClose}
+                onSubmit={handleSubmitNewPair}
             />
         </>
     );
