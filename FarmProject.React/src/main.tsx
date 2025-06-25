@@ -8,6 +8,7 @@ import RabbitsPage from './pages/RabbitsPage'
 import TasksPage from './pages/TasksPage'
 import CagesPage from './pages/CagesPage'
 import PairsPage from './pages/PairsPage'
+import RegisterPage from './pages/RegisterPage'
 import { UserProvider } from './contexts/UserContext'
 
 
@@ -16,8 +17,9 @@ createRoot(document.getElementById('root')!).render(
     <HelmetProvider>
       <UserProvider>
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<BaseLayout />}>
+            <Routes>
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/" element={<BaseLayout />}>
               <Route index element={<Navigate to="/rabbits" replace />} />
               <Route path="rabbits" element={<RabbitsPage />} />
               <Route path="tasks" element={<TasksPage />} />
