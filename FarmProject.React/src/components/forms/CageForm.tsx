@@ -49,13 +49,6 @@ const CageForm: React.FC<CageFormProps> = ({ onSubmit, onCancel }) => {
 
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
         <Button
-          variant="outlined"
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
-          Cancel
-        </Button>
-        <Button
           type="submit"
           variant="contained"
           disabled={isSubmitting}

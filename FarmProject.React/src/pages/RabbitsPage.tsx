@@ -11,6 +11,8 @@ import FilterDialog from '../components/common/FilterDialog';
 import DataTable from '../components/common/DataTable';
 import RabbitCard from '../components/rabbits/RabbitCard';
 import RabbitTableRow from '../components/rabbits/RabbitTableRow';
+import AddRabbitModal from '../components/modals/AddRabbitModal';
+import type { AddRabbitFormFields } from '../schemas/rabbitSchemas';
 
 const RabbitsPage = () => {
     const theme = useTheme();
@@ -47,9 +49,27 @@ const RabbitsPage = () => {
         status: string;
     }>({ name: '', status: '' });
 
+    // Add modal state
+    const [addModalOpen, setAddModalOpen] = React.useState(false);
+
     // Handlers
     const handleAddRabbit = () => {
-        console.log('Add rabbit clicked');
+        setAddModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setAddModalOpen(false);
+    };
+
+    const handleSubmitNewRabbit = async (data: AddRabbitFormFields) => {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        
+        // Here you would typically call your API to create the rabbit
+        console.log('New rabbit data:', data);
+        
+        // Close modal on success
+        setAddModalOpen(false);
     };
 
     const handleChangePage = (event: unknown, newPage: number) => {
@@ -313,6 +333,12 @@ const RabbitsPage = () => {
                 sortOrder={order}
                 onSortOrderChange={setOrder}
                 sortableColumns={getSortableColumns()}
+            />
+
+            <AddRabbitModal
+                open={addModalOpen}
+                onClose={handleModalClose}
+                onSubmit={handleSubmitNewRabbit}
             />
         </>
     );
