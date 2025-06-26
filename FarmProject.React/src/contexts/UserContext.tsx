@@ -17,13 +17,18 @@ interface UserProviderProps {
   children: React.ReactNode;
 }
 
-// JWT decode
+// Manual JWT decode (no dependency), normalize role
 function getUserFromToken(token: string | null): User | null {
   if (!token) return null;
   try {
     const payload = token.split('.')[1];
     const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
-    return decoded as User;
+    // Normalize role: if array, take first element; else use as is
+    let role = decoded.role;
+    if (Array.isArray(role)) {
+      role = role[0];
+    }
+    return { ...decoded, role };
   } catch {
     return null;
   }

@@ -20,7 +20,7 @@ const TasksPage = () => {
     // Tasks state
     const [tasks, setTasks] = React.useState(mockTasksData);
     
-    // Date state (using dayjs)
+    // Date state
     const [selectedDate, setSelectedDate] = React.useState(dayjs());
 
     // Filter state
@@ -139,7 +139,7 @@ const TasksPage = () => {
         setFilterDialogOpen(false);
     };
 
-    // Data calculation with date filtering (updated for dayjs)
+    // Data calculation with date filtering
     const visibleTasks = React.useMemo(() => {
         const dateFilteredTasks = sortedData.filter(task => {
             const taskDueDate = dayjs(task.dueOn);
@@ -149,7 +149,7 @@ const TasksPage = () => {
         return dateFilteredTasks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
     }, [sortedData, page, rowsPerPage, selectedDate]);
 
-    // Update filtered data count to include date filtering (updated for dayjs)
+    // Update filtered data count to include date filtering
     const dateFilteredCount = React.useMemo(() => {
         return sortedData.filter(task => {
             const taskDueDate = dayjs(task.dueOn);
