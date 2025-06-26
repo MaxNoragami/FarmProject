@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, TextField, Button, FormControl, InputLabel } from '@mui/material';
+import { Box, TextField, Button, FormControl, InputLabel, Typography } from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, type RegisterFormFields, userRoleOptions, type UserRole } from '../../schemas/registerSchemas';
+import { Link as RouterLink } from 'react-router-dom';
 
 interface RegisterFormProps {
   onSubmit: (data: RegisterFormFields) => Promise<void>;
@@ -134,19 +135,36 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, isSubmitting }) =
       <Button
         type="submit"
         variant="contained"
-        size="large"
-        fullWidth
+        size="medium"
         disabled={isSubmitting}
         sx={{ 
+          alignSelf: 'center',
+          width: { xs: '70%', sm: '60%' },
           mt: { xs: 1, sm: 2 },
-          py: { xs: 1.5, sm: 2 },
-          fontSize: { xs: '1rem', sm: '1.1rem' },
+          py: { xs: 1, sm: 1.2 },
+          fontSize: { xs: '0.95rem', sm: '1rem' },
           fontWeight: 600,
           borderRadius: { xs: 1.5, sm: 2 }
         }}
       >
         {isSubmitting ? 'Registering...' : 'Register'}
       </Button>
+      <Typography
+        variant="body2"
+        sx={{ mt: 0.0, mb: 0.0, textAlign: 'center', color: 'text.secondary', lineHeight: 1.2 }}
+      >
+        Already have an account?{' '}
+        <RouterLink
+          to="/login"
+          style={{
+            textDecoration: 'none',
+            color: 'var(--mui-palette-primary-main, #1976d2)',
+            fontWeight: 600
+          }}
+        >
+          Login
+        </RouterLink>
+      </Typography>
     </Box>
   );
 };

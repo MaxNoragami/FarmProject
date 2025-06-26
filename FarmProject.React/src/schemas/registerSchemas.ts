@@ -4,14 +4,21 @@ export const userRoleOptions = ["Logistics", "Worker"] as const;
 export type UserRole = (typeof userRoleOptions)[number];
 
 export const registerSchema = z.object({
-  firstName: z.string().min(1, 'First name is required').max(50, 'First name must be less than 50 characters'),
-  lastName: z.string().min(1, 'Last name is required').max(50, 'Last name must be less than 50 characters'),
-  email: z.string().email('Please enter a valid email address'),
+  firstName: z.string()
+    .min(1, 'First name is required')
+    .max(48, 'First name max length is 48 characters'),
+  lastName: z.string()
+    .min(1, 'Last name is required')
+    .max(48, 'Last name max length is 48 characters'),
+  email: z.string()
+    .email('Please enter a valid email address')
+    .max(128, 'Email address max length is 128 characters'),
   password: z.string()
-    .min(8, 'Password must be at least 8 characters long')
-    .regex(/[0-9]/, 'Password must contain at least one digit')
-    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter'),
+    .min(8, 'Password must contain at least 8 chars')
+    .max(48, 'Password max length is 48 characters')
+    .regex(/[0-9]+/, 'Password must contain at least one digit')
+    .regex(/[a-z]+/, 'Password must contain at least one lowercase')
+    .regex(/[A-Z]+/, 'Password must contain at least one uppercase'),
   role: z.custom<UserRole>((val): val is UserRole => userRoleOptions.includes(val as UserRole), {
     message: "Role is required"
   }),
