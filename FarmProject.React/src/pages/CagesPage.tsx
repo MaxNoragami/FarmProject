@@ -8,6 +8,7 @@ import AddCageModal from '../components/modals/AddCageModal';
 import type { AddCageFormFields } from '../schemas/cageSchemas';
 import { useCageData } from '../hooks/useCageData';
 import ErrorAlert from '../components/common/ErrorAlert';
+import { CageService } from '../services/CageService';
 
 const CagesPage = () => {
     const theme = useTheme();
@@ -19,6 +20,7 @@ const CagesPage = () => {
 
     // Add modal state
     const [addModalOpen, setAddModalOpen] = React.useState(false);
+    const [addCageError, setAddCageError] = React.useState<string | null>(null);
 
     // Fetch cages data
     const { 
@@ -34,22 +36,28 @@ const CagesPage = () => {
 
     // Handlers
     const handleAddCage = () => {
+        setAddCageError(null);
         setAddModalOpen(true);
     };
 
     const handleModalClose = () => {
         setAddModalOpen(false);
+        setAddCageError(null);
     };
 
     const handleSubmitNewCage = async (data: AddCageFormFields) => {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        
-        console.log('New cage data:', data);
-        
-        // Close modal and refetch data on success
-        setAddModalOpen(false);
-        await refetch();
+        setAddCageError(null);
+        try {
+            await CageService.addCage(data.name);
+            setAddModalOpen(false);
+            await refetch();
+        } catch (err: any) {
+            setAddCageError(
+                err?.response?.data?.message ||
+                err?.message ||
+                "An unexpected error occurred."
+            );
+        }
     };
 
     // Pagination handlers
@@ -261,6 +269,7 @@ const CagesPage = () => {
                 open={addModalOpen}
                 onClose={handleModalClose}
                 onSubmit={handleSubmitNewCage}
+                error={addCageError}
             />
         </>
     );
