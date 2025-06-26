@@ -15,11 +15,9 @@ interface PairFilterDialogProps {
     onClearStatus: () => void;
     logicalOperator: 'AND' | 'OR';
     onLogicalOperatorChange: (operator: 'AND' | 'OR') => void;
-    onApply: () => void;
+    onApply: (params: { filters: { pairId: string; status: string }, sortBy: string, sortOrder: 'asc' | 'desc' }) => void;
     sortBy?: string;
-    onSortByChange?: (sortBy: string) => void;
     sortOrder?: 'asc' | 'desc';
-    onSortOrderChange?: (order: 'asc' | 'desc') => void;
     sortableColumns?: Array<{ id: string; label: string }>;
 }
 
@@ -34,11 +32,42 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
     onLogicalOperatorChange,
     onApply,
     sortBy,
-    onSortByChange,
     sortOrder,
-    onSortOrderChange,
     sortableColumns = []
 }) => {
+    // Local state for filters, sorting, and logical operator
+    const [localFilters, setLocalFilters] = React.useState({ ...tempFilters });
+    const [localSortBy, setLocalSortBy] = React.useState(sortBy || '');
+    const [localSortOrder, setLocalSortOrder] = React.useState<'asc' | 'desc'>(sortOrder || 'asc');
+    const [localLogicalOperator, setLocalLogicalOperator] = React.useState<'AND' | 'OR'>(logicalOperator);
+
+    // Sync local state with props when dialog opens
+    React.useEffect(() => {
+        if (open) {
+            setLocalFilters({ ...tempFilters });
+            setLocalSortBy(sortBy || '');
+            setLocalSortOrder(sortOrder || 'asc');
+            setLocalLogicalOperator(logicalOperator);
+        }
+    }, [open, tempFilters, sortBy, sortOrder, logicalOperator]);
+
+    // Enable Apply if any filter, sort, or logical operator value has changed
+    const sortChanged = localSortBy !== (sortBy || '') || localSortOrder !== (sortOrder || 'asc');
+    const filtersChanged =
+        localFilters.pairId !== (tempFilters.pairId || '') ||
+        localFilters.status !== (tempFilters.status || '');
+    const logicalChanged = localLogicalOperator !== logicalOperator;
+    const canApply = sortChanged || filtersChanged || logicalChanged;
+
+    const handleApply = () => {
+        onLogicalOperatorChange(localLogicalOperator);
+        onApply({
+            filters: localFilters,
+            sortBy: localSortBy,
+            sortOrder: localSortOrder
+        });
+    };
+
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
             <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -52,12 +81,12 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
                     <TextField
                         fullWidth
                         label="Pair ID"
-                        value={tempFilters.pairId}
-                        onChange={(e) => onTempFiltersChange({ ...tempFilters, pairId: e.target.value })}
+                        value={localFilters.pairId}
+                        onChange={(e) => setLocalFilters({ ...localFilters, pairId: e.target.value })}
                         placeholder="Filter by pair ID..."
                         InputProps={{
-                            endAdornment: tempFilters.pairId && (
-                                <IconButton onClick={onClearPairId} size="small">
+                            endAdornment: localFilters.pairId && (
+                                <IconButton onClick={() => { setLocalFilters({ ...localFilters, pairId: '' }); onClearPairId(); }} size="small">
                                     <Clear />
                                 </IconButton>
                             )
@@ -67,11 +96,11 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
                     <FormControl fullWidth>
                         <InputLabel>Status</InputLabel>
                         <Select
-                            value={tempFilters.status}
-                            onChange={(e) => onTempFiltersChange({ ...tempFilters, status: e.target.value })}
+                            value={localFilters.status}
+                            onChange={(e) => setLocalFilters({ ...localFilters, status: e.target.value })}
                             label="Status"
-                            endAdornment={tempFilters.status && (
-                                <IconButton onClick={onClearStatus} size="small" sx={{ mr: 2 }}>
+                            endAdornment={localFilters.status && (
+                                <IconButton onClick={() => { setLocalFilters({ ...localFilters, status: '' }); onClearStatus(); }} size="small" sx={{ mr: 2 }}>
                                     <Clear />
                                 </IconButton>
                             )}
@@ -85,13 +114,13 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
                         </Select>
                     </FormControl>
 
-                    {sortBy && onSortByChange && sortOrder && onSortOrderChange && (
+                    {(sortBy && sortableColumns.length > 0) && (
                         <>
                             <FormControl fullWidth>
                                 <InputLabel>Sort By</InputLabel>
                                 <Select
-                                    value={sortBy}
-                                    onChange={(e) => onSortByChange(e.target.value)}
+                                    value={localSortBy}
+                                    onChange={(e) => setLocalSortBy(e.target.value)}
                                     label="Sort By"
                                 >
                                     {sortableColumns.map((column) => (
@@ -105,8 +134,8 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
                             <FormControl fullWidth>
                                 <InputLabel>Sort Order</InputLabel>
                                 <Select
-                                    value={sortOrder}
-                                    onChange={(e) => onSortOrderChange(e.target.value as 'asc' | 'desc')}
+                                    value={localSortOrder}
+                                    onChange={(e) => setLocalSortOrder(e.target.value as 'asc' | 'desc')}
                                     label="Sort Order"
                                 >
                                     <MenuItem value="asc">Ascending</MenuItem>
@@ -120,8 +149,11 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
                         <FormControl size="small" sx={{ minWidth: 120 }}>
                             <InputLabel>Logical Operator</InputLabel>
                             <Select
-                                value={logicalOperator}
-                                onChange={(e) => onLogicalOperatorChange(e.target.value as 'AND' | 'OR')}
+                                value={localLogicalOperator}
+                                onChange={(e) => {
+                                    const value = e.target.value as 'AND' | 'OR';
+                                    setLocalLogicalOperator(value === 'AND' || value === 'OR' ? value : 'AND');
+                                }}
                                 label="Logical Operator"
                             >
                                 <MenuItem value="AND">AND</MenuItem>
@@ -130,9 +162,9 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
                         </FormControl>
                         
                         <Button 
-                            onClick={onApply} 
+                            onClick={handleApply} 
                             variant="contained"
-                            disabled={!tempFilters.pairId.trim() && !tempFilters.status.trim()}
+                            disabled={!canApply}
                         >
                             Apply
                         </Button>

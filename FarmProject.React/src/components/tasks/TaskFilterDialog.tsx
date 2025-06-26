@@ -17,11 +17,9 @@ interface TaskFilterDialogProps {
     onClearCompleted: () => void;
     logicalOperator: 'AND' | 'OR';
     onLogicalOperatorChange: (operator: 'AND' | 'OR') => void;
-    onApply: () => void;
+    onApply: (params: { filters: { taskId: string; taskType: string; isCompleted: boolean | null }, sortBy: string, sortOrder: 'asc' | 'desc' }) => void;
     sortBy?: string;
-    onSortByChange?: (sortBy: string) => void;
     sortOrder?: 'asc' | 'desc';
-    onSortOrderChange?: (order: 'asc' | 'desc') => void;
     sortableColumns?: Array<{ id: string; label: string }>;
 }
 
@@ -37,11 +35,31 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
     onLogicalOperatorChange,
     onApply,
     sortBy,
-    onSortByChange,
     sortOrder,
-    onSortOrderChange,
     sortableColumns = []
 }) => {
+    // Local state for filters and sorting
+    const [localFilters, setLocalFilters] = React.useState({ ...tempFilters });
+    const [localSortBy, setLocalSortBy] = React.useState(sortBy || '');
+    const [localSortOrder, setLocalSortOrder] = React.useState<'asc' | 'desc'>(sortOrder || 'asc');
+
+    // Sync local state with props when dialog opens
+    React.useEffect(() => {
+        if (open) {
+            setLocalFilters({ ...tempFilters });
+            setLocalSortBy(sortBy || '');
+            setLocalSortOrder(sortOrder || 'asc');
+        }
+    }, [open, tempFilters, sortBy, sortOrder]);
+
+    const handleApply = () => {
+        onApply({
+            filters: localFilters,
+            sortBy: localSortBy,
+            sortOrder: localSortOrder
+        });
+    };
+
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
             <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -55,12 +73,12 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
                     <TextField
                         fullWidth
                         label="Task ID"
-                        value={tempFilters.taskId}
-                        onChange={(e) => onTempFiltersChange({ ...tempFilters, taskId: e.target.value })}
+                        value={localFilters.taskId}
+                        onChange={(e) => setLocalFilters({ ...localFilters, taskId: e.target.value })}
                         placeholder="Filter by task ID..."
                         InputProps={{
-                            endAdornment: tempFilters.taskId && (
-                                <IconButton onClick={onClearTaskId} size="small">
+                            endAdornment: localFilters.taskId && (
+                                <IconButton onClick={() => { setLocalFilters({ ...localFilters, taskId: '' }); onClearTaskId(); }} size="small">
                                     <Clear />
                                 </IconButton>
                             )
@@ -70,11 +88,11 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
                     <FormControl fullWidth>
                         <InputLabel>Task Type</InputLabel>
                         <Select
-                            value={tempFilters.taskType}
-                            onChange={(e) => onTempFiltersChange({ ...tempFilters, taskType: e.target.value })}
+                            value={localFilters.taskType}
+                            onChange={(e) => setLocalFilters({ ...localFilters, taskType: e.target.value })}
                             label="Task Type"
-                            endAdornment={tempFilters.taskType && (
-                                <IconButton onClick={onClearTaskType} size="small" sx={{ mr: 2 }}>
+                            endAdornment={localFilters.taskType && (
+                                <IconButton onClick={() => { setLocalFilters({ ...localFilters, taskType: '' }); onClearTaskType(); }} size="small" sx={{ mr: 2 }}>
                                     <Clear />
                                 </IconButton>
                             )}
@@ -88,13 +106,13 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
                         </Select>
                     </FormControl>
 
-                    {sortBy && onSortByChange && sortOrder && onSortOrderChange && (
+                    {(sortBy && sortableColumns.length > 0) && (
                         <>
                             <FormControl fullWidth>
                                 <InputLabel>Sort By</InputLabel>
                                 <Select
-                                    value={sortBy}
-                                    onChange={(e) => onSortByChange(e.target.value)}
+                                    value={localSortBy}
+                                    onChange={(e) => setLocalSortBy(e.target.value)}
                                     label="Sort By"
                                 >
                                     {sortableColumns.map((column) => (
@@ -108,8 +126,8 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
                             <FormControl fullWidth>
                                 <InputLabel>Sort Order</InputLabel>
                                 <Select
-                                    value={sortOrder}
-                                    onChange={(e) => onSortOrderChange(e.target.value as 'asc' | 'desc')}
+                                    value={localSortOrder}
+                                    onChange={(e) => setLocalSortOrder(e.target.value as 'asc' | 'desc')}
                                     label="Sort Order"
                                 >
                                     <MenuItem value="asc">Ascending</MenuItem>
@@ -123,23 +141,23 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
                         <FormControlLabel
                             control={
                                 <Checkbox
-                                    checked={tempFilters.isCompleted === true}
-                                    indeterminate={tempFilters.isCompleted === null}
-                                    onChange={(e) => {
-                                        if (tempFilters.isCompleted === null) {
-                                            onTempFiltersChange({ ...tempFilters, isCompleted: true });
-                                        } else if (tempFilters.isCompleted === true) {
-                                            onTempFiltersChange({ ...tempFilters, isCompleted: false });
+                                    checked={localFilters.isCompleted === true}
+                                    indeterminate={localFilters.isCompleted === null}
+                                    onChange={() => {
+                                        if (localFilters.isCompleted === null) {
+                                            setLocalFilters({ ...localFilters, isCompleted: true });
+                                        } else if (localFilters.isCompleted === true) {
+                                            setLocalFilters({ ...localFilters, isCompleted: false });
                                         } else {
-                                            onTempFiltersChange({ ...tempFilters, isCompleted: null });
+                                            setLocalFilters({ ...localFilters, isCompleted: null });
                                         }
                                     }}
                                 />
                             }
                             label="Is Completed?"
                         />
-                        {tempFilters.isCompleted !== null && (
-                            <IconButton onClick={onClearCompleted} size="small">
+                        {localFilters.isCompleted !== null && (
+                            <IconButton onClick={() => { setLocalFilters({ ...localFilters, isCompleted: null }); onClearCompleted(); }} size="small">
                                 <Clear />
                             </IconButton>
                         )}
@@ -159,9 +177,16 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
                         </FormControl>
                         
                         <Button 
-                            onClick={onApply} 
+                            onClick={handleApply} 
                             variant="contained"
-                            disabled={!tempFilters.taskId.trim() && !tempFilters.taskType.trim() && tempFilters.isCompleted === null}
+                            disabled={
+                                !(
+                                    localFilters.taskId.trim() ||
+                                    localFilters.taskType.trim() ||
+                                    localFilters.isCompleted !== null ||
+                                    (sortBy && (localSortBy !== (sortBy || '') || localSortOrder !== (sortOrder || 'asc')))
+                                )
+                            }
                         >
                             Apply
                         </Button>

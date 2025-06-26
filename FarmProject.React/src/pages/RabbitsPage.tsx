@@ -48,6 +48,8 @@ const RabbitsPage = () => {
         name: string;
         status: string;
     }>({ name: '', status: '' });
+    const [tempSortBy, setTempSortBy] = React.useState(String(orderBy));
+    const [tempSortOrder, setTempSortOrder] = React.useState(order);
 
     // Add modal state
     const [addModalOpen, setAddModalOpen] = React.useState(false);
@@ -132,9 +134,39 @@ const RabbitsPage = () => {
         }
     };
 
-    const applyFiltersFromDialog = () => {
-        updateFiltersFromTemp(tempFilters);
+    // Only apply filters and sorting when "Apply" is clicked
+    const handleApplyFiltersAndSort = React.useCallback(({ filters, sortBy, sortOrder }: { filters: { name: string; status: string }, sortBy: string, sortOrder: 'asc' | 'desc' }) => {
+        // Update filters
+        const newFilters: Filter[] = [];
+        if (filters.name.trim()) {
+            newFilters.push({
+                id: `name-${Date.now()}`,
+                column: 'name',
+                operator: 'contains',
+                value: filters.name.trim()
+            });
+        }
+        if (filters.status.trim()) {
+            newFilters.push({
+                id: `status-${Date.now()}`,
+                column: 'status',
+                operator: 'equals',
+                value: filters.status.trim()
+            });
+        }
+        setFilters(newFilters);
+        setOrderBy(sortBy as keyof RabbitData);
+        setOrder(sortOrder);
+        setPage(0);
         setFilterDialogOpen(false);
+    }, [setFilters, setOrderBy, setOrder]);
+
+    // Open modal: sync temp state with current state
+    const handleOpenFilterDialog = () => {
+        setTempFilters({ name: '', status: '', ...filters.reduce((acc, f) => ({ ...acc, [f.column]: f.value }), {}) });
+        setTempSortBy(String(orderBy));
+        setTempSortOrder(order);
+        setFilterDialogOpen(true);
     };
 
     // Data calculation
@@ -182,7 +214,7 @@ const RabbitsPage = () => {
                                     <Button
                                         variant="outlined"
                                         startIcon={<FilterList />}
-                                        onClick={() => setFilterDialogOpen(true)}
+                                        onClick={handleOpenFilterDialog}
                                         size="small"
                                     >
                                         Filter
@@ -265,7 +297,7 @@ const RabbitsPage = () => {
                             <Button
                                 variant="outlined"
                                 startIcon={<FilterList />}
-                                onClick={() => setFilterDialogOpen(true)}
+                                onClick={handleOpenFilterDialog}
                             >
                                 Filter
                             </Button>
@@ -322,16 +354,14 @@ const RabbitsPage = () => {
                 tempFilters={tempFilters}
                 onTempFiltersChange={setTempFilters}
                 statusOptions={breedingStatusOptions}
-                onClearName={clearNameFilter}
-                onClearStatus={clearStatusFilter}
+                onClearName={() => setTempFilters((f) => ({ ...f, name: '' }))}
+                onClearStatus={() => setTempFilters((f) => ({ ...f, status: '' }))}
                 logicalOperator={logicalOperator}
                 onLogicalOperatorChange={setLogicalOperator}
-                onApply={applyFiltersFromDialog}
+                onApply={handleApplyFiltersAndSort}
                 isMobile={isMobile}
-                sortBy={String(orderBy)}
-                onSortByChange={(value) => setOrderBy(value as keyof RabbitData)}
-                sortOrder={order}
-                onSortOrderChange={setOrder}
+                sortBy={tempSortBy}
+                sortOrder={tempSortOrder}
                 sortableColumns={getSortableColumns()}
             />
 

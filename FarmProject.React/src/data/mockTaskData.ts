@@ -24,6 +24,7 @@ export function createTaskData(
 
 export const mockTasksData: TaskData[] = [
   createTaskData(1, '1', FarmTaskType.NestPreparation, 'Prepare nest in cage for rabbit #332', false, '2025-06-01T09:00:00', '2025-06-28T09:00:00'),
+  createTaskData(444, '444', FarmTaskType.NestPreparation, 'Prepare nest in cage for rabbit #3332', false, '2025-06-01T10:00:00', '2025-06-28T10:00:00'),
   createTaskData(2, '2', FarmTaskType.NestPreparation, 'Prepare nest in cage for rabbit #349', true, '2025-06-02T08:00:00', '2025-06-29T08:00:00'),
   createTaskData(3, '3', FarmTaskType.NestPreparation, 'Prepare nest in cage for rabbit #105', false, '2025-06-03T10:30:00', '2025-06-30T10:30:00'),
   createTaskData(4, '4', FarmTaskType.NestPreparation, 'Prepare nest in cage for rabbit #201', true, '2025-06-04T14:00:00', '2025-07-01T14:00:00'),

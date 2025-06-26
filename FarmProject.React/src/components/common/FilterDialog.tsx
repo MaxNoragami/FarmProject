@@ -15,12 +15,10 @@ interface FilterDialogProps {
     onClearStatus: () => void;
     logicalOperator: 'AND' | 'OR';
     onLogicalOperatorChange: (operator: 'AND' | 'OR') => void;
-    onApply: () => void;
+    onApply: (params: { filters: { name: string; status: string }, sortBy: string, sortOrder: 'asc' | 'desc' }) => void;
     isMobile?: boolean;
     sortBy?: string;
-    onSortByChange?: (sortBy: string) => void;
     sortOrder?: 'asc' | 'desc';
-    onSortOrderChange?: (order: 'asc' | 'desc') => void;
     sortableColumns?: Array<{ id: string; label: string }>;
 }
 
@@ -37,15 +35,44 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
     onApply,
     isMobile = false,
     sortBy,
-    onSortByChange,
     sortOrder,
-    onSortOrderChange,
     sortableColumns = []
 }) => {
+    // Local state for sortBy and sortOrder
+    const [localSortBy, setLocalSortBy] = React.useState(sortBy || '');
+    const [localSortOrder, setLocalSortOrder] = React.useState<'asc' | 'desc'>(sortOrder || 'asc');
+    const [localFilters, setLocalFilters] = React.useState({ ...tempFilters });
+
+    // Sync local state with props when dialog opens
+    React.useEffect(() => {
+        if (open) {
+            setLocalSortBy(sortBy || '');
+            setLocalSortOrder(sortOrder || 'asc');
+            setLocalFilters({ ...tempFilters });
+        }
+    }, [open, sortBy, sortOrder, tempFilters]);
+
+    // Track if sort/filter values have changed from initial values
+    const sortChanged = localSortBy !== (sortBy || '') || localSortOrder !== (sortOrder || 'asc');
+    const filtersChanged =
+        localFilters.name !== (tempFilters.name || '') ||
+        localFilters.status !== (tempFilters.status || '');
+
+    // Enable Apply if any filter or sort value has changed
+    const canApply = sortChanged || filtersChanged;
+
+    const handleApply = () => {
+        onApply({
+            filters: localFilters,
+            sortBy: localSortBy,
+            sortOrder: localSortOrder
+        });
+    };
+
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
             <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                Filter Options
+                Filter & Sort Options
                 <IconButton onClick={onClose} size="small">
                     <Close />
                 </IconButton>
@@ -55,12 +82,12 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                     <TextField
                         fullWidth
                         label="Name"
-                        value={tempFilters.name}
-                        onChange={(e) => onTempFiltersChange({ ...tempFilters, name: e.target.value })}
+                        value={localFilters.name}
+                        onChange={(e) => setLocalFilters({ ...localFilters, name: e.target.value })}
                         placeholder="Filter by name..."
                         InputProps={{
-                            endAdornment: tempFilters.name && (
-                                <IconButton onClick={onClearName} size="small">
+                            endAdornment: localFilters.name && (
+                                <IconButton onClick={() => { setLocalFilters({ ...localFilters, name: '' }); onClearName(); }} size="small">
                                     <Clear />
                                 </IconButton>
                             )
@@ -70,11 +97,11 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                     <FormControl fullWidth>
                         <InputLabel>Status</InputLabel>
                         <Select
-                            value={tempFilters.status}
-                            onChange={(e) => onTempFiltersChange({ ...tempFilters, status: e.target.value })}
+                            value={localFilters.status}
+                            onChange={(e) => setLocalFilters({ ...localFilters, status: e.target.value })}
                             label="Status"
-                            endAdornment={tempFilters.status && (
-                                <IconButton onClick={onClearStatus} size="small" sx={{ mr: 2 }}>
+                            endAdornment={localFilters.status && (
+                                <IconButton onClick={() => { setLocalFilters({ ...localFilters, status: '' }); onClearStatus(); }} size="small" sx={{ mr: 2 }}>
                                     <Clear />
                                 </IconButton>
                             )}
@@ -88,13 +115,13 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                         </Select>
                     </FormControl>
 
-                    {isMobile && sortBy && onSortByChange && sortOrder && onSortOrderChange && (
+                    {(sortBy && sortableColumns.length > 0) && (
                         <>
                             <FormControl fullWidth>
                                 <InputLabel>Sort By</InputLabel>
                                 <Select
-                                    value={sortBy}
-                                    onChange={(e) => onSortByChange(e.target.value)}
+                                    value={localSortBy}
+                                    onChange={(e) => setLocalSortBy(e.target.value)}
                                     label="Sort By"
                                 >
                                     {sortableColumns.map((column) => (
@@ -108,8 +135,8 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                             <FormControl fullWidth>
                                 <InputLabel>Sort Order</InputLabel>
                                 <Select
-                                    value={sortOrder}
-                                    onChange={(e) => onSortOrderChange(e.target.value as 'asc' | 'desc')}
+                                    value={localSortOrder}
+                                    onChange={(e) => setLocalSortOrder(e.target.value as 'asc' | 'desc')}
                                     label="Sort Order"
                                 >
                                     <MenuItem value="asc">Ascending</MenuItem>
@@ -133,9 +160,9 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                         </FormControl>
                         
                         <Button 
-                            onClick={onApply} 
+                            onClick={handleApply} 
                             variant="contained"
-                            disabled={!tempFilters.name.trim() && !tempFilters.status.trim()}
+                            disabled={!canApply}
                         >
                             Apply
                         </Button>

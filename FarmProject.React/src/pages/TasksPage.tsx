@@ -54,6 +54,8 @@ const TasksPage = () => {
         taskType: string;
         isCompleted: boolean | null;
     }>({ taskId: '', taskType: '', isCompleted: null });
+    const [tempSortBy, setTempSortBy] = React.useState(String(orderBy));
+    const [tempSortOrder, setTempSortOrder] = React.useState(order);
 
     // Handlers
     const handleToggleTaskComplete = (taskId: string, newStatus: boolean) => {
@@ -134,9 +136,47 @@ const TasksPage = () => {
         }
     };
 
-    const applyFiltersFromDialog = () => {
-        updateFiltersFromTemp(tempFilters);
+    // Only apply filters and sorting when "Apply" is clicked
+    const handleApplyFiltersAndSort = React.useCallback(({ filters, sortBy, sortOrder }: { filters: { taskId: string; taskType: string; isCompleted: boolean | null }, sortBy: string, sortOrder: 'asc' | 'desc' }) => {
+        // Update filters
+        const newFilters: TaskFilter[] = [];
+        if (filters.taskId.trim()) {
+            newFilters.push({
+                id: `taskId-${Date.now()}`,
+                column: 'taskId',
+                operator: 'contains',
+                value: filters.taskId.trim()
+            });
+        }
+        if (filters.taskType.trim()) {
+            newFilters.push({
+                id: `taskType-${Date.now()}`,
+                column: 'taskType',
+                operator: 'equals',
+                value: filters.taskType.trim()
+            });
+        }
+        if (filters.isCompleted !== null) {
+            newFilters.push({
+                id: `isCompleted-${Date.now()}`,
+                column: 'isCompleted',
+                operator: 'equals',
+                value: String(filters.isCompleted)
+            });
+        }
+        setFilters(newFilters);
+        setOrderBy(sortBy as keyof TaskData);
+        setOrder(sortOrder);
+        setPage(0);
         setFilterDialogOpen(false);
+    }, [setFilters, setOrderBy, setOrder]);
+
+    // Open modal: sync temp state with current state
+    const handleOpenFilterDialog = () => {
+        setTempFilters({ taskId: '', taskType: '', isCompleted: null, ...filters.reduce((acc, f) => ({ ...acc, [f.column]: f.value }), {}) });
+        setTempSortBy(String(orderBy));
+        setTempSortOrder(order);
+        setFilterDialogOpen(true);
     };
 
     // Data calculation with date filtering
@@ -226,7 +266,7 @@ const TasksPage = () => {
                                     <Button
                                         variant="outlined"
                                         startIcon={<FilterList />}
-                                        onClick={() => setFilterDialogOpen(true)}
+                                        onClick={handleOpenFilterDialog}
                                         size="small"
                                     >
                                         Filter
@@ -338,7 +378,6 @@ const TasksPage = () => {
                         <Typography variant="h5">
                             Tasks
                         </Typography>
-
                         {/* Date Navigation - Desktop */}
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <IconButton onClick={handlePreviousDay}>
@@ -369,12 +408,11 @@ const TasksPage = () => {
                                 <ChevronRight />
                             </IconButton>
                         </Box>
-
                         <Box sx={{ display: 'flex', gap: 1 }}>
                             <Button
                                 variant="outlined"
                                 startIcon={<FilterList />}
-                                onClick={() => setFilterDialogOpen(true)}
+                                onClick={handleOpenFilterDialog}
                             >
                                 Filter
                             </Button>
@@ -454,16 +492,14 @@ const TasksPage = () => {
                 onClose={() => setFilterDialogOpen(false)}
                 tempFilters={tempFilters}
                 onTempFiltersChange={setTempFilters}
-                onClearTaskId={clearTaskIdFilter}
-                onClearTaskType={clearTaskTypeFilter}
-                onClearCompleted={clearCompletedFilter}
+                onClearTaskId={() => setTempFilters((f) => ({ ...f, taskId: '' }))}
+                onClearTaskType={() => setTempFilters((f) => ({ ...f, taskType: '' }))}
+                onClearCompleted={() => setTempFilters((f) => ({ ...f, isCompleted: null }))}
                 logicalOperator={logicalOperator}
                 onLogicalOperatorChange={setLogicalOperator}
-                onApply={applyFiltersFromDialog}
-                sortBy={String(orderBy)}
-                onSortByChange={(value) => setOrderBy(value as keyof TaskData)}
-                sortOrder={order}
-                onSortOrderChange={setOrder}
+                onApply={handleApplyFiltersAndSort}
+                sortBy={tempSortBy}
+                sortOrder={tempSortOrder}
                 sortableColumns={getSortableTaskColumns()}
             />
         </LocalizationProvider>

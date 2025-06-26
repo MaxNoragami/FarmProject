@@ -45,6 +45,8 @@ const PairsPage = () => {
         pairId: string;
         status: string;
     }>({ pairId: '', status: '' });
+    const [tempSortBy, setTempSortBy] = React.useState(String(orderBy));
+    const [tempSortOrder, setTempSortOrder] = React.useState(order);
 
     // Add modal state
     const [addModalOpen, setAddModalOpen] = React.useState(false);
@@ -69,6 +71,42 @@ const PairsPage = () => {
         setAddModalOpen(false);
     };
 
+    // Only apply filters and sorting when "Apply" is clicked
+    const handleApplyFiltersAndSort = React.useCallback(({ filters, sortBy, sortOrder }: { filters: { pairId: string; status: string }, sortBy: string, sortOrder: 'asc' | 'desc' }) => {
+        // logicalOperator is set separately by onLogicalOperatorChange, not via onApply
+        const newFilters: PairFilter[] = [];
+        if (filters.pairId.trim()) {
+            newFilters.push({
+                id: `pairId-${Date.now()}`,
+                column: 'pairId',
+                operator: 'contains',
+                value: filters.pairId.trim()
+            });
+        }
+        if (filters.status.trim()) {
+            newFilters.push({
+                id: `status-${Date.now()}`,
+                column: 'status',
+                operator: 'equals',
+                value: filters.status.trim()
+            });
+        }
+        setFilters(newFilters);
+        setOrderBy(sortBy as keyof PairData);
+        setOrder(sortOrder);
+        setPage(0);
+        setFilterDialogOpen(false);
+    }, [setFilters, setOrderBy, setOrder]);
+
+    // Open modal: sync temp state with current state
+    const handleOpenFilterDialog = () => {
+        setTempFilters({ pairId: '', status: '', ...filters.reduce((acc, f) => ({ ...acc, [f.column]: f.value }), {}) });
+        setTempSortBy(String(orderBy));
+        setTempSortOrder(order);
+        setFilterDialogOpen(true);
+    };
+
+    // Clear filters
     const clearPairIdFilter = () => {
         const newTempFilters = { ...tempFilters, pairId: '' };
         setTempFilters(newTempFilters);
@@ -184,7 +222,7 @@ const PairsPage = () => {
                                     <Button
                                         variant="outlined"
                                         startIcon={<FilterList />}
-                                        onClick={() => setFilterDialogOpen(true)}
+                                        onClick={handleOpenFilterDialog}
                                         size="small"
                                     >
                                         Filter
@@ -275,7 +313,7 @@ const PairsPage = () => {
                             <Button
                                 variant="outlined"
                                 startIcon={<FilterList />}
-                                onClick={() => setFilterDialogOpen(true)}
+                                onClick={handleOpenFilterDialog}
                             >
                                 Filter
                             </Button>
@@ -359,15 +397,13 @@ const PairsPage = () => {
                 onClose={() => setFilterDialogOpen(false)}
                 tempFilters={tempFilters}
                 onTempFiltersChange={setTempFilters}
-                onClearPairId={clearPairIdFilter}
-                onClearStatus={clearStatusFilter}
+                onClearPairId={() => setTempFilters((f) => ({ ...f, pairId: '' }))}
+                onClearStatus={() => setTempFilters((f) => ({ ...f, status: '' }))}
                 logicalOperator={logicalOperator}
                 onLogicalOperatorChange={setLogicalOperator}
-                onApply={applyFiltersFromDialog}
-                sortBy={String(orderBy)}
-                onSortByChange={(value) => setOrderBy(value as keyof PairData)}
-                sortOrder={order}
-                onSortOrderChange={setOrder}
+                onApply={handleApplyFiltersAndSort}
+                sortBy={tempSortBy}
+                sortOrder={tempSortOrder}
                 sortableColumns={getSortablePairColumns()}
             />
 
