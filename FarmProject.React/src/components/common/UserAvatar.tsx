@@ -4,7 +4,7 @@ import { Logout } from '@mui/icons-material';
 import { useUser } from '../../contexts/UserContext';
 
 const UserAvatar: React.FC = () => {
-  const { user, setUser } = useUser();
+  const { user, logout } = useUser();
   const [expanded, setExpanded] = useState(false);
 
   if (!user) return null;
@@ -18,7 +18,7 @@ const UserAvatar: React.FC = () => {
   };
 
   const handleLogout = () => {
-    setUser(null);
+    logout();
     setExpanded(false);
   };
 

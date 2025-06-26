@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { User, UserContextType } from '../types/User';
+import { AuthService } from '../services/AuthService';
+import { setApiToken } from '../api/config';
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
@@ -15,23 +17,44 @@ interface UserProviderProps {
   children: React.ReactNode;
 }
 
+// JWT decode
+function getUserFromToken(token: string | null): User | null {
+  if (!token) return null;
+  try {
+    const payload = token.split('.')[1];
+    const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+    return decoded as User;
+  } catch {
+    return null;
+  }
+}
+
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-  // Mock user data
-  const [user, setUser] = useState<User | null>({
-    sub: "alexeimaxim2004@gmail.com",
-    email: "alexeimaxim2004@gmail.com",
-      FirstName: "Maxim",
-      LastName: "Alexei",
-    role: "Worker",
-    nbf: 1750775918,
-    exp: 1750783118,
-    iat: 1750775918,
-    iss: "AuthAPI",
-    aud: "Swagger-Client"
-  });
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+
+  // Keep user in sync with token
+  useEffect(() => {
+    setUser(getUserFromToken(token));
+    setApiToken(token);
+  }, [token]);
+
+  const login = useCallback(async (email: string, password: string) => {
+    const { token: newToken } = await AuthService.login(email, password);
+    setToken(newToken);
+  }, []);
+
+  const register = useCallback(async (data: any) => {
+    const { token: newToken } = await AuthService.register(data);
+    setToken(newToken);
+  }, []);
+
+  const logout = useCallback(() => {
+    setToken(null);
+  }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser, login, register, logout }}>
       {children}
     </UserContext.Provider>
   );

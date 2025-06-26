@@ -3,10 +3,14 @@ import { Helmet } from 'react-helmet-async';
 import AuthFormBase from '../components/forms/AuthFormBase';
 import LoginForm from '../components/forms/LoginForm';
 import { type LoginFormFields } from '../schemas/loginSchemas';
+import { useUser } from '../contexts/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const { login, user } = useUser();
+  const navigate = useNavigate();
 
   useLayoutEffect(() => {
     const isMobile = window.matchMedia('(max-width: 600px)').matches;
@@ -46,17 +50,22 @@ const LoginPage: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      navigate('/tasks', { replace: true });
+    }
+  }, [user, navigate]);
+
   const handleLogin = async (data: LoginFormFields) => {
     setIsSubmitting(true);
     setFormError(null);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setIsSubmitting(false);
-      console.log('Login submitted:', data);
+      await login(data.email, data.password);
+      // navigation handled by useEffect
     } catch (err: any) {
+      setFormError(err?.response?.data?.message || err?.message || "An unexpected error occurred.");
+    } finally {
       setIsSubmitting(false);
-      setFormError(err?.message || "An unexpected error occurred.");
     }
   };
 

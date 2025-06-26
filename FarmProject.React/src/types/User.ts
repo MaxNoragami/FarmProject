@@ -14,4 +14,7 @@ export interface User {
 export interface UserContextType {
   user: User | null;
   setUser: (user: User | null) => void;
+  login: (email: string, password: string) => Promise<void>;
+  register: (data: any) => Promise<void>;
+  logout: () => void;
 }
