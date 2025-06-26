@@ -667,3 +667,5 @@ Task1VersionControl/Imgs/
 **/appsettings.Development.json
 
 **/*.lock
+**/node_modules
+**/package-lock.json
