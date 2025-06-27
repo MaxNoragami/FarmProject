@@ -1,10 +1,10 @@
-﻿using PairingServiceClass = FarmProject.Application.PairingService.PairingService;
+﻿using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Application.UnitTests.Mocks;
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Models;
 using FluentAssertions;
-using FarmProject.Application.Common.Models.Dtos;
-using FarmProject.Application.Common.Models;
+using PairingServiceClass = FarmProject.Application.PairingService.PairingService;
 
 namespace FarmProject.Application.UnitTests;
 

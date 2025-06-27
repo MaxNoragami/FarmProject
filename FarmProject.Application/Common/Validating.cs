@@ -1,7 +1,7 @@
 ﻿using FarmProject.Domain.Common;
+using FarmProject.Domain.Errors;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using FarmProject.Domain.Errors;
 
 namespace FarmProject.Application.Common;
 

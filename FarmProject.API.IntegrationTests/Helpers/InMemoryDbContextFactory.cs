@@ -1,5 +1,4 @@
-﻿using FarmProject.Domain.Models;
-using FarmProject.Infrastructure;
+﻿using FarmProject.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace FarmProject.API.IntegrationTests.Helpers;

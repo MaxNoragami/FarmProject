@@ -1,7 +1,7 @@
-﻿using FarmProject.Application.FarmTaskService;
-using FarmProject.Application.PairingService;
-using FarmProject.Application.BreedingRabbitsService;
+﻿using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Application.CageService;
+using FarmProject.Application.FarmTaskService;
+using FarmProject.Application.PairingService;
 
 namespace FarmProject.Application;
 

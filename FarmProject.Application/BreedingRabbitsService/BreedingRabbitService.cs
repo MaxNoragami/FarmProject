@@ -4,7 +4,6 @@ using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Models;
-using FarmProject.Domain.Specifications;
 
 namespace FarmProject.Application.BreedingRabbitsService;
 

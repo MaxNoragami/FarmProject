@@ -1,13 +1,12 @@
-﻿
-using FarmProject.Application.Events;
-using FarmProject.Application.PairingService;
-using FarmProject.Application.BreedingRabbitsService;
-using FarmProject.Domain.Events;
-using FarmProject.Domain.Models;
-using FluentAssertions;
-using FarmProject.Domain.Specifications;
+﻿using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Application.Common.Models;
 using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.Events;
+using FarmProject.Application.PairingService;
+using FarmProject.Domain.Events;
+using FarmProject.Domain.Models;
+using FarmProject.Domain.Specifications;
+using FluentAssertions;
 
 namespace FarmProject.Domain.UnitTests.ListnerTest;
 

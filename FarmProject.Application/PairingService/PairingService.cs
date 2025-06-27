@@ -1,11 +1,11 @@
-﻿using FarmProject.Application.Events;
-using FarmProject.Application.BreedingRabbitsService;
+﻿using FarmProject.Application.BreedingRabbitsService;
+using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.Events;
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Models;
-using FarmProject.Application.Common.Models;
-using FarmProject.Application.Common.Models.Dtos;
 
 namespace FarmProject.Application.PairingService;
 

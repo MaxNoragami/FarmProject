@@ -1,6 +1,5 @@
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Models;
-using Xunit;
 
 namespace FarmProject.Domain.UnitTests.PairTest
 {

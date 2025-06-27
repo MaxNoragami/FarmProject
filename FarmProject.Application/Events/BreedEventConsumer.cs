@@ -1,7 +1,6 @@
-﻿using FarmProject.Application.PairingService;
-using FarmProject.Application.BreedingRabbitsService;
+﻿using FarmProject.Application.BreedingRabbitsService;
+using FarmProject.Application.PairingService;
 using FarmProject.Domain.Common;
-using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Events;
 using FarmProject.Domain.Models;

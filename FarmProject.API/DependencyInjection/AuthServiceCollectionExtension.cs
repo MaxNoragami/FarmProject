@@ -1,15 +1,13 @@
-using System.Text;
-using FarmProject.Application.BreedingRabbitsService.Validators;
-using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Application.Common;
 using FarmProject.Application.IdentityService;
+using FarmProject.Application.IdentityService.Validators;
 using FarmProject.Infrastructure.Authentication;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using FarmProject.Application.IdentityService.Validators;
+using System.Text;
 
 namespace FarmProject.API.DependencyInjection;
 

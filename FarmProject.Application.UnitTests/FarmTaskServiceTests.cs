@@ -1,8 +1,8 @@
 ﻿using FarmProject.Application.UnitTests.Mocks;
-using FarmProject.Domain.Models;
 using FarmProject.Domain.Constants;
-using FarmTaskServiceClass = FarmProject.Application.FarmTaskService.FarmTaskService;
+using FarmProject.Domain.Models;
 using FluentAssertions;
+using FarmTaskServiceClass = FarmProject.Application.FarmTaskService.FarmTaskService;
 
 namespace FarmProject.Application.UnitTests;
 

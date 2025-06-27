@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using FarmProject.Domain.Identity;
+﻿using FarmProject.Domain.Identity;
+using Microsoft.AspNetCore.Authorization;
 using System.Data;
 
 namespace FarmProject.API.Attributes;

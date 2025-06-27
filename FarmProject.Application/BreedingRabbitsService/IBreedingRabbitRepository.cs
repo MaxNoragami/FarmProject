@@ -1,5 +1,5 @@
-﻿using FarmProject.Application.Common.Models.Dtos;
-using FarmProject.Application.Common.Models;
+﻿using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Domain.Models;
 using FarmProject.Domain.Specifications;
 

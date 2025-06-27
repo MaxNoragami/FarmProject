@@ -1,13 +1,12 @@
-﻿using FarmProject.Application.CageService;
-using Microsoft.AspNetCore.Mvc;
-using FarmProject.Application.Common;
-using FarmProject.API.Dtos.Cages;
-using FarmProject.Application.Common.Models;
+﻿using FarmProject.API.Attributes;
 using FarmProject.API.Dtos;
+using FarmProject.API.Dtos.Cages;
+using FarmProject.Application.CageService;
+using FarmProject.Application.Common;
+using FarmProject.Application.Common.Models;
 using FarmProject.Application.Common.Models.Dtos;
-using FarmProject.API.Attributes;
 using FarmProject.Domain.Identity;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FarmProject.API.Controllers;
 
