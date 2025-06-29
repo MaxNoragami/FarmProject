@@ -1,5 +1,4 @@
 ﻿using FarmProject.Domain.Common;
-using FarmProject.Domain.Identity;
 
 namespace FarmProject.Application.IdentityService;
 

@@ -1,4 +1,4 @@
-﻿using FarmProject.Domain.Identity;
+﻿using FarmProject.Application.IdentityService;
 using Microsoft.AspNetCore.Authorization;
 using System.Data;
 

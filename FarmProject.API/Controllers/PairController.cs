@@ -4,8 +4,8 @@ using FarmProject.API.Dtos.Pairs;
 using FarmProject.Application.Common;
 using FarmProject.Application.Common.Models;
 using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.IdentityService;
 using FarmProject.Application.PairingService;
-using FarmProject.Domain.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FarmProject.API.Controllers;

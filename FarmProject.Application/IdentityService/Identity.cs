@@ -1,4 +1,11 @@
-﻿namespace FarmProject.Domain.Identity;
+﻿namespace FarmProject.Application.IdentityService;
+
+public record AuthenticationResult(
+    string Token);
+
+public record LoginUserRequest(
+    string Email,
+    string Password);
 
 public record RegisterUserRequest(
     string Email,

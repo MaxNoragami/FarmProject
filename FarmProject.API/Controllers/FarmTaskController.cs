@@ -5,7 +5,7 @@ using FarmProject.Application.Common;
 using FarmProject.Application.Common.Models;
 using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Application.FarmTaskService;
-using FarmProject.Domain.Identity;
+using FarmProject.Application.IdentityService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FarmProject.API.Controllers;

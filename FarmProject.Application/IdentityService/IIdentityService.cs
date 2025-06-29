@@ -1,5 +1,4 @@
-﻿using FarmProject.Domain.Identity;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 
 namespace FarmProject.Application.IdentityService;
