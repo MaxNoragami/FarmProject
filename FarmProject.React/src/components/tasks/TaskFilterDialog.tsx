@@ -42,6 +42,7 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
     const [localFilters, setLocalFilters] = React.useState({ ...tempFilters });
     const [localSortBy, setLocalSortBy] = React.useState(sortBy || '');
     const [localSortOrder, setLocalSortOrder] = React.useState<'asc' | 'desc'>(sortOrder || 'asc');
+    const [localLogicalOperator, setLocalLogicalOperator] = React.useState<'AND' | 'OR'>(logicalOperator);
 
     // Sync local state with props when dialog opens
     React.useEffect(() => {
@@ -49,10 +50,21 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
             setLocalFilters({ ...tempFilters });
             setLocalSortBy(sortBy || '');
             setLocalSortOrder(sortOrder || 'asc');
+            setLocalLogicalOperator(logicalOperator);
         }
-    }, [open, tempFilters, sortBy, sortOrder]);
+    }, [open, tempFilters, sortBy, sortOrder, logicalOperator]);
+
+    // Enable Apply if any filter, sort, or logical operator value has changed
+    const sortChanged = localSortBy !== (sortBy || '') || localSortOrder !== (sortOrder || 'asc');
+    const filtersChanged =
+        localFilters.taskId !== (tempFilters.taskId || '') ||
+        localFilters.taskType !== (tempFilters.taskType || '') ||
+        localFilters.isCompleted !== (tempFilters.isCompleted ?? null);
+    const logicalChanged = localLogicalOperator !== logicalOperator;
+    const canApply = sortChanged || filtersChanged || logicalChanged;
 
     const handleApply = () => {
+        onLogicalOperatorChange(localLogicalOperator);
         onApply({
             filters: localFilters,
             sortBy: localSortBy,
@@ -167,8 +179,11 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
                         <FormControl size="small" sx={{ minWidth: 120 }}>
                             <InputLabel>Logical Operator</InputLabel>
                             <Select
-                                value={logicalOperator}
-                                onChange={(e) => onLogicalOperatorChange(e.target.value as 'AND' | 'OR')}
+                                value={localLogicalOperator}
+                                onChange={(e) => {
+                                    const value = e.target.value as 'AND' | 'OR';
+                                    setLocalLogicalOperator(value === 'AND' || value === 'OR' ? value : 'AND');
+                                }}
                                 label="Logical Operator"
                             >
                                 <MenuItem value="AND">AND</MenuItem>
@@ -179,14 +194,7 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
                         <Button 
                             onClick={handleApply} 
                             variant="contained"
-                            disabled={
-                                !(
-                                    localFilters.taskId.trim() ||
-                                    localFilters.taskType.trim() ||
-                                    localFilters.isCompleted !== null ||
-                                    (sortBy && (localSortBy !== (sortBy || '') || localSortOrder !== (sortOrder || 'asc')))
-                                )
-                            }
+                            disabled={!canApply}
                         >
                             Apply
                         </Button>

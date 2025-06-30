@@ -17,7 +17,7 @@ interface CageFilterDialogProps {
     onClearOccupied: () => void;
     logicalOperator: 'AND' | 'OR';
     onLogicalOperatorChange: (operator: 'AND' | 'OR') => void;
-    onApply: () => void;
+    onApply: (params: { filters: { name: string; offspringType: string; isOccupied: boolean | null }, sortBy: string, sortOrder: 'asc' | 'desc' }) => void;
     sortBy?: string;
     onSortByChange?: (sortBy: string) => void;
     sortOrder?: 'asc' | 'desc';
@@ -42,6 +42,40 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
     onSortOrderChange,
     sortableColumns = []
 }) => {
+    // Local state for filters and sorting
+    const [localFilters, setLocalFilters] = React.useState({ ...tempFilters });
+    const [localSortBy, setLocalSortBy] = React.useState(sortBy || '');
+    const [localSortOrder, setLocalSortOrder] = React.useState<'asc' | 'desc'>(sortOrder || 'asc');
+    const [localLogicalOperator, setLocalLogicalOperator] = React.useState<'AND' | 'OR'>(logicalOperator || 'AND');
+
+    // Sync local state with props when dialog opens
+    React.useEffect(() => {
+        if (open) {
+            setLocalFilters({ ...tempFilters });
+            setLocalSortBy(sortBy || '');
+            setLocalSortOrder(sortOrder || 'asc');
+            setLocalLogicalOperator(logicalOperator || 'AND');
+        }
+    }, [open, tempFilters, sortBy, sortOrder, logicalOperator]);
+
+    // Enable Apply if any filter, sort, or logical operator value has changed
+    const sortChanged = localSortBy !== (sortBy || '') || localSortOrder !== (sortOrder || 'asc');
+    const filtersChanged =
+        localFilters.name !== (tempFilters.name || '') ||
+        localFilters.offspringType !== (tempFilters.offspringType || '') ||
+        localFilters.isOccupied !== (tempFilters.isOccupied ?? null);
+    const logicalChanged = localLogicalOperator !== logicalOperator;
+    const canApply = sortChanged || filtersChanged || logicalChanged;
+
+    const handleApply = () => {
+        onLogicalOperatorChange(localLogicalOperator);
+        onApply({
+            filters: localFilters,
+            sortBy: localSortBy,
+            sortOrder: localSortOrder
+        });
+    };
+
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
             <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -55,12 +89,12 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
                     <TextField
                         fullWidth
                         label="Name"
-                        value={tempFilters.name}
-                        onChange={(e) => onTempFiltersChange({ ...tempFilters, name: e.target.value })}
+                        value={localFilters.name}
+                        onChange={(e) => setLocalFilters({ ...localFilters, name: e.target.value })}
                         placeholder="Filter by cage name..."
                         InputProps={{
-                            endAdornment: tempFilters.name && (
-                                <IconButton onClick={onClearName} size="small">
+                            endAdornment: localFilters.name && (
+                                <IconButton onClick={() => { setLocalFilters({ ...localFilters, name: '' }); onClearName(); }} size="small">
                                     <Clear />
                                 </IconButton>
                             )
@@ -70,11 +104,11 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
                     <FormControl fullWidth>
                         <InputLabel>Offspring Type</InputLabel>
                         <Select
-                            value={tempFilters.offspringType}
-                            onChange={(e) => onTempFiltersChange({ ...tempFilters, offspringType: e.target.value })}
+                            value={localFilters.offspringType}
+                            onChange={(e) => setLocalFilters({ ...localFilters, offspringType: e.target.value })}
                             label="Offspring Type"
-                            endAdornment={tempFilters.offspringType && (
-                                <IconButton onClick={onClearOffspringType} size="small" sx={{ mr: 2 }}>
+                            endAdornment={localFilters.offspringType && (
+                                <IconButton onClick={() => { setLocalFilters({ ...localFilters, offspringType: '' }); onClearOffspringType(); }} size="small" sx={{ mr: 2 }}>
                                     <Clear />
                                 </IconButton>
                             )}
@@ -93,8 +127,8 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
                             <FormControl fullWidth>
                                 <InputLabel>Sort By</InputLabel>
                                 <Select
-                                    value={sortBy}
-                                    onChange={(e) => onSortByChange(e.target.value)}
+                                    value={localSortBy}
+                                    onChange={(e) => setLocalSortBy(e.target.value)}
                                     label="Sort By"
                                 >
                                     {sortableColumns.map((column) => (
@@ -108,8 +142,8 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
                             <FormControl fullWidth>
                                 <InputLabel>Sort Order</InputLabel>
                                 <Select
-                                    value={sortOrder}
-                                    onChange={(e) => onSortOrderChange(e.target.value as 'asc' | 'desc')}
+                                    value={localSortOrder}
+                                    onChange={(e) => setLocalSortOrder(e.target.value as 'asc' | 'desc')}
                                     label="Sort Order"
                                 >
                                     <MenuItem value="asc">Ascending</MenuItem>
@@ -123,23 +157,23 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
                         <FormControlLabel
                             control={
                                 <Checkbox
-                                    checked={tempFilters.isOccupied === true}
-                                    indeterminate={tempFilters.isOccupied === null}
-                                    onChange={(e) => {
-                                        if (tempFilters.isOccupied === null) {
-                                            onTempFiltersChange({ ...tempFilters, isOccupied: true });
-                                        } else if (tempFilters.isOccupied === true) {
-                                            onTempFiltersChange({ ...tempFilters, isOccupied: false });
+                                    checked={localFilters.isOccupied === true}
+                                    indeterminate={localFilters.isOccupied === null}
+                                    onChange={() => {
+                                        if (localFilters.isOccupied === null) {
+                                            setLocalFilters({ ...localFilters, isOccupied: true });
+                                        } else if (localFilters.isOccupied === true) {
+                                            setLocalFilters({ ...localFilters, isOccupied: false });
                                         } else {
-                                            onTempFiltersChange({ ...tempFilters, isOccupied: null });
+                                            setLocalFilters({ ...localFilters, isOccupied: null });
                                         }
                                     }}
                                 />
                             }
                             label="Is Occupied?"
                         />
-                        {tempFilters.isOccupied !== null && (
-                            <IconButton onClick={onClearOccupied} size="small">
+                        {localFilters.isOccupied !== null && (
+                            <IconButton onClick={() => { setLocalFilters({ ...localFilters, isOccupied: null }); onClearOccupied(); }} size="small">
                                 <Clear />
                             </IconButton>
                         )}
@@ -149,8 +183,11 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
                         <FormControl size="small" sx={{ minWidth: 120 }}>
                             <InputLabel>Logical Operator</InputLabel>
                             <Select
-                                value={logicalOperator}
-                                onChange={(e) => onLogicalOperatorChange(e.target.value as 'AND' | 'OR')}
+                                value={localLogicalOperator}
+                                onChange={(e) => {
+                                    const value = e.target.value as 'AND' | 'OR';
+                                    setLocalLogicalOperator(value === 'AND' || value === 'OR' ? value : 'AND');
+                                }}
                                 label="Logical Operator"
                             >
                                 <MenuItem value="AND">AND</MenuItem>
@@ -159,9 +196,9 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
                         </FormControl>
                         
                         <Button 
-                            onClick={onApply} 
+                            onClick={handleApply} 
                             variant="contained"
-                            disabled={!tempFilters.name.trim() && !tempFilters.offspringType.trim() && tempFilters.isOccupied === null}
+                            disabled={!canApply}
                         >
                             Apply
                         </Button>

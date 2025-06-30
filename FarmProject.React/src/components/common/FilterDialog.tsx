@@ -42,6 +42,7 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
     const [localSortBy, setLocalSortBy] = React.useState(sortBy || '');
     const [localSortOrder, setLocalSortOrder] = React.useState<'asc' | 'desc'>(sortOrder || 'asc');
     const [localFilters, setLocalFilters] = React.useState({ ...tempFilters });
+    const [localLogicalOperator, setLocalLogicalOperator] = React.useState<'AND' | 'OR'>(logicalOperator);
 
     // Sync local state with props when dialog opens
     React.useEffect(() => {
@@ -49,19 +50,22 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
             setLocalSortBy(sortBy || '');
             setLocalSortOrder(sortOrder || 'asc');
             setLocalFilters({ ...tempFilters });
+            setLocalLogicalOperator(logicalOperator);
         }
-    }, [open, sortBy, sortOrder, tempFilters]);
+    }, [open, sortBy, sortOrder, tempFilters, logicalOperator]);
 
-    // Track if sort/filter values have changed from initial values
+    // Track if sort/filter/logical values have changed from initial values
     const sortChanged = localSortBy !== (sortBy || '') || localSortOrder !== (sortOrder || 'asc');
     const filtersChanged =
         localFilters.name !== (tempFilters.name || '') ||
         localFilters.status !== (tempFilters.status || '');
+    const logicalChanged = localLogicalOperator !== logicalOperator;
 
-    // Enable Apply if any filter or sort value has changed
-    const canApply = sortChanged || filtersChanged;
+    // Enable Apply if any filter, sort, or logical operator value has changed
+    const canApply = sortChanged || filtersChanged || logicalChanged;
 
     const handleApply = () => {
+        onLogicalOperatorChange(localLogicalOperator);
         onApply({
             filters: localFilters,
             sortBy: localSortBy,
@@ -150,8 +154,11 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                         <FormControl size="small" sx={{ minWidth: 120 }}>
                             <InputLabel>Logical Operator</InputLabel>
                             <Select
-                                value={logicalOperator}
-                                onChange={(e) => onLogicalOperatorChange(e.target.value as 'AND' | 'OR')}
+                                value={localLogicalOperator}
+                                onChange={(e) => {
+                                    const value = e.target.value as 'AND' | 'OR';
+                                    setLocalLogicalOperator(value === 'AND' || value === 'OR' ? value : 'AND');
+                                }}
                                 label="Logical Operator"
                             >
                                 <MenuItem value="AND">AND</MenuItem>
