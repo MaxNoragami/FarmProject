@@ -138,7 +138,7 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
                         </Select>
                     </FormControl>
 
-                    {sortBy && onSortByChange && sortOrder && onSortOrderChange && (
+                    {sortableColumns.length > 0 && (
                         <>
                             <FormControl fullWidth>
                                 <InputLabel>Sort By</InputLabel>

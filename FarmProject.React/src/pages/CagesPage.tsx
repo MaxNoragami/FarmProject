@@ -10,12 +10,13 @@ import ErrorAlert from '../components/common/ErrorAlert';
 import { CageService } from '../services/CageService';
 import CageFilterDialog from '../components/cages/CageFilterDialog';
 import { useCageData } from '../hooks/useCageData';
+import { getSortableCageColumns } from '../constants/cageColumns';
 
 const offspringTypeStringToEnum: Record<string, number> = {
     None: 0,
     Mixed: 1,
-    Male: 2,
-    Female: 3
+    Female: 2,
+    Male: 3
 };
 
 const CagesPage = () => {
@@ -47,7 +48,11 @@ const CagesPage = () => {
     }>({ name: '', offspringType: '', isOccupied: null });
     const [tempLogicalOperator, setTempLogicalOperator] = React.useState<'AND' | 'OR'>('AND');
 
-    // Fetch cages data with filters
+    // Sorting state
+    const [sortBy, setSortBy] = React.useState<string>('name');
+    const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc');
+
+    // Fetch cages data with filters and sorting
     const {
         cages,
         loading,
@@ -59,7 +64,13 @@ const CagesPage = () => {
         pageSize: rowsPerPage, 
         filters, 
         logicalOperator: logicalOperator === 'AND' ? 0 : 1,
+        sort: sortBy ? `${sortBy}:${sortOrder}` : undefined,
     });
+
+    const sortableColumns = React.useMemo(
+        () => getSortableCageColumns().filter(col => col.id === 'cageId' || col.id === 'name'),
+        []
+    );
 
     // Handlers
     const handleAddCage = () => {
@@ -99,7 +110,6 @@ const CagesPage = () => {
 
     // Filter dialog handlers
     const handleOpenFilterDialog = () => {
-        // Map enum number back to string for modal
         let offspringTypeString = '';
         if (
             filters.offspringType !== undefined &&
@@ -116,19 +126,20 @@ const CagesPage = () => {
             isOccupied: filters.isOccupied ?? null,
         });
         setTempLogicalOperator(logicalOperator);
+        setSortBy(sortBy);
+        setSortOrder(sortOrder);
         setFilterDialogOpen(true);
     };
 
     const handleApplyFilters = ({
         filters: modalFilters,
-        sortBy,
-        sortOrder
+        sortBy: modalSortBy,
+        sortOrder: modalSortOrder
     }: {
         filters: { name: string; offspringType: string; isOccupied: boolean | null },
         sortBy: string,
         sortOrder: 'asc' | 'desc'
     }) => {
-        // Build filters for API
         const apiFilters: any = {};
         if (modalFilters.name.trim()) apiFilters.name = modalFilters.name.trim();
         if (
@@ -139,6 +150,8 @@ const CagesPage = () => {
         }
         if (modalFilters.isOccupied !== null) apiFilters.isOccupied = modalFilters.isOccupied;
         setFilters(apiFilters);
+        setSortBy(modalSortBy || 'name');
+        setSortOrder(modalSortOrder || 'asc');
         setLogicalOperator(tempLogicalOperator);
         setPage(0);
         setFilterDialogOpen(false);
@@ -351,9 +364,11 @@ const CagesPage = () => {
                 logicalOperator={tempLogicalOperator}
                 onLogicalOperatorChange={setTempLogicalOperator}
                 onApply={handleApplyFilters}
-                sortBy={undefined}
-                sortOrder={undefined}
-                sortableColumns={[]}
+                sortBy={sortBy}
+                onSortByChange={setSortBy}
+                sortOrder={sortOrder}
+                onSortOrderChange={setSortOrder}
+                sortableColumns={sortableColumns}
             />
 
             <AddCageModal

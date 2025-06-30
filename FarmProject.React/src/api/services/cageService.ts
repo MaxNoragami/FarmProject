@@ -8,6 +8,7 @@ export interface CageListFilters {
   offspringType?: number;
   isOccupied?: boolean;
   logicalOperator?: number;
+  sort?: string;
 }
 
 export class CageService {
@@ -23,6 +24,7 @@ export class CageService {
     if (request.name) params.append('Name', request.name);
     if (typeof request.offspringType === 'number') params.append('OffspringType', request.offspringType.toString());
     if (typeof request.isOccupied === 'boolean') params.append('IsOccupied', request.isOccupied.toString());
+    if (request.sort) params.append('sort', request.sort);
 
     const response = await apiClient.get<PaginatedResponse<ApiCageDto>>(
       `${this.BASE_PATH}?${params.toString()}`

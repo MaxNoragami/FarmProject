@@ -24,6 +24,16 @@ interface UseCageDataOptions {
     isOccupied?: boolean;
   };
   logicalOperator?: number;
+  sort?: string;
+}
+
+function normalizeSort(sort?: string): string | undefined {
+  if (!sort) return undefined;
+  const [field, order] = sort.split(':');
+  let normalizedField = field;
+  if (field === 'cageId') normalizedField = 'id';
+  if (normalizedField !== 'id' && normalizedField !== 'name') return undefined;
+  return `${normalizedField}:${order || 'asc'}`;
 }
 
 export const useCageData = ({
@@ -31,6 +41,7 @@ export const useCageData = ({
   pageSize,
   filters = {},
   logicalOperator = 0,
+  sort = '',
 }: UseCageDataOptions): UseCageDataResult => {
   const [cages, setCages] = useState<CageData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -45,11 +56,13 @@ export const useCageData = ({
     setError(null);
     
     try {
+      const normalizedSort = normalizeSort(sort);
       const response = await CageService.getCages({
         pageIndex: pageIndex + 1,
         pageSize,
         logicalOperator,
         ...filters,
+        ...(normalizedSort ? { sort: normalizedSort } : {}),
       });
 
       const uiCages = mapApiCagesToUI(response.items);
@@ -69,7 +82,7 @@ export const useCageData = ({
     } finally {
       setLoading(false);
     }
-  }, [pageIndex, pageSize, filters, logicalOperator]);
+  }, [pageIndex, pageSize, filters, logicalOperator, sort]);
 
   useEffect(() => {
     fetchCages();
