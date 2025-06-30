@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { CageService } from '../api/services/cageService';
 import { mapApiCagesToUI } from '../utils/cageMappers';
 import { type CageData } from '../data/mockCageData';
+import { OffspringType } from '../types/OffspringType';
 
 interface UseCageDataResult {
   cages: CageData[];
@@ -17,9 +18,20 @@ interface UseCageDataResult {
 interface UseCageDataOptions {
   pageIndex: number;
   pageSize: number;
+  filters?: {
+    name?: string;
+    offspringType?: number;
+    isOccupied?: boolean;
+  };
+  logicalOperator?: number;
 }
 
-export const useCageData = ({ pageIndex, pageSize }: UseCageDataOptions): UseCageDataResult => {
+export const useCageData = ({
+  pageIndex,
+  pageSize,
+  filters = {},
+  logicalOperator = 0,
+}: UseCageDataOptions): UseCageDataResult => {
   const [cages, setCages] = useState<CageData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +48,8 @@ export const useCageData = ({ pageIndex, pageSize }: UseCageDataOptions): UseCag
       const response = await CageService.getCages({
         pageIndex: pageIndex + 1,
         pageSize,
-        logicalOperator: 0,
+        logicalOperator,
+        ...filters,
       });
 
       const uiCages = mapApiCagesToUI(response.items);
@@ -56,7 +69,7 @@ export const useCageData = ({ pageIndex, pageSize }: UseCageDataOptions): UseCag
     } finally {
       setLoading(false);
     }
-  }, [pageIndex, pageSize]);
+  }, [pageIndex, pageSize, filters, logicalOperator]);
 
   useEffect(() => {
     fetchCages();

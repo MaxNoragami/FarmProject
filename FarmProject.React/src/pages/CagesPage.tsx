@@ -6,9 +6,17 @@ import CageCard from '../components/cages/CageCard';
 import CageCardSkeleton from '../components/common/CageCardSkeleton';
 import AddCageModal from '../components/modals/AddCageModal';
 import type { AddCageFormFields } from '../schemas/cageSchemas';
-import { useCageData } from '../hooks/useCageData';
 import ErrorAlert from '../components/common/ErrorAlert';
 import { CageService } from '../services/CageService';
+import CageFilterDialog from '../components/cages/CageFilterDialog';
+import { useCageData } from '../hooks/useCageData';
+
+const offspringTypeStringToEnum: Record<string, number> = {
+    None: 0,
+    Mixed: 1,
+    Male: 2,
+    Female: 3
+};
 
 const CagesPage = () => {
     const theme = useTheme();
@@ -22,16 +30,35 @@ const CagesPage = () => {
     const [addModalOpen, setAddModalOpen] = React.useState(false);
     const [addCageError, setAddCageError] = React.useState<string | null>(null);
 
-    // Fetch cages data
-    const { 
-        cages, 
-        loading, 
-        error, 
-        totalCount, 
+    // Filter dialog state
+    const [filterDialogOpen, setFilterDialogOpen] = React.useState(false);
+    const [filters, setFilters] = React.useState<{
+        name?: string;
+        offspringType?: number;
+        isOccupied?: boolean;
+    }>({});
+    const [logicalOperator, setLogicalOperator] = React.useState<'AND' | 'OR'>('AND');
+
+    // Temp state for modal form
+    const [tempFilters, setTempFilters] = React.useState<{
+        name: string;
+        offspringType: string;
+        isOccupied: boolean | null;
+    }>({ name: '', offspringType: '', isOccupied: null });
+    const [tempLogicalOperator, setTempLogicalOperator] = React.useState<'AND' | 'OR'>('AND');
+
+    // Fetch cages data with filters
+    const {
+        cages,
+        loading,
+        error,
+        totalCount,
         refetch 
     } = useCageData({ 
         pageIndex: page, 
-        pageSize: rowsPerPage 
+        pageSize: rowsPerPage, 
+        filters, 
+        logicalOperator: logicalOperator === 'AND' ? 0 : 1,
     });
 
     // Handlers
@@ -68,6 +95,53 @@ const CagesPage = () => {
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(+event.target.value);
         setPage(0);
+    };
+
+    // Filter dialog handlers
+    const handleOpenFilterDialog = () => {
+        // Map enum number back to string for modal
+        let offspringTypeString = '';
+        if (
+            filters.offspringType !== undefined &&
+            filters.offspringType !== null
+        ) {
+            const entry = Object.entries(offspringTypeStringToEnum).find(
+                ([, num]) => num === filters.offspringType
+            );
+            offspringTypeString = entry ? entry[0] : '';
+        }
+        setTempFilters({
+            name: filters.name || '',
+            offspringType: offspringTypeString,
+            isOccupied: filters.isOccupied ?? null,
+        });
+        setTempLogicalOperator(logicalOperator);
+        setFilterDialogOpen(true);
+    };
+
+    const handleApplyFilters = ({
+        filters: modalFilters,
+        sortBy,
+        sortOrder
+    }: {
+        filters: { name: string; offspringType: string; isOccupied: boolean | null },
+        sortBy: string,
+        sortOrder: 'asc' | 'desc'
+    }) => {
+        // Build filters for API
+        const apiFilters: any = {};
+        if (modalFilters.name.trim()) apiFilters.name = modalFilters.name.trim();
+        if (
+            modalFilters.offspringType !== '' &&
+            Object.prototype.hasOwnProperty.call(offspringTypeStringToEnum, modalFilters.offspringType)
+        ) {
+            apiFilters.offspringType = offspringTypeStringToEnum[modalFilters.offspringType];
+        }
+        if (modalFilters.isOccupied !== null) apiFilters.isOccupied = modalFilters.isOccupied;
+        setFilters(apiFilters);
+        setLogicalOperator(tempLogicalOperator);
+        setPage(0);
+        setFilterDialogOpen(false);
     };
 
     // Skeleton cards for when loading
@@ -125,7 +199,7 @@ const CagesPage = () => {
                                     <Button
                                         variant="outlined"
                                         startIcon={<FilterList />}
-                                        disabled
+                                        onClick={handleOpenFilterDialog}
                                         size="small"
                                     >
                                         Filter
@@ -201,7 +275,7 @@ const CagesPage = () => {
                             <Button
                                 variant="outlined"
                                 startIcon={<FilterList />}
-                                disabled
+                                onClick={handleOpenFilterDialog}
                             >
                                 Filter
                             </Button>
@@ -264,6 +338,23 @@ const CagesPage = () => {
                     </Paper>
                 </>
             )}
+
+            {/* Filter Dialog */}
+            <CageFilterDialog
+                open={filterDialogOpen}
+                onClose={() => setFilterDialogOpen(false)}
+                tempFilters={tempFilters}
+                onTempFiltersChange={setTempFilters}
+                onClearName={() => setTempFilters((f) => ({ ...f, name: '' }))}
+                onClearOffspringType={() => setTempFilters((f) => ({ ...f, offspringType: '' }))}
+                onClearOccupied={() => setTempFilters((f) => ({ ...f, isOccupied: null }))}
+                logicalOperator={tempLogicalOperator}
+                onLogicalOperatorChange={setTempLogicalOperator}
+                onApply={handleApplyFilters}
+                sortBy={undefined}
+                sortOrder={undefined}
+                sortableColumns={[]}
+            />
 
             <AddCageModal
                 open={addModalOpen}

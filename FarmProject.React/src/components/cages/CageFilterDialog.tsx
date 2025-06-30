@@ -94,7 +94,15 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
                         placeholder="Filter by cage name..."
                         InputProps={{
                             endAdornment: localFilters.name && (
-                                <IconButton onClick={() => { setLocalFilters({ ...localFilters, name: '' }); onClearName(); }} size="small">
+                                <IconButton
+                                    onClick={() => {
+                                        setLocalFilters((prev) => ({
+                                            ...prev,
+                                            name: ''
+                                        }));
+                                    }}
+                                    size="small"
+                                >
                                     <Clear />
                                 </IconButton>
                             )
@@ -104,16 +112,24 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
                     <FormControl fullWidth>
                         <InputLabel>Offspring Type</InputLabel>
                         <Select
-                            value={localFilters.offspringType}
+                            value={localFilters.offspringType || ''}
                             onChange={(e) => setLocalFilters({ ...localFilters, offspringType: e.target.value })}
                             label="Offspring Type"
                             endAdornment={localFilters.offspringType && (
-                                <IconButton onClick={() => { setLocalFilters({ ...localFilters, offspringType: '' }); onClearOffspringType(); }} size="small" sx={{ mr: 2 }}>
+                                <IconButton
+                                    onClick={() => {
+                                        setLocalFilters((prev) => ({
+                                            ...prev,
+                                            offspringType: ''
+                                        }));
+                                    }}
+                                    size="small"
+                                    sx={{ mr: 2 }}
+                                >
                                     <Clear />
                                 </IconButton>
                             )}
                         >
-                            <MenuItem value="">All</MenuItem>
                             {offspringTypeOptions.map((type) => (
                                 <MenuItem key={type} value={type}>
                                     {type}
@@ -173,7 +189,15 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
                             label="Is Occupied?"
                         />
                         {localFilters.isOccupied !== null && (
-                            <IconButton onClick={() => { setLocalFilters({ ...localFilters, isOccupied: null }); onClearOccupied(); }} size="small">
+                            <IconButton
+                                onClick={() => {
+                                    setLocalFilters((prev) => ({
+                                        ...prev,
+                                        isOccupied: null
+                                    }));
+                                }}
+                                size="small"
+                            >
                                 <Clear />
                             </IconButton>
                         )}
@@ -210,3 +234,4 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
 };
 
 export default CageFilterDialog;
+
