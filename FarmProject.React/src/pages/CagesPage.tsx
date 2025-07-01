@@ -1,4 +1,4 @@
-import { Typography, Box, Button, Divider, useMediaQuery, useTheme, Grid, Paper, TablePagination } from '@mui/material';
+import { Typography, Box, Button, Divider, useMediaQuery, useTheme, Grid, Paper, TablePagination, Chip } from '@mui/material';
 import { Add, FilterList } from '@mui/icons-material';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -151,6 +151,113 @@ const CagesPage = () => {
         setFilterDialogOpen(false);
     };
 
+    // Clear individual filters
+    const handleClearNameFilter = () => {
+        setFilters(prev => ({ ...prev, name: undefined }));
+        setPage(0);
+    };
+
+    const handleClearOffspringTypeFilter = () => {
+        setFilters(prev => ({ ...prev, offspringType: undefined }));
+        setPage(0);
+    };
+
+    const handleClearOccupiedFilter = () => {
+        setFilters(prev => ({ ...prev, isOccupied: undefined }));
+        setPage(0);
+    };
+
+    const handleClearAllFilters = () => {
+        setFilters({});
+        setSortBy('name');
+        setSortOrder('asc');
+        setLogicalOperator('AND');
+        setPage(0);
+    };
+
+    // Get offspring type string from enum number
+    const getOffspringTypeString = (enumValue: number) => {
+        const entry = Object.entries(offspringTypeStringToEnum).find(
+            ([, num]) => num === enumValue
+        );
+        return entry ? entry[0] : '';
+    };
+
+    // Filter chips component
+    const FilterChips = () => {
+        const hasFilters = filters.name || filters.offspringType !== undefined || filters.isOccupied !== undefined;
+        
+        if (!hasFilters) return null;
+
+        return (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2, alignItems: 'center' }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+                    Filters ({logicalOperator}):
+                </Typography>
+                
+                {filters.name && (
+                    <Chip
+                        label={`NAME contains "${filters.name}"`}
+                        onDelete={handleClearNameFilter}
+                        size="small"
+                        variant="filled"
+                        sx={{ 
+                            backgroundColor: '#e0e0e0',
+                            color: '#424242',
+                            '& .MuiChip-deleteIcon': {
+                                color: '#757575',
+                                fontSize: '16px',
+                                '&:hover': {
+                                    color: '#424242'
+                                }
+                            }
+                        }}
+                    />
+                )}
+                
+                {filters.offspringType !== undefined && (
+                    <Chip
+                        label={`OFFSPRING TYPE is "${getOffspringTypeString(filters.offspringType)}"`}
+                        onDelete={handleClearOffspringTypeFilter}
+                        size="small"
+                        variant="filled"
+                        sx={{ 
+                            backgroundColor: '#e0e0e0',
+                            color: '#424242',
+                            '& .MuiChip-deleteIcon': {
+                                color: '#757575',
+                                fontSize: '16px',
+                                '&:hover': {
+                                    color: '#424242'
+                                }
+                            }
+                        }}
+                    />
+                )}
+                
+                {filters.isOccupied !== undefined && (
+                    <Chip
+                        label={`OCCUPIED is "${filters.isOccupied ? 'Yes' : 'No'}"`}
+                        onDelete={handleClearOccupiedFilter}
+                        size="small"
+                        variant="filled"
+                        sx={{ 
+                            backgroundColor: '#e0e0e0',
+                            color: '#424242',
+                            '& .MuiChip-deleteIcon': {
+                                color: '#757575',
+                                fontSize: '16px',
+                                '&:hover': {
+                                    color: '#424242'
+                                }
+                            }
+                        }}
+                    />
+                )}
+            </Box>
+        );
+    };
+
     // Skeleton cards for when loading
     const skeletonCards = Array.from(new Array(rowsPerPage)).map((_, index) => (
         <Grid 
@@ -222,6 +329,7 @@ const CagesPage = () => {
                                 </Box>
                             </Box>
 
+                            <FilterChips />
                             <Divider />
                         </Box>
                     </Box>
@@ -296,6 +404,7 @@ const CagesPage = () => {
                         </Box>
                     </Box>
 
+                    <FilterChips />
                     <Divider sx={{ mb: 3 }} />
                     
                     {/* Cards Grid Container */}

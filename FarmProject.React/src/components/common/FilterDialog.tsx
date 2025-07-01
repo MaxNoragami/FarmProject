@@ -26,48 +26,32 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
     open,
     onClose,
     tempFilters,
-    onTempFiltersChange,
     statusOptions,
-    onClearName,
-    onClearStatus,
     logicalOperator,
-    onLogicalOperatorChange,
     onApply,
-    isMobile = false,
     sortBy,
     sortOrder,
     sortableColumns = []
 }) => {
-    // Local state for sortBy and sortOrder
-    const [localSortBy, setLocalSortBy] = React.useState(sortBy || '');
-    const [localSortOrder, setLocalSortOrder] = React.useState<'asc' | 'desc'>(sortOrder || 'asc');
-    const [localFilters, setLocalFilters] = React.useState({ ...tempFilters });
-    const [localLogicalOperator, setLocalLogicalOperator] = React.useState<'AND' | 'OR'>(logicalOperator);
+    const [name, setName] = React.useState('');
+    const [status, setStatus] = React.useState('');
+    const [localSortBy, setLocalSortBy] = React.useState('');
+    const [localSortOrder, setLocalSortOrder] = React.useState<'asc' | 'desc'>('asc');
+    const [localLogicalOperator, setLocalLogicalOperator] = React.useState<'AND' | 'OR'>('AND');
 
-    // Sync local state with props when dialog opens
     React.useEffect(() => {
         if (open) {
+            setName(tempFilters.name);
+            setStatus(tempFilters.status);
             setLocalSortBy(sortBy || '');
             setLocalSortOrder(sortOrder || 'asc');
-            setLocalFilters({ ...tempFilters });
             setLocalLogicalOperator(logicalOperator);
         }
-    }, [open, sortBy, sortOrder, tempFilters, logicalOperator]);
-
-    // Track if sort/filter/logical values have changed from initial values
-    const sortChanged = localSortBy !== (sortBy || '') || localSortOrder !== (sortOrder || 'asc');
-    const filtersChanged =
-        localFilters.name !== (tempFilters.name || '') ||
-        localFilters.status !== (tempFilters.status || '');
-    const logicalChanged = localLogicalOperator !== logicalOperator;
-
-    // Enable Apply if any filter, sort, or logical operator value has changed
-    const canApply = sortChanged || filtersChanged || logicalChanged;
+    }, [open, tempFilters, sortBy, sortOrder, logicalOperator]);
 
     const handleApply = () => {
-        onLogicalOperatorChange(localLogicalOperator);
         onApply({
-            filters: localFilters,
+            filters: { name, status },
             sortBy: localSortBy,
             sortOrder: localSortOrder
         });
@@ -84,36 +68,38 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
                     <TextField
-                        fullWidth
                         label="Name"
-                        value={localFilters.name}
-                        onChange={(e) => setLocalFilters({ ...localFilters, name: e.target.value })}
-                        placeholder="Filter by name..."
-                        InputProps={{
-                            endAdornment: localFilters.name && (
-                                <IconButton onClick={() => { setLocalFilters({ ...localFilters, name: '' }); onClearName(); }} size="small">
-                                    <Clear />
-                                </IconButton>
-                            )
+                        variant="outlined"
+                        fullWidth
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        slotProps={{
+                            input: {
+                                endAdornment: name && (
+                                    <IconButton onClick={() => setName('')} size="small">
+                                        <Clear />
+                                    </IconButton>
+                                )
+                            }
                         }}
                     />
                     
                     <FormControl fullWidth>
                         <InputLabel>Status</InputLabel>
                         <Select
-                            value={localFilters.status}
-                            onChange={(e) => setLocalFilters({ ...localFilters, status: e.target.value })}
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
                             label="Status"
-                            endAdornment={localFilters.status && (
-                                <IconButton onClick={() => { setLocalFilters({ ...localFilters, status: '' }); onClearStatus(); }} size="small" sx={{ mr: 2 }}>
+                            endAdornment={status && (
+                                <IconButton onClick={() => setStatus('')} size="small" sx={{ mr: 2 }}>
                                     <Clear />
                                 </IconButton>
                             )}
                         >
                             <MenuItem value="">All</MenuItem>
-                            {statusOptions.map((status) => (
-                                <MenuItem key={status} value={status}>
-                                    {status}
+                            {statusOptions.map((statusOption) => (
+                                <MenuItem key={statusOption} value={statusOption}>
+                                    {statusOption}
                                 </MenuItem>
                             ))}
                         </Select>
@@ -155,10 +141,7 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                             <InputLabel>Logical Operator</InputLabel>
                             <Select
                                 value={localLogicalOperator}
-                                onChange={(e) => {
-                                    const value = e.target.value as 'AND' | 'OR';
-                                    setLocalLogicalOperator(value === 'AND' || value === 'OR' ? value : 'AND');
-                                }}
+                                onChange={(e) => setLocalLogicalOperator(e.target.value as 'AND' | 'OR')}
                                 label="Logical Operator"
                             >
                                 <MenuItem value="AND">AND</MenuItem>
@@ -169,7 +152,6 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                         <Button 
                             onClick={handleApply} 
                             variant="contained"
-                            disabled={!canApply}
                         >
                             Apply
                         </Button>
