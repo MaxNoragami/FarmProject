@@ -11,3 +11,12 @@ export interface CageListRequest {
   pageSize: number;
   logicalOperator?: number;
 }
+
+export interface CageData {
+  id: number;
+  name: string;
+  rabbitId: number | null;
+  offspringTypeName?: string;
+  offspringType?: number;
+  isOccupied?: boolean;
+}

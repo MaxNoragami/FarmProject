@@ -7,10 +7,17 @@ import ErrorAlert from '../components/common/ErrorAlert';
 import FilterDialog from '../components/common/FilterDialog';
 import { breedingStatusOptions, breedingStatusStringToEnum, getBreedingStatusColor } from '../types/BreedingStatus';
 import { useRabbitData } from '../hooks/useRabbitData';
+import AddRabbitModal from '../components/modals/AddRabbitModal';
+import { RabbitService } from '../api/services/rabbitService';
+import { type AddRabbitFormFields } from '../schemas/rabbitSchemas';
 
 const RabbitsPage = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+    // Modal state
+    const [addModalOpen, setAddModalOpen] = React.useState(false);
+    const [addRabbitError, setAddRabbitError] = React.useState<string | null>(null);
 
     // Pagination state
     const [page, setPage] = React.useState(0);
@@ -74,6 +81,33 @@ const RabbitsPage = () => {
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(+event.target.value);
         setPage(0);
+    };
+
+    // Add rabbit handlers
+    const handleOpenAddModal = () => {
+        setAddRabbitError(null);
+        setAddModalOpen(true);
+    };
+
+    const handleCloseAddModal = () => {
+        setAddModalOpen(false);
+        setAddRabbitError(null);
+    };
+
+    const handleAddRabbit = async (data: AddRabbitFormFields) => {
+        setAddRabbitError(null);
+        try {
+            await RabbitService.addRabbit(data.name, data.cageId);
+            setAddModalOpen(false);
+            await refetch();
+        } catch (err: any) {
+            setAddRabbitError(
+                err?.response?.data?.message ||
+                err?.message ||
+                "An unexpected error occurred while adding the rabbit."
+            );
+            throw err;
+        }
     };
 
     // Filter handlers
@@ -220,6 +254,7 @@ const RabbitsPage = () => {
                                     <Button
                                         variant="contained"
                                         startIcon={<Add />}
+                                        onClick={handleOpenAddModal}
                                         size="small"
                                     >
                                         Add
@@ -346,6 +381,7 @@ const RabbitsPage = () => {
                             <Button
                                 variant="contained"
                                 startIcon={<Add />}
+                                onClick={handleOpenAddModal}
                             >
                                 Add
                             </Button>
@@ -424,6 +460,13 @@ const RabbitsPage = () => {
                     { id: 'rabbitId', label: 'Rabbit ID' },
                     { id: 'name', label: 'Name' }
                 ]}
+            />
+
+            <AddRabbitModal
+                open={addModalOpen}
+                onClose={handleCloseAddModal}
+                onSubmit={handleAddRabbit}
+                error={addRabbitError}
             />
         </>
     );

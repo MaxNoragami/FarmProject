@@ -8,9 +8,10 @@ interface AddRabbitModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: AddRabbitFormFields) => Promise<void>;
+  error?: string | null;
 }
 
-const AddRabbitModal: React.FC<AddRabbitModalProps> = ({ open, onClose, onSubmit }) => {
+const AddRabbitModal: React.FC<AddRabbitModalProps> = ({ open, onClose, onSubmit, error }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -20,7 +21,7 @@ const AddRabbitModal: React.FC<AddRabbitModalProps> = ({ open, onClose, onSubmit
         </IconButton>
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>
-        <RabbitForm onSubmit={onSubmit} onCancel={onClose} />
+        <RabbitForm onSubmit={onSubmit} onCancel={onClose} error={error} />
       </DialogContent>
     </Dialog>
   );

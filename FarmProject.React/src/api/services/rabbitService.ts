@@ -31,4 +31,13 @@ export class RabbitService {
     
     return response.data;
   }
+
+  static async addRabbit(name: string, cageId: number): Promise<ApiRabbitDto> {
+    const response = await apiClient.post<ApiRabbitDto>(this.BASE_PATH, {
+      name,
+      cageId
+    });
+    
+    return response.data;
+  }
 }

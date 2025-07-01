@@ -1,54 +1,27 @@
-import type { UseFormSetError } from 'react-hook-form';
+import { type UseFormSetError } from 'react-hook-form';
 
-export const handleFormError = <T extends Record<string, any>>(
-  error: any,
-  setError: UseFormSetError<T>
-) => {
-  if (!error.response && !error.status) {
-    setError("root" as any, {
-      message: "Network error. Please check your connection and try again.",
+export const handleFormError = (error: any, setError: UseFormSetError<any>) => {
+  console.error('Form submission error:', error);
+
+  if (error?.response?.data?.errors) {
+    const apiErrors = error.response.data.errors;
+    
+    Object.keys(apiErrors).forEach(fieldName => {
+      const field = fieldName.charAt(0).toLowerCase() + fieldName.slice(1);
+      setError(field, { 
+        type: 'manual',
+        message: Array.isArray(apiErrors[fieldName]) 
+          ? apiErrors[fieldName][0] 
+          : apiErrors[fieldName]
+      });
     });
-    return;
-  }
-
-  const status = error.response?.status || error.status;
-  const errorData = error.response?.data || error;
-  
-  switch (status) {
-    case 400:
-      setError("root" as any, {
-        message: errorData?.message || "Please check your input and try again.",
-      });
-      break;
-      
-    case 401:
-      setError("root" as any, {
-        message: "You are not authorized to perform this action. Please log in again.",
-      });
-      break;
-      
-    case 403:
-      setError("root" as any, {
-        message: "You don't have permission to perform this action.",
-      });
-      break;
-      
-    case 404:
-      setError("root" as any, {
-        message: "The requested resource was not found.",
-      });
-      break;
-      
-    case 500:
-      setError("root" as any, {
-        message: "Server error. Please try again later.",
-      });
-      break;
-      
-    default:
-      setError("root" as any, {
-        message: errorData?.message || "An unexpected error occurred. Please try again.",
-      });
-      break;
+  } else {
+    // Set a general error
+    setError('root', { 
+      type: 'manual',
+      message: error?.response?.data?.message || 
+               error?.message || 
+               'An unexpected error occurred. Please try again.'
+    });
   }
 };
