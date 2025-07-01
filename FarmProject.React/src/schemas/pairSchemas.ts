@@ -1,10 +1,7 @@
 import { z } from "zod";
 
 export const addPairSchema = z.object({
-  maleRabbitId: z
-    .number()
-    .positive("Male rabbit ID must be a positive number")
-    .int("Male rabbit ID must be a whole number"),
+  maleRabbitId: z.number().positive("Please enter a valid male rabbit ID"),
   femaleRabbitId: z.number().positive("Please select a female rabbit"),
 });
 

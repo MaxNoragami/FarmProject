@@ -1,6 +1,13 @@
 import { type ApiRabbitDto } from '../api/types/rabbitTypes';
-import { type RabbitData } from '../data/mockData';
 import { BreedingStatus } from '../types/BreedingStatus';
+
+export interface RabbitData {
+  number: number;
+  rabbitId: number;
+  name: string;
+  cageId: number;
+  status: BreedingStatus;
+}
 
 // Map breeding status number to string
 const breedingStatusEnumToString: Record<number, BreedingStatus> = {

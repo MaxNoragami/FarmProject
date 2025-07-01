@@ -17,6 +17,7 @@ const PairsPage = () => {
 
     // Modal state
     const [addModalOpen, setAddModalOpen] = React.useState(false);
+    const [addPairError, setAddPairError] = React.useState<string | null>(null);
 
     // Pagination state
     const [page, setPage] = React.useState(0);
@@ -96,20 +97,27 @@ const PairsPage = () => {
 
     // Add pair handlers
     const handleOpenAddModal = () => {
+        setAddPairError(null);
         setAddModalOpen(true);
     };
 
     const handleCloseAddModal = () => {
         setAddModalOpen(false);
+        setAddPairError(null);
     };
 
     const handleAddPair = async (data: AddPairFormFields) => {
+        setAddPairError(null);
         try {
             await PairService.addPair(data.femaleRabbitId, data.maleRabbitId);
             setAddModalOpen(false);
             await refetch();
         } catch (err: any) {
-            // Error handling should be done inside the AddPairModal component
+            setAddPairError(
+                err?.response?.data?.message ||
+                err?.message ||
+                "An unexpected error occurred while creating the pair."
+            );
             throw err;
         }
     };
@@ -495,6 +503,7 @@ const PairsPage = () => {
                 open={addModalOpen}
                 onClose={handleCloseAddModal}
                 onSubmit={handleAddPair}
+                error={addPairError}
             />
         </>
     );

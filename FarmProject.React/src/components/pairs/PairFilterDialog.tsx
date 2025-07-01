@@ -183,7 +183,6 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
                                 </IconButton>
                             )}
                         >
-                            <MenuItem value="">All</MenuItem>
                             {pairingStatusOptions.map((statusOption) => (
                                 <MenuItem key={statusOption} value={statusOption}>
                                     {statusOption}

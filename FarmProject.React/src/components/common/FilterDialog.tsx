@@ -106,7 +106,6 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                                 </IconButton>
                             )}
                         >
-                            <MenuItem value="">All</MenuItem>
                             {statusOptions.map((statusOption) => (
                                 <MenuItem key={statusOption} value={statusOption}>
                                     {statusOption}

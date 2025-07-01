@@ -1,22 +1,33 @@
-import React, { useState, useMemo } from 'react';
-import { Box, Button, TextField, Alert, Typography, Card, CardContent, Chip, IconButton } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Button, TextField, Typography, Card, CardContent, Chip, IconButton, Skeleton } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addPairSchema, type AddPairFormFields } from '../../schemas/pairSchemas';
 import { handleFormError } from '../../utils/formErrorHandler';
-import { mockRabbitsData, type RabbitData } from '../../data/mockData';
-import { BreedingStatus } from '../../types/BreedingStatus';
+import { useAvailableFemaleRabbits } from '../../hooks/useAvailableFemaleRabbits';
+import { getBreedingStatusColor } from '../../types/BreedingStatus';
+import { type RabbitData } from '../../utils/rabbitMappers';
 
 interface PairFormProps {
   onSubmit: (data: AddPairFormFields) => Promise<void>;
   onCancel: () => void;
+  error?: string | null;
 }
 
-const PairForm: React.FC<PairFormProps> = ({ onSubmit, onCancel }) => {
+const PairForm: React.FC<PairFormProps> = ({ onSubmit, onCancel, error }) => {
   const [selectedFemaleId, setSelectedFemaleId] = useState<number | null>(null);
-  const [femalePage, setFemalePage] = useState(1);
-  const femalesPerPage = 2;
+  const rabbitsPerPage = 2;
+
+  const {
+    rabbits,
+    loading,
+    error: rabbitError,
+    totalCount,
+    totalPages,
+    pageIndex,
+    setPageIndex
+  } = useAvailableFemaleRabbits({ pageSize: rabbitsPerPage });
 
   const {
     register,
@@ -28,19 +39,6 @@ const PairForm: React.FC<PairFormProps> = ({ onSubmit, onCancel }) => {
     resolver: zodResolver(addPairSchema),
   });
 
-  // Filter available female rabbits
-  const availableFemales = useMemo(() => {
-    return mockRabbitsData.filter(rabbit => rabbit.status === BreedingStatus.Available);
-  }, []);
-
-  // Pagination for females
-  const paginatedFemales = useMemo(() => {
-    const startIndex = (femalePage - 1) * femalesPerPage;
-    return availableFemales.slice(startIndex, startIndex + femalesPerPage);
-  }, [availableFemales, femalePage, femalesPerPage]);
-
-  const totalFemalePages = Math.ceil(availableFemales.length / femalesPerPage);
-
   const handleFemaleSelect = (rabbit: RabbitData) => {
     setSelectedFemaleId(rabbit.rabbitId);
     setValue('femaleRabbitId', rabbit.rabbitId);
@@ -49,67 +47,96 @@ const PairForm: React.FC<PairFormProps> = ({ onSubmit, onCancel }) => {
   const handleFormSubmit = async (data: AddPairFormFields) => {
     try {
       await onSubmit(data);
-    } catch (error) {
-      handleFormError(error, setError);
+    } catch (formError) {
+      handleFormError(formError, setError);
     }
   };
 
-  const handleMaleRabbitIdBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // If the value is not a valid number, clear the field
-    if (value && (isNaN(Number(value)) || Number(value) <= 0 || !Number.isInteger(Number(value)))) {
-      setValue('maleRabbitId', '' as any);
+  // Show rabbit loading skeleton
+  const renderRabbitSkeletons = () => (
+    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2 }}>
+      {[1, 2].map((_, index) => (
+        <Card key={`skeleton-${index}`} sx={{ p: 2 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Skeleton variant="rectangular" width={120} height={24} sx={{ mb: 1 }} />
+            <Skeleton variant="rectangular" width={60} height={16} sx={{ mb: 1 }} />
+            <Skeleton variant="rectangular" width={60} height={16} sx={{ mb: 2 }} />
+            <Skeleton variant="rounded" width={80} height={24} />
+          </Box>
+        </Card>
+      ))}
+    </Box>
+  );
+
+  const getBorderColor = (rabbitId: number): string => {
+    if (selectedFemaleId === rabbitId) {
+      return 'primary.main';
+    }
+    
+    if (errors.femaleRabbitId && selectedFemaleId === null) {
+      return 'error.main';
+    }
+    
+    return 'divider';
+  };
+
+  // Handle page navigation
+  const handlePreviousPage = () => {
+    if (pageIndex > 1) {
+      setPageIndex(pageIndex - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (pageIndex < totalPages) {
+      setPageIndex(pageIndex + 1);
     }
   };
 
   return (
     <Box component="form" onSubmit={handleSubmit(handleFormSubmit)} sx={{ width: '100%' }}>
+      {/* Display server or root errors */}
+      {(errors.root || error) && (
+        <Typography 
+          variant="body2" 
+          color="error.main" 
+          sx={{ 
+            mb: 2, 
+            mt: 1,
+            fontWeight: 500,
+            display: 'block'
+          }}
+        >
+          {errors.root?.message || error}
+        </Typography>
+      )}
+
       <TextField
         {...register("maleRabbitId", { valueAsNumber: true })}
         label="Male Rabbit ID"
         placeholder="Enter male rabbit ID"
-        type="number"
         variant="outlined"
         fullWidth
         error={!!errors.maleRabbitId}
         helperText={errors.maleRabbitId?.message}
-        onBlur={handleMaleRabbitIdBlur}
-        sx={{ 
-          mb: 3, 
-          mt: 2,
-          '& input[type=number]': {
-            MozAppearance: 'textfield'
-          },
-          '& input[type=number]::-webkit-outer-spin-button': {
-            WebkitAppearance: 'none',
-            margin: 0
-          },
-          '& input[type=number]::-webkit-inner-spin-button': {
-            WebkitAppearance: 'none',
-            margin: 0
-          }
-        }}
+        sx={{ mb: 3, mt: 2 }}
       />
 
       <Typography variant="h6" sx={{ mb: 2 }}>
-        Select an Available Female Rabbit
+        Select a Female Rabbit
       </Typography>
 
       <Box sx={{ mb: 2, minHeight: 'auto' }}>
-        {paginatedFemales.length > 0 ? (
+        {loading ? renderRabbitSkeletons() : rabbits.length > 0 ? (
           <>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2 }}>
-              {paginatedFemales.map((rabbit) => (
+              {rabbits.map((rabbit) => (
                 <Card 
                   key={rabbit.rabbitId}
                   sx={{ 
                     cursor: 'pointer',
                     border: selectedFemaleId === rabbit.rabbitId ? 2 : 1,
-                    borderColor: selectedFemaleId === rabbit.rabbitId 
-                      ? 'primary.main' 
-                      : errors.femaleRabbitId && selectedFemaleId === null
-                        ? 'error.main' 
-                        : 'divider',
+                    borderColor: getBorderColor(rabbit.rabbitId),
                     '&:hover': {
                       borderColor: 'primary.main',
                       boxShadow: 2
@@ -122,12 +149,15 @@ const PairForm: React.FC<PairFormProps> = ({ onSubmit, onCancel }) => {
                       <Typography variant="body1" fontWeight="medium" sx={{ mb: 0.5 }}>
                         {rabbit.name}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
                         ID: {rabbit.rabbitId}
                       </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        Cage: {rabbit.cageId}
+                      </Typography>
                       <Chip 
-                        label={rabbit.status} 
-                        color="success" 
+                        label={rabbit.status}
+                        color={getBreedingStatusColor(rabbit.status)}
                         size="small" 
                       />
                     </Box>
@@ -142,27 +172,27 @@ const PairForm: React.FC<PairFormProps> = ({ onSubmit, onCancel }) => {
                 color="error.main" 
                 sx={{ mb: 2, textAlign: 'left' }}
               >
-                Please select a female rabbit for the pair
+                Please select a female rabbit for pairing
               </Typography>
             )}
 
-            {totalFemalePages > 1 && (
+            {totalPages > 1 && (
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
                 <IconButton 
-                  onClick={() => setFemalePage(prev => Math.max(1, prev - 1))}
-                  disabled={femalePage === 1}
+                  onClick={handlePreviousPage}
+                  disabled={pageIndex === 1}
                   size="small"
                 >
                   <ChevronLeft />
                 </IconButton>
                 
                 <Typography variant="body2" color="text.secondary">
-                  {((femalePage - 1) * femalesPerPage) + 1}-{Math.min(femalePage * femalesPerPage, availableFemales.length)} of {availableFemales.length}
+                  {((pageIndex - 1) * rabbitsPerPage) + 1}-{Math.min(pageIndex * rabbitsPerPage, totalCount)} of {totalCount}
                 </Typography>
                 
                 <IconButton 
-                  onClick={() => setFemalePage(prev => Math.min(totalFemalePages, prev + 1))}
-                  disabled={femalePage === totalFemalePages}
+                  onClick={handleNextPage}
+                  disabled={pageIndex === totalPages}
                   size="small"
                 >
                   <ChevronRight />
@@ -182,19 +212,19 @@ const PairForm: React.FC<PairFormProps> = ({ onSubmit, onCancel }) => {
             backgroundColor: 'grey.50'
           }}>
             <Typography variant="body1" color="text.secondary">
-              No available female rabbits
+              {rabbitError || "No available female rabbits found"}
             </Typography>
           </Box>
         )}
       </Box>
 
-      {errors.root && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {errors.root.message}
-        </Alert>
-      )}
-
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+        <Button
+          onClick={onCancel}
+          disabled={isSubmitting}
+        >
+          Cancel
+        </Button>
         <Button
           type="submit"
           variant="contained"

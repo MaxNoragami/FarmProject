@@ -8,19 +8,20 @@ interface AddPairModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: AddPairFormFields) => Promise<void>;
+  error?: string | null;
 }
 
-const AddPairModal: React.FC<AddPairModalProps> = ({ open, onClose, onSubmit }) => {
+const AddPairModal: React.FC<AddPairModalProps> = ({ open, onClose, onSubmit, error }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        Create New Pair
+        Create New Breeding Pair
         <IconButton onClick={onClose} size="small">
           <Close />
         </IconButton>
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>
-        <PairForm onSubmit={onSubmit} onCancel={onClose} />
+        <PairForm onSubmit={onSubmit} onCancel={onClose} error={error} />
       </DialogContent>
     </Dialog>
   );
