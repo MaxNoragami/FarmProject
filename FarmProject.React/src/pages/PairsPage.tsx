@@ -1,180 +1,75 @@
-import { Typography, Box, Button, Divider, Chip, useMediaQuery, useTheme, Grid, Paper, TablePagination } from '@mui/material';
+import { Typography, Box, Button, Divider, Chip, useMediaQuery, useTheme, Grid, Paper, TablePagination, Skeleton } from '@mui/material';
 import { Add, FilterList } from '@mui/icons-material';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { mockPairsData, type PairData } from '../data/mockPairData';
-import { usePairFilters, type PairFilter } from '../hooks/usePairFilters';
-import { usePairSorting } from '../hooks/usePairSorting';
-import { getSortablePairColumns } from '../constants/pairColumns';
+import { usePairData } from '../hooks/usePairData';
+import { pairingStatusOptions, pairingStatusStringToEnum, getPairingStatusColor } from '../types/PairingStatus';
 import PairCard from '../components/pairs/PairCard';
-import PairFilterDialog from '../components/pairs/PairFilterDialog';
+import ErrorAlert from '../components/common/ErrorAlert';
+import FilterDialog from '../components/common/FilterDialog';
 import AddPairModal from '../components/modals/AddPairModal';
+import { PairService } from '../api/services/pairService';
 import type { AddPairFormFields } from '../schemas/pairSchemas';
 
 const PairsPage = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-    // Filter state
-    const {
-        filters,
-        setFilters,
-        logicalOperator,
-        setLogicalOperator,
-        filteredData,
-        removeFilter
-    } = usePairFilters(mockPairsData);
-
-    // Sort state
-    const {
-        order,
-        orderBy,
-        sortedData,
-        handleRequestSort,
-        setOrder,
-        setOrderBy
-    } = usePairSorting(filteredData, 'pairId');
+    // Modal state
+    const [addModalOpen, setAddModalOpen] = React.useState(false);
 
     // Pagination state
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(12);
 
-    // Filter dialog state
+    // Filter state
     const [filterDialogOpen, setFilterDialogOpen] = React.useState(false);
+    const [filters, setFilters] = React.useState<{
+        pairId?: string;
+        status?: string;
+    }>({});
+    const [logicalOperator, setLogicalOperator] = React.useState<'AND' | 'OR'>('AND');
+
+    // Temp state for modal form
     const [tempFilters, setTempFilters] = React.useState<{
         pairId: string;
         status: string;
     }>({ pairId: '', status: '' });
-    const [tempSortBy, setTempSortBy] = React.useState(String(orderBy));
-    const [tempSortOrder, setTempSortOrder] = React.useState(order);
+    const [tempLogicalOperator, setTempLogicalOperator] = React.useState<'AND' | 'OR'>('AND');
 
-    // Add modal state
-    const [addModalOpen, setAddModalOpen] = React.useState(false);
+    // Sorting state
+    const [sortBy, setSortBy] = React.useState<string>('pairId');
+    const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc');
 
-    // Handlers
-    const handleAddPair = () => {
-        setAddModalOpen(true);
-    };
-
-    const handleModalClose = () => {
-        setAddModalOpen(false);
-    };
-
-    const handleSubmitNewPair = async (data: AddPairFormFields) => {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        
-        // Here you would typically call your API to create the pair
-        console.log('New pair data:', data);
-        
-        // Close modal on success
-        setAddModalOpen(false);
-    };
-
-    // Only apply filters and sorting when "Apply" is clicked
-    const handleApplyFiltersAndSort = React.useCallback(({ filters, sortBy, sortOrder }: { filters: { pairId: string; status: string }, sortBy: string, sortOrder: 'asc' | 'desc' }) => {
-        // logicalOperator is set separately by onLogicalOperatorChange, not via onApply
-        const newFilters: PairFilter[] = [];
-        if (filters.pairId.trim()) {
-            newFilters.push({
-                id: `pairId-${Date.now()}`,
-                column: 'pairId',
-                operator: 'contains',
-                value: filters.pairId.trim()
-            });
+    // Convert filters for API
+    const apiFilters = React.useMemo(() => {
+        const converted: any = {};
+        if (filters.status && pairingStatusStringToEnum[filters.status] !== undefined) {
+            converted.pairingStatus = pairingStatusStringToEnum[filters.status];
         }
-        if (filters.status.trim()) {
-            newFilters.push({
-                id: `status-${Date.now()}`,
-                column: 'status',
-                operator: 'equals',
-                value: filters.status.trim()
-            });
-        }
-        setFilters(newFilters);
-        setOrderBy(sortBy as keyof PairData);
-        setOrder(sortOrder);
-        setPage(0);
-        setFilterDialogOpen(false);
-    }, [setFilters, setOrderBy, setOrder]);
+        return converted;
+    }, [filters]);
 
-    // Open modal: sync temp state with current state
-    const handleOpenFilterDialog = () => {
-        setTempFilters({ pairId: '', status: '', ...filters.reduce((acc, f) => ({ ...acc, [f.column]: f.value }), {}) });
-        setTempSortBy(String(orderBy));
-        setTempSortOrder(order);
-        setFilterDialogOpen(true);
+    // Map UI sort field to API sort field
+    const getApiSortField = (uiSortField: string) => {
+        if (uiSortField === 'pairId') return 'id';
+        return uiSortField;
     };
 
-    // Clear filters
-    const clearPairIdFilter = () => {
-        const newTempFilters = { ...tempFilters, pairId: '' };
-        setTempFilters(newTempFilters);
-        updateFiltersFromTemp(newTempFilters);
-    };
-
-    const clearStatusFilter = () => {
-        const newTempFilters = { ...tempFilters, status: '' };
-        setTempFilters(newTempFilters);
-        updateFiltersFromTemp(newTempFilters);
-    };
-
-    const updateFiltersFromTemp = (filters: { pairId: string; status: string }) => {
-        const newFilters: PairFilter[] = [];
-        
-        if (filters.pairId.trim()) {
-            newFilters.push({
-                id: `pairId-${Date.now()}`,
-                column: 'pairId',
-                operator: 'contains',
-                value: filters.pairId.trim()
-            });
-        }
-        
-        if (filters.status.trim()) {
-            newFilters.push({
-                id: `status-${Date.now()}`,
-                column: 'status',
-                operator: 'equals',
-                value: filters.status.trim()
-            });
-        }
-        
-        setFilters(newFilters);
-        setPage(0);
-    };
-
-    const handleRemoveFilter = (filterId: string) => {
-        const filterToRemove = filters.find(f => f.id === filterId);
-        removeFilter(filterId);
-        setPage(0);
-        
-        if (filterToRemove) {
-            if (filterToRemove.column === 'pairId') {
-                setTempFilters({ ...tempFilters, pairId: '' });
-            } else if (filterToRemove.column === 'status') {
-                setTempFilters({ ...tempFilters, status: '' });
-            }
-        }
-    };
-
-    const applyFiltersFromDialog = () => {
-        updateFiltersFromTemp(tempFilters);
-        setFilterDialogOpen(false);
-    };
-
-    // Data calculation
-    const visiblePairs = React.useMemo(() => {
-        return sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-    }, [sortedData, page, rowsPerPage]);
-
-    const getFilterLabel = (filter: PairFilter) => {
-        const columnLabels: Record<string, string> = {
-            pairId: 'PAIR ID',
-            status: 'STATUS'
-        };
-        return columnLabels[filter.column] || filter.column;
-    };
+    // Fetch pairs data
+    const {
+        pairs,
+        loading,
+        error,
+        totalCount,
+        refetch
+    } = usePairData({
+        pageIndex: page,
+        pageSize: rowsPerPage,
+        filters: apiFilters,
+        logicalOperator: logicalOperator === 'AND' ? 0 : 1,
+        sort: sortBy ? `${getApiSortField(sortBy)}:${sortOrder}` : undefined,
+    });
 
     // Pagination handlers
     const handleChangePage = (event: unknown, newPage: number) => {
@@ -185,6 +80,177 @@ const PairsPage = () => {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
+
+    // Add pair handlers
+    const handleOpenAddModal = () => {
+        setAddModalOpen(true);
+    };
+
+    const handleCloseAddModal = () => {
+        setAddModalOpen(false);
+    };
+
+    const handleAddPair = async (data: AddPairFormFields) => {
+        try {
+            await PairService.addPair(data.femaleRabbitId, data.maleRabbitId);
+            setAddModalOpen(false);
+            await refetch();
+        } catch (err: any) {
+            // Error handling should be done inside the AddPairModal component
+            throw err;
+        }
+    };
+
+    // Filter handlers
+    const handleOpenFilterDialog = () => {
+        setTempFilters({
+            pairId: filters.pairId || '',
+            status: filters.status || '',
+        });
+        setTempLogicalOperator(logicalOperator);
+        setFilterDialogOpen(true);
+    };
+
+    const handleApplyFilters = ({
+        filters: modalFilters,
+        sortBy: modalSortBy,
+        sortOrder: modalSortOrder,
+        logicalOperator: modalLogicalOperator
+    }: {
+        filters: { pairId: string; status: string },
+        sortBy: string,
+        sortOrder: 'asc' | 'desc',
+        logicalOperator: 'AND' | 'OR'
+    }) => {
+        
+        const newFilters: any = {};
+        if (modalFilters.pairId.trim()) newFilters.pairId = modalFilters.pairId.trim();
+        if (modalFilters.status && modalFilters.status !== '') newFilters.status = modalFilters.status;
+        
+        setFilters(newFilters);
+        setSortBy(modalSortBy || 'pairId');
+        setSortOrder(modalSortOrder || 'asc');
+        setLogicalOperator(modalLogicalOperator);
+        setPage(0);
+        setFilterDialogOpen(false);
+    };
+
+    // Clear individual filters
+    const handleClearPairIdFilter = () => {
+        setFilters(prev => ({ ...prev, pairId: undefined }));
+        setPage(0);
+    };
+
+    const handleClearStatusFilter = () => {
+        setFilters(prev => ({ ...prev, status: undefined }));
+        setPage(0);
+    };
+
+    // Filter chips component
+    const FilterChips = () => {
+        const hasFilters = filters.pairId || filters.status;
+        
+        if (!hasFilters) return null;
+
+        return (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2, alignItems: 'center' }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+                    Filters ({logicalOperator}):
+                </Typography>
+                
+                {filters.pairId && (
+                    <Chip
+                        label={`PAIR ID contains "${filters.pairId}"`}
+                        onDelete={handleClearPairIdFilter}
+                        size="small"
+                        variant="filled"
+                        sx={{ 
+                            backgroundColor: '#e0e0e0',
+                            color: '#424242',
+                            '& .MuiChip-deleteIcon': {
+                                color: '#757575',
+                                fontSize: '16px',
+                                '&:hover': {
+                                    color: '#424242'
+                                }
+                            }
+                        }}
+                    />
+                )}
+                
+                {filters.status && (
+                    <Chip
+                        label={`STATUS is "${filters.status}"`}
+                        onDelete={handleClearStatusFilter}
+                        size="small"
+                        variant="filled"
+                        sx={{ 
+                            backgroundColor: '#e0e0e0',
+                            color: '#424242',
+                            '& .MuiChip-deleteIcon': {
+                                color: '#757575',
+                                fontSize: '16px',
+                                '&:hover': {
+                                    color: '#424242'
+                                }
+                            }
+                        }}
+                    />
+                )}
+            </Box>
+        );
+    };
+
+    // Skeleton cards for loading
+    const skeletonCards = Array.from(new Array(rowsPerPage)).map((_, index) => (
+        <Grid 
+            size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
+            key={`skeleton-${index}`}
+        >
+            <Paper sx={{ p: 2, height: '100%' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                    <Skeleton variant="text" width={120} height={32} />
+                    <Skeleton variant="rounded" width={80} height={24} />
+                </Box>
+                
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                    <Box>
+                        <Skeleton variant="text" width={60} height={16} />
+                        <Skeleton variant="text" width={40} height={20} />
+                    </Box>
+                    <Box>
+                        <Skeleton variant="text" width={60} height={16} />
+                        <Skeleton variant="text" width={40} height={20} />
+                    </Box>
+                </Box>
+            </Paper>
+        </Grid>
+    ));
+
+    const mobileSkeleton = Array.from(new Array(rowsPerPage)).map((_, index) => (
+        <Grid 
+            size={{ xs: 12, sm: 6 }}
+            key={`mobile-skeleton-${index}`}
+        >
+            <Paper sx={{ p: 2, height: '100%' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                    <Skeleton variant="text" width={120} height={32} />
+                    <Skeleton variant="rounded" width={80} height={24} />
+                </Box>
+                
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                    <Box>
+                        <Skeleton variant="text" width={60} height={16} />
+                        <Skeleton variant="text" width={40} height={20} />
+                    </Box>
+                    <Box>
+                        <Skeleton variant="text" width={60} height={16} />
+                        <Skeleton variant="text" width={40} height={20} />
+                    </Box>
+                </Box>
+            </Paper>
+        </Grid>
+    ));
 
     return (
         <>
@@ -230,31 +296,15 @@ const PairsPage = () => {
                                     <Button
                                         variant="contained"
                                         startIcon={<Add />}
-                                        onClick={handleAddPair}
+                                        onClick={handleOpenAddModal}
                                         size="small"
                                     >
                                         Add
                                     </Button>
                                 </Box>
                             </Box>
-                            
-                            {/* Active Filters Display */}
-                            {filters.length > 0 && (
-                                <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
-                                    <Typography variant="body2" sx={{ mr: 1 }}>
-                                        Filters ({logicalOperator}):
-                                    </Typography>
-                                    {filters.map((filter) => (
-                                        <Chip
-                                            key={filter.id}
-                                            label={`${getFilterLabel(filter)} ${filter.operator} "${filter.value}"`}
-                                            onDelete={() => handleRemoveFilter(filter.id)}
-                                            size="small"
-                                        />
-                                    ))}
-                                </Box>
-                            )}
 
+                            <FilterChips />
                             <Divider />
                         </Box>
                     </Box>
@@ -266,8 +316,10 @@ const PairsPage = () => {
                         px: 2
                     }}>
                         <Box sx={{ py: 2 }}>
+                            {error && <ErrorAlert message={error} onRetry={refetch} />}
+                            
                             <Grid container rowSpacing={2} columnSpacing={{ xs: 1, sm: 2 }}>
-                                {visiblePairs.map((pair) => (
+                                {loading ? mobileSkeleton : pairs.map((pair) => (
                                     <Grid 
                                         size={{ xs: 12, sm: 6 }}
                                         key={pair.id}
@@ -290,7 +342,7 @@ const PairsPage = () => {
                             <TablePagination
                                 rowsPerPageOptions={[12, 24, 48]}
                                 component="div"
-                                count={filteredData.length}
+                                count={totalCount}
                                 rowsPerPage={rowsPerPage}
                                 page={page}
                                 onPageChange={handleChangePage}
@@ -320,39 +372,25 @@ const PairsPage = () => {
                             <Button
                                 variant="contained"
                                 startIcon={<Add />}
-                                onClick={handleAddPair}
+                                onClick={handleOpenAddModal}
                             >
                                 Add
                             </Button>
                         </Box>
                     </Box>
-                    
-                    {/* Active Filters Display */}
-                    {filters.length > 0 && (
-                        <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
-                            <Typography variant="body2" sx={{ mr: 1 }}>
-                                Filters ({logicalOperator}):
-                            </Typography>
-                            {filters.map((filter) => (
-                                <Chip
-                                    key={filter.id}
-                                    label={`${getFilterLabel(filter)} ${filter.operator} "${filter.value}"`}
-                                    onDelete={() => handleRemoveFilter(filter.id)}
-                                    size="small"
-                                />
-                            ))}
-                        </Box>
-                    )}
 
+                    <FilterChips />
                     <Divider sx={{ mb: 3 }} />
-                    
+
+                    {error && <ErrorAlert message={error} onRetry={refetch} />}
+
                     {/* Cards Grid Container */}
                     <Paper sx={{ 
                         width: '100%', 
                         overflow: 'hidden', 
                         display: 'flex', 
                         flexDirection: 'column',
-                        height: filters.length > 0 ? 'calc(100vh - 280px)' : 'calc(100vh - 240px)'
+                        height: 'calc(100vh - 240px)'
                     }}>
                         {/* Cards Grid */}
                         <Box sx={{ 
@@ -361,7 +399,7 @@ const PairsPage = () => {
                             p: 2
                         }}>
                             <Grid container rowSpacing={2} columnSpacing={{ xs: 1, sm: 2, md: 2 }}>
-                                {visiblePairs.map((pair) => (
+                                {loading ? skeletonCards : pairs.map((pair) => (
                                     <Grid 
                                         size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
                                         key={pair.id}
@@ -376,7 +414,7 @@ const PairsPage = () => {
                         <TablePagination
                             rowsPerPageOptions={[12, 24, 48]}
                             component="div"
-                            count={filteredData.length}
+                            count={totalCount}
                             rowsPerPage={rowsPerPage}
                             page={page}
                             onPageChange={handleChangePage}
@@ -392,25 +430,35 @@ const PairsPage = () => {
                 </>
             )}
 
-            <PairFilterDialog
+            <FilterDialog
                 open={filterDialogOpen}
                 onClose={() => setFilterDialogOpen(false)}
-                tempFilters={tempFilters}
-                onTempFiltersChange={setTempFilters}
-                onClearPairId={() => setTempFilters((f) => ({ ...f, pairId: '' }))}
-                onClearStatus={() => setTempFilters((f) => ({ ...f, status: '' }))}
-                logicalOperator={logicalOperator}
-                onLogicalOperatorChange={setLogicalOperator}
-                onApply={handleApplyFiltersAndSort}
-                sortBy={tempSortBy}
-                sortOrder={tempSortOrder}
-                sortableColumns={getSortablePairColumns()}
+                tempFilters={{ name: tempFilters.pairId, status: tempFilters.status }}
+                onTempFiltersChange={(filters) => setTempFilters({ pairId: filters.name, status: filters.status })}
+                statusOptions={pairingStatusOptions}
+                onClearName={() => setTempFilters(f => ({ ...f, pairId: '' }))}
+                onClearStatus={() => setTempFilters(f => ({ ...f, status: '' }))}
+                logicalOperator={tempLogicalOperator}
+                onLogicalOperatorChange={setTempLogicalOperator}
+                onApply={({ filters: modalFilters, sortBy: modalSortBy, sortOrder: modalSortOrder, logicalOperator: modalLogicalOperator }) => {
+                    handleApplyFilters({
+                        filters: { pairId: modalFilters.name, status: modalFilters.status },
+                        sortBy: modalSortBy,
+                        sortOrder: modalSortOrder,
+                        logicalOperator: modalLogicalOperator
+                    });
+                }}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                sortableColumns={[
+                    { id: 'pairId', label: 'Pair ID' }
+                ]}
             />
 
             <AddPairModal
                 open={addModalOpen}
-                onClose={handleModalClose}
-                onSubmit={handleSubmitNewPair}
+                onClose={handleCloseAddModal}
+                onSubmit={handleAddPair}
             />
         </>
     );
