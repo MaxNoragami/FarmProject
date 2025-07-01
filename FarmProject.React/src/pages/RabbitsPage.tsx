@@ -1,18 +1,12 @@
-import { Typography, Box, Button, Divider, Chip, useMediaQuery, useTheme, Paper, TablePagination } from '@mui/material';
-import { Add, FilterList } from '@mui/icons-material';
+import { Typography, Box, Button, Divider, useMediaQuery, useTheme, TablePagination, Chip, Grid, Paper, Skeleton } from '@mui/material';
+import { FilterList, Add } from '@mui/icons-material';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { breedingStatusOptions } from '../types/BreedingStatus';
-import { type RabbitData, mockRabbitsData } from '../data/mockData';
-import { rabbitColumns, getSortableColumns } from '../constants/rabbitColumns';
-import { useTableFilters, type Filter } from '../hooks/useTableFilters';
-import { useTableSorting } from '../hooks/useTableSorting';
+import RabbitTable from '../components/rabbits/RabbitTable';
+import ErrorAlert from '../components/common/ErrorAlert';
 import FilterDialog from '../components/common/FilterDialog';
-import DataTable from '../components/common/DataTable';
-import RabbitCard from '../components/rabbits/RabbitCard';
-import RabbitTableRow from '../components/rabbits/RabbitTableRow';
-import AddRabbitModal from '../components/modals/AddRabbitModal';
-import type { AddRabbitFormFields } from '../schemas/rabbitSchemas';
+import { breedingStatusOptions, breedingStatusStringToEnum, getBreedingStatusColor } from '../types/BreedingStatus';
+import { useRabbitData } from '../hooks/useRabbitData';
 
 const RabbitsPage = () => {
     const theme = useTheme();
@@ -23,57 +17,56 @@ const RabbitsPage = () => {
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
     // Filter state
-    const {
-        filters,
-        setFilters,
-        logicalOperator,
-        setLogicalOperator,
-        filteredData,
-        removeFilter
-    } = useTableFilters(mockRabbitsData);
-
-    // Sort state
-    const {
-        order,
-        orderBy,
-        sortedData,
-        handleRequestSort,
-        setOrder,
-        setOrderBy
-    } = useTableSorting(filteredData, 'rabbitId');
-
-    // Filter dialog state
     const [filterDialogOpen, setFilterDialogOpen] = React.useState(false);
+    const [filters, setFilters] = React.useState<{
+        name?: string;
+        status?: string;
+    }>({});
+    const [logicalOperator, setLogicalOperator] = React.useState<'AND' | 'OR'>('AND');
+
+    // Temp state for modal form
     const [tempFilters, setTempFilters] = React.useState<{
         name: string;
         status: string;
     }>({ name: '', status: '' });
-    const [tempSortBy, setTempSortBy] = React.useState(String(orderBy));
-    const [tempSortOrder, setTempSortOrder] = React.useState(order);
+    const [tempLogicalOperator, setTempLogicalOperator] = React.useState<'AND' | 'OR'>('AND');
 
-    // Add modal state
-    const [addModalOpen, setAddModalOpen] = React.useState(false);
+    // Sorting state
+    const [sortBy, setSortBy] = React.useState<string>('rabbitId');
+    const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc');
 
-    // Handlers
-    const handleAddRabbit = () => {
-        setAddModalOpen(true);
+    // Convert filters for API
+    const apiFilters = React.useMemo(() => {
+        const converted: any = {};
+        if (filters.name) converted.name = filters.name;
+        if (filters.status && breedingStatusStringToEnum[filters.status] !== undefined) {
+            converted.breedingStatus = breedingStatusStringToEnum[filters.status];
+        }
+        return converted;
+    }, [filters]);
+
+    // Map UI sort field to API sort field
+    const getApiSortField = (uiSortField: string) => {
+        if (uiSortField === 'rabbitId') return 'id';
+        return uiSortField;
     };
 
-    const handleModalClose = () => {
-        setAddModalOpen(false);
-    };
+    // Fetch rabbits data
+    const {
+        rabbits,
+        loading,
+        error,
+        totalCount,
+        refetch
+    } = useRabbitData({
+        pageIndex: page,
+        pageSize: rowsPerPage,
+        filters: apiFilters,
+        logicalOperator: logicalOperator === 'AND' ? 0 : 1,
+        sort: sortBy ? `${getApiSortField(sortBy)}:${sortOrder}` : undefined,
+    });
 
-    const handleSubmitNewRabbit = async (data: AddRabbitFormFields) => {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        
-        // Here you would typically call your API to create the rabbit
-        console.log('New rabbit data:', data);
-        
-        // Close modal on success
-        setAddModalOpen(false);
-    };
-
+    // Pagination handlers
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
     };
@@ -83,105 +76,110 @@ const RabbitsPage = () => {
         setPage(0);
     };
 
-    const clearNameFilter = () => {
-        const newTempFilters = { ...tempFilters, name: '' };
-        setTempFilters(newTempFilters);
-        updateFiltersFromTemp(newTempFilters);
-    };
-
-    const clearStatusFilter = () => {
-        const newTempFilters = { ...tempFilters, status: '' };
-        setTempFilters(newTempFilters);
-        updateFiltersFromTemp(newTempFilters);
-    };
-
-    const updateFiltersFromTemp = (filters: { name: string; status: string }) => {
-        const newFilters: Filter[] = [];
-        
-        if (filters.name.trim()) {
-            newFilters.push({
-                id: `name-${Date.now()}`,
-                column: 'name',
-                operator: 'contains',
-                value: filters.name.trim()
-            });
-        }
-        
-        if (filters.status.trim()) {
-            newFilters.push({
-                id: `status-${Date.now()}`,
-                column: 'status',
-                operator: 'equals',
-                value: filters.status.trim()
-            });
-        }
-        
-        setFilters(newFilters);
-        setPage(0);
-    };
-
-    const handleRemoveFilter = (filterId: string) => {
-        const filterToRemove = filters.find(f => f.id === filterId);
-        removeFilter(filterId);
-        setPage(0);
-        
-        if (filterToRemove) {
-            if (filterToRemove.column === 'name') {
-                setTempFilters({ ...tempFilters, name: '' });
-            } else if (filterToRemove.column === 'status') {
-                setTempFilters({ ...tempFilters, status: '' });
-            }
-        }
-    };
-
-    // Only apply filters and sorting when "Apply" is clicked
-    const handleApplyFiltersAndSort = React.useCallback(({ filters, sortBy, sortOrder }: { filters: { name: string; status: string }, sortBy: string, sortOrder: 'asc' | 'desc' }) => {
-        // Update filters
-        const newFilters: Filter[] = [];
-        if (filters.name.trim()) {
-            newFilters.push({
-                id: `name-${Date.now()}`,
-                column: 'name',
-                operator: 'contains',
-                value: filters.name.trim()
-            });
-        }
-        if (filters.status.trim()) {
-            newFilters.push({
-                id: `status-${Date.now()}`,
-                column: 'status',
-                operator: 'equals',
-                value: filters.status.trim()
-            });
-        }
-        setFilters(newFilters);
-        setOrderBy(sortBy as keyof RabbitData);
-        setOrder(sortOrder);
-        setPage(0);
-        setFilterDialogOpen(false);
-    }, [setFilters, setOrderBy, setOrder]);
-
-    // Open modal: sync temp state with current state
+    // Filter handlers
     const handleOpenFilterDialog = () => {
-        setTempFilters({ name: '', status: '', ...filters.reduce((acc, f) => ({ ...acc, [f.column]: f.value }), {}) });
-        setTempSortBy(String(orderBy));
-        setTempSortOrder(order);
+        setTempFilters({
+            name: filters.name || '',
+            status: filters.status || '',
+        });
+        setTempLogicalOperator(logicalOperator);
         setFilterDialogOpen(true);
     };
 
-    // Data calculation
-    const visibleRows = React.useMemo(() => {
-        return sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-    }, [sortedData, page, rowsPerPage]);
+    const handleApplyFilters = ({
+        filters: modalFilters,
+        sortBy: modalSortBy,
+        sortOrder: modalSortOrder,
+        logicalOperator: modalLogicalOperator
+    }: {
+        filters: { name: string; status: string },
+        sortBy: string,
+        sortOrder: 'asc' | 'desc',
+        logicalOperator: 'AND' | 'OR'
+    }) => {
+        
+        const newFilters: any = {};
+        if (modalFilters.name.trim()) newFilters.name = modalFilters.name.trim();
+        if (modalFilters.status && modalFilters.status !== '') newFilters.status = modalFilters.status;
+        
+        setFilters(newFilters);
+        setSortBy(modalSortBy || 'rabbitId');
+        setSortOrder(modalSortOrder || 'asc');
+        setLogicalOperator(modalLogicalOperator);
+        setPage(0);
+        setFilterDialogOpen(false);
+    };
 
-    const renderTableRow = (rabbit: RabbitData) => (
-        <RabbitTableRow rabbit={rabbit} columns={rabbitColumns} />
-    );
+    // Clear individual filters
+    const handleClearNameFilter = () => {
+        setFilters(prev => ({ ...prev, name: undefined }));
+        setPage(0);
+    };
+
+    const handleClearStatusFilter = () => {
+        setFilters(prev => ({ ...prev, status: undefined }));
+        setPage(0);
+    };
+
+    // Filter chips component
+    const FilterChips = () => {
+        const hasFilters = filters.name || filters.status;
+        
+        if (!hasFilters) return null;
+
+        return (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2, alignItems: 'center' }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+                    Filters ({logicalOperator}):
+                </Typography>
+                
+                {filters.name && (
+                    <Chip
+                        label={`NAME contains "${filters.name}"`}
+                        onDelete={handleClearNameFilter}
+                        size="small"
+                        variant="filled"
+                        sx={{ 
+                            backgroundColor: '#e0e0e0',
+                            color: '#424242',
+                            '& .MuiChip-deleteIcon': {
+                                color: '#757575',
+                                fontSize: '16px',
+                                '&:hover': {
+                                    color: '#424242'
+                                }
+                            }
+                        }}
+                    />
+                )}
+                
+                {filters.status && (
+                    <Chip
+                        label={`STATUS is "${filters.status}"`}
+                        onDelete={handleClearStatusFilter}
+                        size="small"
+                        variant="filled"
+                        sx={{ 
+                            backgroundColor: '#e0e0e0',
+                            color: '#424242',
+                            '& .MuiChip-deleteIcon': {
+                                color: '#757575',
+                                fontSize: '16px',
+                                '&:hover': {
+                                    color: '#424242'
+                                }
+                            }
+                        }}
+                    />
+                )}
+            </Box>
+        );
+    };
 
     return (
         <>
             <Helmet>
-                <title>Breeding Rabbits - Farm Project</title>
+                <title>Rabbits Management - Farm Project</title>
             </Helmet>
             
             {isMobile ? (
@@ -207,7 +205,7 @@ const RabbitsPage = () => {
                         }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                                 <Typography variant="h5">
-                                    Rabbits
+                                    Breeding Rabbits
                                 </Typography>
 
                                 <Box sx={{ display: 'flex', gap: 1 }}>
@@ -222,31 +220,14 @@ const RabbitsPage = () => {
                                     <Button
                                         variant="contained"
                                         startIcon={<Add />}
-                                        onClick={handleAddRabbit}
                                         size="small"
                                     >
                                         Add
                                     </Button>
                                 </Box>
                             </Box>
-                            
-                            {/* Active Filters Display */}
-                            {filters.length > 0 && (
-                                <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
-                                    <Typography variant="body2" sx={{ mr: 1 }}>
-                                        Filters ({logicalOperator}):
-                                    </Typography>
-                                    {filters.map((filter) => (
-                                        <Chip
-                                            key={filter.id}
-                                            label={`${rabbitColumns.find(col => col.id === filter.column)?.label} ${filter.operator} "${filter.value}"`}
-                                            onDelete={() => handleRemoveFilter(filter.id)}
-                                            size="small"
-                                        />
-                                    ))}
-                                </Box>
-                            )}
 
+                            <FilterChips />
                             <Divider />
                         </Box>
                     </Box>
@@ -258,9 +239,69 @@ const RabbitsPage = () => {
                         px: 2
                     }}>
                         <Box sx={{ py: 2 }}>
-                            {visibleRows.map((rabbit) => (
-                                <RabbitCard key={rabbit.rabbitId} rabbit={rabbit} />
-                            ))}
+                            {error && <ErrorAlert message={error} onRetry={refetch} />}
+                            
+                            <Grid container rowSpacing={2} columnSpacing={{ xs: 1, sm: 2 }}>
+                                {loading ? (
+                                    Array.from(new Array(rowsPerPage)).map((_, index) => (
+                                        <Grid size={{ xs: 12, sm: 6 }} key={`skeleton-${index}`}>
+                                            <Paper sx={{ p: 2, height: '100%' }}>
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                                                    <Skeleton variant="text" width={120} height={32} />
+                                                    <Skeleton variant="rounded" width={80} height={24} />
+                                                </Box>
+                                                
+                                                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                                                    <Box>
+                                                        <Skeleton variant="text" width={60} height={16} />
+                                                        <Skeleton variant="text" width={40} height={20} />
+                                                    </Box>
+                                                    <Box>
+                                                        <Skeleton variant="text" width={60} height={16} />
+                                                        <Skeleton variant="text" width={40} height={20} />
+                                                    </Box>
+                                                </Box>
+                                            </Paper>
+                                        </Grid>
+                                    ))
+                                ) : (
+                                    rabbits.map((rabbit) => (
+                                        <Grid size={{ xs: 12, sm: 6 }} key={rabbit.rabbitId}>
+                                            <Paper sx={{ p: 2, height: '100%' }}>
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                                                    <Typography variant="h6" component="div">
+                                                        {rabbit.name}
+                                                    </Typography>
+                                                    <Chip 
+                                                        label={rabbit.status} 
+                                                        color={getBreedingStatusColor(rabbit.status)} 
+                                                        size="small" 
+                                                    />
+                                                </Box>
+                                                
+                                                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                                                    <Box>
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            RABBIT ID
+                                                        </Typography>
+                                                        <Typography variant="body1" fontWeight="medium">
+                                                            {rabbit.rabbitId}
+                                                        </Typography>
+                                                    </Box>
+                                                    <Box>
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            CAGE ID
+                                                        </Typography>
+                                                        <Typography variant="body1" fontWeight="medium">
+                                                            {rabbit.cageId}
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+                                            </Paper>
+                                        </Grid>
+                                    ))
+                                )}
+                            </Grid>
                         </Box>
                     </Box>
 
@@ -275,7 +316,7 @@ const RabbitsPage = () => {
                             <TablePagination
                                 rowsPerPageOptions={[10, 25, 100]}
                                 component="div"
-                                count={filteredData.length}
+                                count={totalCount}
                                 rowsPerPage={rowsPerPage}
                                 page={page}
                                 onPageChange={handleChangePage}
@@ -288,6 +329,7 @@ const RabbitsPage = () => {
             ) : (
                 // Desktop Layout
                 <>
+                    {/* Header */}
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                         <Typography variant="h5">
                             Breeding Rabbits
@@ -304,47 +346,64 @@ const RabbitsPage = () => {
                             <Button
                                 variant="contained"
                                 startIcon={<Add />}
-                                onClick={handleAddRabbit}
                             >
                                 Add
                             </Button>
                         </Box>
                     </Box>
-                    
-                    {/* Active Filters Display */}
-                    {filters.length > 0 && (
-                        <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
-                            <Typography variant="body2" sx={{ mr: 1 }}>
-                                Filters ({logicalOperator}):
-                            </Typography>
-                            {filters.map((filter) => (
-                                <Chip
-                                    key={filter.id}
-                                    label={`${rabbitColumns.find(col => col.id === filter.column)?.label} ${filter.operator} "${filter.value}"`}
-                                    onDelete={() => handleRemoveFilter(filter.id)}
-                                    size="small"
-                                />
-                            ))}
-                        </Box>
-                    )}
 
+                    <FilterChips />
                     <Divider sx={{ mb: 3 }} />
-                    
-                    <DataTable
-                        columns={rabbitColumns}
-                        data={visibleRows}
-                        page={page}
-                        rowsPerPage={rowsPerPage}
-                        totalCount={filteredData.length}
-                        order={order}
-                        orderBy={String(orderBy)}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                        onRequestSort={(_, property) => handleRequestSort(property as keyof RabbitData)}
-                        renderRow={renderTableRow}
-                        getRowKey={(rabbit) => rabbit.rabbitId}
-                        hasActiveFilters={filters.length > 0}
-                    />
+
+                    {error && <ErrorAlert message={error} onRetry={refetch} />}
+
+                    {/* Table Container with fixed height */}
+                    <Paper sx={{ 
+                        width: '100%', 
+                        overflow: 'hidden', 
+                        display: 'flex', 
+                        flexDirection: 'column',
+                        height: 'calc(100vh - 240px)'
+                    }}>
+                        {/* Scrollable Table */}
+                        <Box sx={{ 
+                            flex: 1,
+                            overflow: 'auto'
+                        }}>
+                            <RabbitTable 
+                                rabbits={rabbits}
+                                loading={loading}
+                                sortBy={sortBy}
+                                sortOrder={sortOrder}
+                                onSort={(field: string) => {
+                                    if (sortBy === field) {
+                                        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+                                    } else {
+                                        setSortBy(field);
+                                        setSortOrder('asc');
+                                    }
+                                    setPage(0);
+                                }}
+                            />
+                        </Box>
+
+                        {/* Fixed Pagination */}
+                        <TablePagination
+                            rowsPerPageOptions={[10, 25, 100]}
+                            component="div"
+                            count={totalCount}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            onPageChange={handleChangePage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            labelRowsPerPage="Rows:"
+                            sx={{ 
+                                borderTop: 1, 
+                                borderColor: 'divider',
+                                flexShrink: 0
+                            }}
+                        />
+                    </Paper>
                 </>
             )}
 
@@ -354,21 +413,17 @@ const RabbitsPage = () => {
                 tempFilters={tempFilters}
                 onTempFiltersChange={setTempFilters}
                 statusOptions={breedingStatusOptions}
-                onClearName={() => setTempFilters((f) => ({ ...f, name: '' }))}
-                onClearStatus={() => setTempFilters((f) => ({ ...f, status: '' }))}
-                logicalOperator={logicalOperator}
-                onLogicalOperatorChange={setLogicalOperator}
-                onApply={handleApplyFiltersAndSort}
-                isMobile={isMobile}
-                sortBy={tempSortBy}
-                sortOrder={tempSortOrder}
-                sortableColumns={getSortableColumns()}
-            />
-
-            <AddRabbitModal
-                open={addModalOpen}
-                onClose={handleModalClose}
-                onSubmit={handleSubmitNewRabbit}
+                onClearName={() => setTempFilters(f => ({ ...f, name: '' }))}
+                onClearStatus={() => setTempFilters(f => ({ ...f, status: '' }))}
+                logicalOperator={tempLogicalOperator}
+                onLogicalOperatorChange={setTempLogicalOperator}
+                onApply={handleApplyFilters}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                sortableColumns={[
+                    { id: 'rabbitId', label: 'Rabbit ID' },
+                    { id: 'name', label: 'Name' }
+                ]}
             />
         </>
     );

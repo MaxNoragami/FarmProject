@@ -15,7 +15,7 @@ interface FilterDialogProps {
     onClearStatus: () => void;
     logicalOperator: 'AND' | 'OR';
     onLogicalOperatorChange: (operator: 'AND' | 'OR') => void;
-    onApply: (params: { filters: { name: string; status: string }, sortBy: string, sortOrder: 'asc' | 'desc' }) => void;
+    onApply: (params: { filters: { name: string; status: string }, sortBy: string, sortOrder: 'asc' | 'desc', logicalOperator: 'AND' | 'OR' }) => void;
     isMobile?: boolean;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
@@ -49,11 +49,21 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
         }
     }, [open, tempFilters, sortBy, sortOrder, logicalOperator]);
 
+    // Check if any changes have been made
+    const hasChanges = React.useMemo(() => {
+        const filtersChanged = name !== tempFilters.name || status !== tempFilters.status;
+        const sortChanged = localSortBy !== (sortBy || '') || localSortOrder !== (sortOrder || 'asc');
+        const operatorChanged = localLogicalOperator !== logicalOperator;
+        
+        return filtersChanged || sortChanged || operatorChanged;
+    }, [name, status, localSortBy, localSortOrder, localLogicalOperator, tempFilters, sortBy, sortOrder, logicalOperator]);
+
     const handleApply = () => {
         onApply({
             filters: { name, status },
             sortBy: localSortBy,
-            sortOrder: localSortOrder
+            sortOrder: localSortOrder,
+            logicalOperator: localLogicalOperator
         });
     };
 
@@ -152,6 +162,7 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
                         <Button 
                             onClick={handleApply} 
                             variant="contained"
+                            disabled={!hasChanges}
                         >
                             Apply
                         </Button>
