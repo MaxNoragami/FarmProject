@@ -20,6 +20,8 @@ interface UsePairDataOptions {
     pairingStatus?: number;
     femaleRabbitId?: number;
     maleRabbitId?: number;
+    startDate?: string;
+    endDate?: string;
   };
   logicalOperator?: number;
   sort?: string;

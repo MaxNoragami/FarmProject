@@ -7,15 +7,17 @@ interface PairFilterDialogProps {
     open: boolean;
     onClose: () => void;
     tempFilters: {
-        pairId: string;
         status: string;
+        femaleRabbitId: string;
+        maleRabbitId: string;
     };
-    onTempFiltersChange: (filters: { pairId: string; status: string }) => void;
-    onClearPairId: () => void;
+    onTempFiltersChange: (filters: { status: string; femaleRabbitId: string; maleRabbitId: string }) => void;
     onClearStatus: () => void;
+    onClearFemaleRabbitId: () => void;
+    onClearMaleRabbitId: () => void;
     logicalOperator: 'AND' | 'OR';
     onLogicalOperatorChange: (operator: 'AND' | 'OR') => void;
-    onApply: (params: { filters: { pairId: string; status: string }, sortBy: string, sortOrder: 'asc' | 'desc' }) => void;
+    onApply: (params: { filters: { status: string; femaleRabbitId: string; maleRabbitId: string }, sortBy: string, sortOrder: 'asc' | 'desc', logicalOperator: 'AND' | 'OR' }) => void;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
     sortableColumns?: Array<{ id: string; label: string }>;
@@ -25,47 +27,92 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
     open,
     onClose,
     tempFilters,
-    onTempFiltersChange,
-    onClearPairId,
-    onClearStatus,
     logicalOperator,
-    onLogicalOperatorChange,
     onApply,
     sortBy,
     sortOrder,
     sortableColumns = []
 }) => {
-    // Local state for filters, sorting, and logical operator
-    const [localFilters, setLocalFilters] = React.useState({ ...tempFilters });
-    const [localSortBy, setLocalSortBy] = React.useState(sortBy || '');
-    const [localSortOrder, setLocalSortOrder] = React.useState<'asc' | 'desc'>(sortOrder || 'asc');
-    const [localLogicalOperator, setLocalLogicalOperator] = React.useState<'AND' | 'OR'>(logicalOperator);
+    const [status, setStatus] = React.useState('');
+    const [femaleRabbitId, setFemaleRabbitId] = React.useState('');
+    const [maleRabbitId, setMaleRabbitId] = React.useState('');
+    const [localSortBy, setLocalSortBy] = React.useState('');
+    const [localSortOrder, setLocalSortOrder] = React.useState<'asc' | 'desc'>('asc');
+    const [localLogicalOperator, setLocalLogicalOperator] = React.useState<'AND' | 'OR'>('AND');
+    const [errors, setErrors] = React.useState<{ femaleRabbitId?: string; maleRabbitId?: string }>({});
 
-    // Sync local state with props when dialog opens
     React.useEffect(() => {
         if (open) {
-            setLocalFilters({ ...tempFilters });
+            setStatus(tempFilters.status);
+            setFemaleRabbitId(tempFilters.femaleRabbitId);
+            setMaleRabbitId(tempFilters.maleRabbitId);
             setLocalSortBy(sortBy || '');
             setLocalSortOrder(sortOrder || 'asc');
             setLocalLogicalOperator(logicalOperator);
         }
     }, [open, tempFilters, sortBy, sortOrder, logicalOperator]);
 
-    // Enable Apply if any filter, sort, or logical operator value has changed
-    const sortChanged = localSortBy !== (sortBy || '') || localSortOrder !== (sortOrder || 'asc');
-    const filtersChanged =
-        localFilters.pairId !== (tempFilters.pairId || '') ||
-        localFilters.status !== (tempFilters.status || '');
-    const logicalChanged = localLogicalOperator !== logicalOperator;
-    const canApply = sortChanged || filtersChanged || logicalChanged;
+    const hasChanges = React.useMemo(() => {
+        const filtersChanged = status !== tempFilters.status || 
+                              femaleRabbitId !== tempFilters.femaleRabbitId || 
+                              maleRabbitId !== tempFilters.maleRabbitId;
+        const sortChanged = localSortBy !== (sortBy || '') || localSortOrder !== (sortOrder || 'asc');
+        const operatorChanged = localLogicalOperator !== logicalOperator;
+        
+        return filtersChanged || sortChanged || operatorChanged;
+    }, [status, femaleRabbitId, maleRabbitId, localSortBy, localSortOrder, localLogicalOperator, tempFilters, sortBy, sortOrder, logicalOperator]);
+
+    const validateNumericField = (value: string): string | null => {
+        if (!value.trim()) return null; // Empty is valid
+        
+        const num = Number(value);
+        if (isNaN(num) || !Number.isInteger(num) || num <= 0) {
+            return `Nums only`;
+        }
+        return null;
+    };
 
     const handleApply = () => {
-        onLogicalOperatorChange(localLogicalOperator);
-        onApply({
-            filters: localFilters,
-            sortBy: localSortBy,
-            sortOrder: localSortOrder
-        });
+        const newErrors: { femaleRabbitId?: string; maleRabbitId?: string } = {};
+        
+        // Validate female rabbit ID
+        const femaleError = validateNumericField(femaleRabbitId);
+        if (femaleError) {
+            newErrors.femaleRabbitId = femaleError;
+        }
+        
+        // Validate male rabbit ID
+        const maleError = validateNumericField(maleRabbitId);
+        if (maleError) {
+            newErrors.maleRabbitId = maleError;
+        }
+        
+        setErrors(newErrors);
+        
+        // Only proceed if no errors
+        if (Object.keys(newErrors).length === 0) {
+            onApply({
+                filters: { status, femaleRabbitId, maleRabbitId },
+                sortBy: localSortBy,
+                sortOrder: localSortOrder,
+                logicalOperator: localLogicalOperator
+            });
+        }
+    };
+
+    // Clear errors when values change
+    const handleFemaleRabbitIdChange = (value: string) => {
+        setFemaleRabbitId(value);
+        if (errors.femaleRabbitId) {
+            setErrors(prev => ({ ...prev, femaleRabbitId: undefined }));
+        }
+    };
+
+    const handleMaleRabbitIdChange = (value: string) => {
+        setMaleRabbitId(value);
+        if (errors.maleRabbitId) {
+            setErrors(prev => ({ ...prev, maleRabbitId: undefined }));
+        }
     };
 
     return (
@@ -78,37 +125,68 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
             </DialogTitle>
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
-                    <TextField
-                        fullWidth
-                        label="Pair ID"
-                        value={localFilters.pairId}
-                        onChange={(e) => setLocalFilters({ ...localFilters, pairId: e.target.value })}
-                        placeholder="Filter by pair ID..."
-                        InputProps={{
-                            endAdornment: localFilters.pairId && (
-                                <IconButton onClick={() => { setLocalFilters({ ...localFilters, pairId: '' }); onClearPairId(); }} size="small">
-                                    <Clear />
-                                </IconButton>
-                            )
-                        }}
-                    />
+                    {/* Female and Male Rabbit ID fields side by side */}
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                        <TextField
+                            label="Female Rabbit ID"
+                            variant="outlined"
+                            fullWidth
+                            value={femaleRabbitId}
+                            onChange={(e) => handleFemaleRabbitIdChange(e.target.value)}
+                            error={!!errors.femaleRabbitId}
+                            helperText={errors.femaleRabbitId}
+                            slotProps={{
+                                input: {
+                                    endAdornment: femaleRabbitId && (
+                                        <IconButton onClick={() => {
+                                            setFemaleRabbitId('');
+                                            setErrors(prev => ({ ...prev, femaleRabbitId: undefined }));
+                                        }} size="small">
+                                            <Clear />
+                                        </IconButton>
+                                    )
+                                }
+                            }}
+                        />
+                        <TextField
+                            label="Male Rabbit ID"
+                            variant="outlined"
+                            fullWidth
+                            value={maleRabbitId}
+                            onChange={(e) => handleMaleRabbitIdChange(e.target.value)}
+                            error={!!errors.maleRabbitId}
+                            helperText={errors.maleRabbitId}
+                            slotProps={{
+                                input: {
+                                    endAdornment: maleRabbitId && (
+                                        <IconButton onClick={() => {
+                                            setMaleRabbitId('');
+                                            setErrors(prev => ({ ...prev, maleRabbitId: undefined }));
+                                        }} size="small">
+                                            <Clear />
+                                        </IconButton>
+                                    )
+                                }
+                            }}
+                        />
+                    </Box>
                     
                     <FormControl fullWidth>
                         <InputLabel>Status</InputLabel>
                         <Select
-                            value={localFilters.status}
-                            onChange={(e) => setLocalFilters({ ...localFilters, status: e.target.value })}
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
                             label="Status"
-                            endAdornment={localFilters.status && (
-                                <IconButton onClick={() => { setLocalFilters({ ...localFilters, status: '' }); onClearStatus(); }} size="small" sx={{ mr: 2 }}>
+                            endAdornment={status && (
+                                <IconButton onClick={() => setStatus('')} size="small" sx={{ mr: 2 }}>
                                     <Clear />
                                 </IconButton>
                             )}
                         >
                             <MenuItem value="">All</MenuItem>
-                            {pairingStatusOptions.map((status) => (
-                                <MenuItem key={status} value={status}>
-                                    {status}
+                            {pairingStatusOptions.map((statusOption) => (
+                                <MenuItem key={statusOption} value={statusOption}>
+                                    {statusOption}
                                 </MenuItem>
                             ))}
                         </Select>
@@ -150,10 +228,7 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
                             <InputLabel>Logical Operator</InputLabel>
                             <Select
                                 value={localLogicalOperator}
-                                onChange={(e) => {
-                                    const value = e.target.value as 'AND' | 'OR';
-                                    setLocalLogicalOperator(value === 'AND' || value === 'OR' ? value : 'AND');
-                                }}
+                                onChange={(e) => setLocalLogicalOperator(e.target.value as 'AND' | 'OR')}
                                 label="Logical Operator"
                             >
                                 <MenuItem value="AND">AND</MenuItem>
@@ -164,7 +239,7 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
                         <Button 
                             onClick={handleApply} 
                             variant="contained"
-                            disabled={!canApply}
+                            disabled={!hasChanges}
                         >
                             Apply
                         </Button>

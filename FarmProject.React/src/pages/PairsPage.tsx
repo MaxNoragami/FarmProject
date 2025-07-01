@@ -6,7 +6,7 @@ import { usePairData } from '../hooks/usePairData';
 import { pairingStatusOptions, pairingStatusStringToEnum, getPairingStatusColor } from '../types/PairingStatus';
 import PairCard from '../components/pairs/PairCard';
 import ErrorAlert from '../components/common/ErrorAlert';
-import FilterDialog from '../components/common/FilterDialog';
+import PairFilterDialog from '../components/pairs/PairFilterDialog';
 import AddPairModal from '../components/modals/AddPairModal';
 import { PairService } from '../api/services/pairService';
 import type { AddPairFormFields } from '../schemas/pairSchemas';
@@ -25,16 +25,18 @@ const PairsPage = () => {
     // Filter state
     const [filterDialogOpen, setFilterDialogOpen] = React.useState(false);
     const [filters, setFilters] = React.useState<{
-        pairId?: string;
         status?: string;
+        femaleRabbitId?: string;
+        maleRabbitId?: string;
     }>({});
     const [logicalOperator, setLogicalOperator] = React.useState<'AND' | 'OR'>('AND');
 
     // Temp state for modal form
     const [tempFilters, setTempFilters] = React.useState<{
-        pairId: string;
         status: string;
-    }>({ pairId: '', status: '' });
+        femaleRabbitId: string;
+        maleRabbitId: string;
+    }>({ status: '', femaleRabbitId: '', maleRabbitId: '' });
     const [tempLogicalOperator, setTempLogicalOperator] = React.useState<'AND' | 'OR'>('AND');
 
     // Sorting state
@@ -47,13 +49,24 @@ const PairsPage = () => {
         if (filters.status && pairingStatusStringToEnum[filters.status] !== undefined) {
             converted.pairingStatus = pairingStatusStringToEnum[filters.status];
         }
+        if (filters.femaleRabbitId && !isNaN(Number(filters.femaleRabbitId))) {
+            converted.femaleRabbitId = Number(filters.femaleRabbitId);
+        }
+        if (filters.maleRabbitId && !isNaN(Number(filters.maleRabbitId))) {
+            converted.maleRabbitId = Number(filters.maleRabbitId);
+        }
         return converted;
     }, [filters]);
 
     // Map UI sort field to API sort field
     const getApiSortField = (uiSortField: string) => {
-        if (uiSortField === 'pairId') return 'id';
-        return uiSortField;
+        const sortFieldMap: Record<string, string> = {
+            'pairId': 'id',
+            'maleRabbitId': 'maleRabbitId',
+            'startDate': 'startDate',
+            'endDate': 'endDate'
+        };
+        return sortFieldMap[uiSortField] || uiSortField;
     };
 
     // Fetch pairs data
@@ -104,8 +117,9 @@ const PairsPage = () => {
     // Filter handlers
     const handleOpenFilterDialog = () => {
         setTempFilters({
-            pairId: filters.pairId || '',
             status: filters.status || '',
+            femaleRabbitId: filters.femaleRabbitId || '',
+            maleRabbitId: filters.maleRabbitId || '',
         });
         setTempLogicalOperator(logicalOperator);
         setFilterDialogOpen(true);
@@ -117,15 +131,16 @@ const PairsPage = () => {
         sortOrder: modalSortOrder,
         logicalOperator: modalLogicalOperator
     }: {
-        filters: { pairId: string; status: string },
+        filters: { status: string; femaleRabbitId: string; maleRabbitId: string },
         sortBy: string,
         sortOrder: 'asc' | 'desc',
         logicalOperator: 'AND' | 'OR'
     }) => {
         
         const newFilters: any = {};
-        if (modalFilters.pairId.trim()) newFilters.pairId = modalFilters.pairId.trim();
         if (modalFilters.status && modalFilters.status !== '') newFilters.status = modalFilters.status;
+        if (modalFilters.femaleRabbitId.trim()) newFilters.femaleRabbitId = modalFilters.femaleRabbitId.trim();
+        if (modalFilters.maleRabbitId.trim()) newFilters.maleRabbitId = modalFilters.maleRabbitId.trim();
         
         setFilters(newFilters);
         setSortBy(modalSortBy || 'pairId');
@@ -136,19 +151,24 @@ const PairsPage = () => {
     };
 
     // Clear individual filters
-    const handleClearPairIdFilter = () => {
-        setFilters(prev => ({ ...prev, pairId: undefined }));
-        setPage(0);
-    };
-
     const handleClearStatusFilter = () => {
         setFilters(prev => ({ ...prev, status: undefined }));
         setPage(0);
     };
 
+    const handleClearFemaleRabbitIdFilter = () => {
+        setFilters(prev => ({ ...prev, femaleRabbitId: undefined }));
+        setPage(0);
+    };
+
+    const handleClearMaleRabbitIdFilter = () => {
+        setFilters(prev => ({ ...prev, maleRabbitId: undefined }));
+        setPage(0);
+    };
+
     // Filter chips component
     const FilterChips = () => {
-        const hasFilters = filters.pairId || filters.status;
+        const hasFilters = filters.status || filters.femaleRabbitId || filters.maleRabbitId;
         
         if (!hasFilters) return null;
 
@@ -158,10 +178,10 @@ const PairsPage = () => {
                     Filters ({logicalOperator}):
                 </Typography>
                 
-                {filters.pairId && (
+                {filters.status && (
                     <Chip
-                        label={`PAIR ID contains "${filters.pairId}"`}
-                        onDelete={handleClearPairIdFilter}
+                        label={`STATUS is "${filters.status}"`}
+                        onDelete={handleClearStatusFilter}
                         size="small"
                         variant="filled"
                         sx={{ 
@@ -177,11 +197,31 @@ const PairsPage = () => {
                         }}
                     />
                 )}
-                
-                {filters.status && (
+
+                {filters.femaleRabbitId && (
                     <Chip
-                        label={`STATUS is "${filters.status}"`}
-                        onDelete={handleClearStatusFilter}
+                        label={`FEMALE RABBIT ID is "${filters.femaleRabbitId}"`}
+                        onDelete={handleClearFemaleRabbitIdFilter}
+                        size="small"
+                        variant="filled"
+                        sx={{ 
+                            backgroundColor: '#e0e0e0',
+                            color: '#424242',
+                            '& .MuiChip-deleteIcon': {
+                                color: '#757575',
+                                fontSize: '16px',
+                                '&:hover': {
+                                    color: '#424242'
+                                }
+                            }
+                        }}
+                    />
+                )}
+
+                {filters.maleRabbitId && (
+                    <Chip
+                        label={`MALE RABBIT ID is "${filters.maleRabbitId}"`}
+                        onDelete={handleClearMaleRabbitIdFilter}
                         size="small"
                         variant="filled"
                         sx={{ 
@@ -430,28 +470,24 @@ const PairsPage = () => {
                 </>
             )}
 
-            <FilterDialog
+            <PairFilterDialog
                 open={filterDialogOpen}
                 onClose={() => setFilterDialogOpen(false)}
-                tempFilters={{ name: tempFilters.pairId, status: tempFilters.status }}
-                onTempFiltersChange={(filters) => setTempFilters({ pairId: filters.name, status: filters.status })}
-                statusOptions={pairingStatusOptions}
-                onClearName={() => setTempFilters(f => ({ ...f, pairId: '' }))}
+                tempFilters={tempFilters}
+                onTempFiltersChange={setTempFilters}
                 onClearStatus={() => setTempFilters(f => ({ ...f, status: '' }))}
+                onClearFemaleRabbitId={() => setTempFilters(f => ({ ...f, femaleRabbitId: '' }))}
+                onClearMaleRabbitId={() => setTempFilters(f => ({ ...f, maleRabbitId: '' }))}
                 logicalOperator={tempLogicalOperator}
                 onLogicalOperatorChange={setTempLogicalOperator}
-                onApply={({ filters: modalFilters, sortBy: modalSortBy, sortOrder: modalSortOrder, logicalOperator: modalLogicalOperator }) => {
-                    handleApplyFilters({
-                        filters: { pairId: modalFilters.name, status: modalFilters.status },
-                        sortBy: modalSortBy,
-                        sortOrder: modalSortOrder,
-                        logicalOperator: modalLogicalOperator
-                    });
-                }}
+                onApply={handleApplyFilters}
                 sortBy={sortBy}
                 sortOrder={sortOrder}
                 sortableColumns={[
-                    { id: 'pairId', label: 'Pair ID' }
+                    { id: 'pairId', label: 'Pair ID' },
+                    { id: 'maleRabbitId', label: 'Male Rabbit ID' },
+                    { id: 'startDate', label: 'Start Date' },
+                    { id: 'endDate', label: 'End Date' }
                 ]}
             />
 

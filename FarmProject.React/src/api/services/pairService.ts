@@ -6,6 +6,8 @@ export interface PairListFilters {
   pairingStatus?: number;
   femaleRabbitId?: number;
   maleRabbitId?: number;
+  startDate?: string;
+  endDate?: string;
   logicalOperator?: number;
   sort?: string;
 }
@@ -23,6 +25,8 @@ export class PairService {
     if (typeof request.pairingStatus === 'number') params.append('PairingStatus', request.pairingStatus.toString());
     if (typeof request.femaleRabbitId === 'number') params.append('FemaleRabbitId', request.femaleRabbitId.toString());
     if (typeof request.maleRabbitId === 'number') params.append('MaleRabbitId', request.maleRabbitId.toString());
+    if (request.startDate) params.append('StartDate', request.startDate);
+    if (request.endDate) params.append('EndDate', request.endDate);
     if (request.sort) params.append('sort', request.sort);
 
     const response = await apiClient.get<PaginatedResponse<ApiPairDto>>(
