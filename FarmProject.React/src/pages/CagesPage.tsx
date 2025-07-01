@@ -11,13 +11,7 @@ import { CageService } from '../services/CageService';
 import CageFilterDialog from '../components/cages/CageFilterDialog';
 import { useCageData } from '../hooks/useCageData';
 import { getSortableCageColumns } from '../constants/cageColumns';
-
-const offspringTypeStringToEnum: Record<string, number> = {
-    None: 0,
-    Mixed: 1,
-    Female: 2,
-    Male: 3
-};
+import { offspringTypeStringToEnum } from '../types/OffspringType';
 
 const CagesPage = () => {
     const theme = useTheme();

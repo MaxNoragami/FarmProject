@@ -23,3 +23,11 @@ export const getOffspringTypeColor = (type: OffspringType) => {
             return 'default';
     }
 };
+
+// Mapping for use in filters/API
+export const offspringTypeStringToEnum: Record<string, number> = {
+    None: 0,
+    Mixed: 1,
+    Female: 2,
+    Male: 3
+};
