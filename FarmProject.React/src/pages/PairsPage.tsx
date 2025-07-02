@@ -8,8 +8,10 @@ import PairCard from '../components/pairs/PairCard';
 import ErrorAlert from '../components/common/ErrorAlert';
 import PairFilterDialog from '../components/pairs/PairFilterDialog';
 import AddPairModal from '../components/modals/AddPairModal';
+import UpdatePairStatusModal from '../components/modals/UpdatePairStatusModal';
 import { PairService } from '../api/services/pairService';
-import type { AddPairFormFields } from '../schemas/pairSchemas';
+import type { AddPairFormFields, UpdatePairStatusFormFields } from '../schemas/pairSchemas';
+import type { PairData } from '../utils/pairMappers';
 
 const PairsPage = () => {
     const theme = useTheme();
@@ -18,6 +20,9 @@ const PairsPage = () => {
     // Modal state
     const [addModalOpen, setAddModalOpen] = React.useState(false);
     const [addPairError, setAddPairError] = React.useState<string | null>(null);
+    const [updateModalOpen, setUpdateModalOpen] = React.useState(false);
+    const [updatePairError, setUpdatePairError] = React.useState<string | null>(null);
+    const [selectedPair, setSelectedPair] = React.useState<PairData | null>(null);
 
     // Pagination state
     const [page, setPage] = React.useState(0);
@@ -76,7 +81,8 @@ const PairsPage = () => {
         loading,
         error,
         totalCount,
-        refetch
+        refetch,
+        updatePairStatus
     } = usePairData({
         pageIndex: page,
         pageSize: rowsPerPage,
@@ -117,6 +123,37 @@ const PairsPage = () => {
                 err?.response?.data?.message ||
                 err?.message ||
                 "An unexpected error occurred while creating the pair."
+            );
+            throw err;
+        }
+    };
+
+    // Update pair handlers
+    const handlePairClick = (pair: PairData) => {
+        setSelectedPair(pair);
+        setUpdatePairError(null);
+        setUpdateModalOpen(true);
+    };
+
+    const handleCloseUpdateModal = () => {
+        setUpdateModalOpen(false);
+        setUpdatePairError(null);
+        setSelectedPair(null);
+    };
+
+    const handleUpdatePairStatus = async (data: UpdatePairStatusFormFields) => {
+        if (!selectedPair) return;
+        
+        setUpdatePairError(null);
+        try {
+            await updatePairStatus(selectedPair.id, data.pairingStatus);
+            setUpdateModalOpen(false);
+            setSelectedPair(null);
+        } catch (err: any) {
+            setUpdatePairError(
+                err?.response?.data?.message ||
+                err?.message ||
+                "An unexpected error occurred while updating the pair status."
             );
             throw err;
         }
@@ -372,7 +409,7 @@ const PairsPage = () => {
                                         size={{ xs: 12, sm: 6 }}
                                         key={pair.id}
                                     >
-                                        <PairCard pair={pair} />
+                                        <PairCard pair={pair} onPairClick={handlePairClick} />
                                     </Grid>
                                 ))}
                             </Grid>
@@ -452,7 +489,7 @@ const PairsPage = () => {
                                         size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
                                         key={pair.id}
                                     >
-                                        <PairCard pair={pair} />
+                                        <PairCard pair={pair} onPairClick={handlePairClick} />
                                     </Grid>
                                 ))}
                             </Grid>
@@ -504,6 +541,14 @@ const PairsPage = () => {
                 onClose={handleCloseAddModal}
                 onSubmit={handleAddPair}
                 error={addPairError}
+            />
+
+            <UpdatePairStatusModal
+                open={updateModalOpen}
+                onClose={handleCloseUpdateModal}
+                onSubmit={handleUpdatePairStatus}
+                pair={selectedPair}
+                error={updatePairError}
             />
         </>
     );

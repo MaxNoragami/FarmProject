@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { PairService } from '../api/services/pairService';
 import { mapApiPairsToUI, type PairData } from '../utils/pairMappers';
+import { pairingStatusEnumToString } from '../types/PairingStatus';
 
 interface UsePairDataResult {
   pairs: PairData[];
@@ -11,6 +12,7 @@ interface UsePairDataResult {
   hasNextPage: boolean;
   hasPreviousPage: boolean;
   refetch: () => Promise<void>;
+  updatePairStatus: (pairId: number, pairingStatus: number) => Promise<void>;
 }
 
 interface UsePairDataOptions {
@@ -74,6 +76,28 @@ export const usePairData = ({
     }
   }, [pageIndex, pageSize, filters, logicalOperator, sort]);
 
+  const updatePairStatus = useCallback(async (pairId: number, pairingStatus: number) => {
+    try {
+      const updatedPair = await PairService.updatePairStatus(pairId, pairingStatus);
+      
+      // Update local state with the response from API
+      setPairs(prevPairs => 
+        prevPairs.map(pair => 
+          pair.id === pairId 
+            ? {
+                ...pair,
+                status: pairingStatusEnumToString[updatedPair.pairingStatus] || pair.status,
+                endDate: updatedPair.endDate
+              }
+            : pair
+        )
+      );
+    } catch (err) {
+      console.error('Error updating pair status:', err);
+      throw err;
+    }
+  }, []);
+
   useEffect(() => {
     fetchPairs();
   }, [fetchPairs]);
@@ -87,5 +111,6 @@ export const usePairData = ({
     hasNextPage,
     hasPreviousPage,
     refetch: fetchPairs,
+    updatePairStatus,
   };
 };

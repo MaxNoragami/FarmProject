@@ -44,4 +44,12 @@ export class PairService {
     
     return response.data;
   }
+
+  static async updatePairStatus(pairId: number, pairingStatus: number): Promise<ApiPairDto> {
+    const response = await apiClient.put<ApiPairDto>(`${this.BASE_PATH}/${pairId}`, {
+      pairingStatus
+    });
+    
+    return response.data;
+  }
 }

@@ -1,12 +1,13 @@
 import { Card, CardContent, Box, Typography, Chip } from '@mui/material';
-import { type PairData } from '../../data/mockPairData';
-import { getPairingStatusColor } from '../../types/PairingStatus';
+import { type PairData } from '../../utils/pairMappers';
+import { getPairingStatusColor, PairingStatus } from '../../types/PairingStatus';
 
 interface PairCardProps {
     pair: PairData;
+    onPairClick?: (pair: PairData) => void;
 }
 
-const PairCard: React.FC<PairCardProps> = ({ pair }) => {
+const PairCard: React.FC<PairCardProps> = ({ pair, onPairClick }) => {
     const formatDate = (dateString: string | null) => {
         if (!dateString) return 'Ongoing';
         const date = new Date(dateString);
@@ -19,8 +20,29 @@ const PairCard: React.FC<PairCardProps> = ({ pair }) => {
         });
     };
 
+    const isClickable = pair.status === PairingStatus.Active;
+
+    const handleClick = () => {
+        if (isClickable && onPairClick) {
+            onPairClick(pair);
+        }
+    };
+
     return (
-        <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Card 
+            sx={{ 
+                height: '100%', 
+                display: 'flex', 
+                flexDirection: 'column',
+                cursor: isClickable ? 'pointer' : 'default',
+                '&:hover': isClickable ? {
+                    boxShadow: 2,
+                    transform: 'translateY(-2px)',
+                    transition: 'all 0.2s ease-in-out'
+                } : {}
+            }}
+            onClick={handleClick}
+        >
             <CardContent sx={{ flex: 1 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                     <Typography variant="h6" component="div">
