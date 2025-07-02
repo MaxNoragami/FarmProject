@@ -7,17 +7,13 @@ interface TaskFilterDialogProps {
     open: boolean;
     onClose: () => void;
     tempFilters: {
-        taskId: string;
         taskType: string;
         isCompleted: boolean | null;
     };
-    onTempFiltersChange: (filters: { taskId: string; taskType: string; isCompleted: boolean | null }) => void;
-    onClearTaskId: () => void;
+    onTempFiltersChange: (filters: { taskType: string; isCompleted: boolean | null }) => void;
     onClearTaskType: () => void;
     onClearCompleted: () => void;
-    logicalOperator: 'AND' | 'OR';
-    onLogicalOperatorChange: (operator: 'AND' | 'OR') => void;
-    onApply: (params: { filters: { taskId: string; taskType: string; isCompleted: boolean | null }, sortBy: string, sortOrder: 'asc' | 'desc' }) => void;
+    onApply: (params: { filters: { taskType: string; isCompleted: boolean | null }, sortBy: string, sortOrder: 'asc' | 'desc' }) => void;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
     sortableColumns?: Array<{ id: string; label: string }>;
@@ -28,11 +24,8 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
     onClose,
     tempFilters,
     onTempFiltersChange,
-    onClearTaskId,
     onClearTaskType,
     onClearCompleted,
-    logicalOperator,
-    onLogicalOperatorChange,
     onApply,
     sortBy,
     sortOrder,
@@ -42,29 +35,38 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
     const [localFilters, setLocalFilters] = React.useState({ ...tempFilters });
     const [localSortBy, setLocalSortBy] = React.useState(sortBy || '');
     const [localSortOrder, setLocalSortOrder] = React.useState<'asc' | 'desc'>(sortOrder || 'asc');
-    const [localLogicalOperator, setLocalLogicalOperator] = React.useState<'AND' | 'OR'>(logicalOperator);
 
-    // Sync local state with props when dialog opens
+    // Store the element that opened the dialog
+    const triggerElementRef = React.useRef<HTMLElement | null>(null);
+
+    // Store the trigger element when dialog opens
     React.useEffect(() => {
         if (open) {
+            triggerElementRef.current = document.activeElement as HTMLElement;
             setLocalFilters({ ...tempFilters });
             setLocalSortBy(sortBy || '');
             setLocalSortOrder(sortOrder || 'asc');
-            setLocalLogicalOperator(logicalOperator);
         }
-    }, [open, tempFilters, sortBy, sortOrder, logicalOperator]);
+    }, [open, tempFilters, sortBy, sortOrder]);
 
-    // Enable Apply if any filter, sort, or logical operator value has changed
+    // Handle dialog close with proper focus restoration
+    const handleClose = React.useCallback(() => {
+        onClose();
+        setTimeout(() => {
+            if (triggerElementRef.current && triggerElementRef.current.focus) {
+                triggerElementRef.current.focus();
+            }
+        }, 100);
+    }, [onClose]);
+
+    // Enable Apply if any filter or sort value has changed
     const sortChanged = localSortBy !== (sortBy || '') || localSortOrder !== (sortOrder || 'asc');
     const filtersChanged =
-        localFilters.taskId !== (tempFilters.taskId || '') ||
         localFilters.taskType !== (tempFilters.taskType || '') ||
         localFilters.isCompleted !== (tempFilters.isCompleted ?? null);
-    const logicalChanged = localLogicalOperator !== logicalOperator;
-    const canApply = sortChanged || filtersChanged || logicalChanged;
+    const canApply = sortChanged || filtersChanged;
 
     const handleApply = () => {
-        onLogicalOperatorChange(localLogicalOperator);
         onApply({
             filters: localFilters,
             sortBy: localSortBy,
@@ -73,30 +75,26 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
     };
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+        <Dialog 
+            open={open} 
+            onClose={handleClose} 
+            maxWidth="sm" 
+            fullWidth
+            disableEnforceFocus={false}
+            disableAutoFocus={false}
+            disableRestoreFocus={true}
+            BackdropProps={{
+                timeout: 500,
+            }}
+        >
             <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 Filter & Sort Options
-                <IconButton onClick={onClose} size="small">
+                <IconButton onClick={handleClose} size="small">
                     <Close />
                 </IconButton>
             </DialogTitle>
             <DialogContent>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
-                    <TextField
-                        fullWidth
-                        label="Task ID"
-                        value={localFilters.taskId}
-                        onChange={(e) => setLocalFilters({ ...localFilters, taskId: e.target.value })}
-                        placeholder="Filter by task ID..."
-                        InputProps={{
-                            endAdornment: localFilters.taskId && (
-                                <IconButton onClick={() => { setLocalFilters({ ...localFilters, taskId: '' }); onClearTaskId(); }} size="small">
-                                    <Clear />
-                                </IconButton>
-                            )
-                        }}
-                    />
-                    
                     <FormControl fullWidth>
                         <InputLabel>Task Type</InputLabel>
                         <Select
@@ -174,22 +172,7 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
                         )}
                     </Box>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-                        <FormControl size="small" sx={{ minWidth: 120 }}>
-                            <InputLabel>Logical Operator</InputLabel>
-                            <Select
-                                value={localLogicalOperator}
-                                onChange={(e) => {
-                                    const value = e.target.value as 'AND' | 'OR';
-                                    setLocalLogicalOperator(value === 'AND' || value === 'OR' ? value : 'AND');
-                                }}
-                                label="Logical Operator"
-                            >
-                                <MenuItem value="AND">AND</MenuItem>
-                                <MenuItem value="OR">OR</MenuItem>
-                            </Select>
-                        </FormControl>
-                        
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                         <Button 
                             onClick={handleApply} 
                             variant="contained"

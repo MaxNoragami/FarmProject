@@ -127,95 +127,105 @@ const PairForm: React.FC<PairFormProps> = ({ onSubmit, onCancel, error }) => {
       </Typography>
 
       <Box sx={{ mb: 2, minHeight: 'auto' }}>
-        {loading ? renderRabbitSkeletons() : rabbits.length > 0 ? (
-          <>
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2 }}>
-              {rabbits.map((rabbit) => (
-                <Card 
-                  key={rabbit.rabbitId}
-                  sx={{ 
-                    cursor: 'pointer',
-                    border: selectedFemaleId === rabbit.rabbitId ? 2 : 1,
-                    borderColor: getBorderColor(rabbit.rabbitId),
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      boxShadow: 2
-                    }
-                  }}
-                  onClick={() => handleFemaleSelect(rabbit)}
-                >
-                  <CardContent sx={{ py: 2 }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                      <Typography variant="body1" fontWeight="medium" sx={{ mb: 0.5 }}>
-                        {rabbit.name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                        ID: {rabbit.rabbitId}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                        Cage: {rabbit.cageId}
-                      </Typography>
-                      <Chip 
-                        label={rabbit.status}
-                        color={getBreedingStatusColor(rabbit.status)}
-                        size="small" 
-                      />
-                    </Box>
-                  </CardContent>
-                </Card>
-              ))}
-            </Box>
-
-            {errors.femaleRabbitId && selectedFemaleId === null && (
-              <Typography 
-                variant="body2" 
-                color="error.main" 
-                sx={{ mb: 2, textAlign: 'left' }}
-              >
-                Please select a female rabbit for pairing
-              </Typography>
-            )}
-
-            {totalPages > 1 && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
-                <IconButton 
-                  onClick={handlePreviousPage}
-                  disabled={pageIndex === 1}
-                  size="small"
-                >
-                  <ChevronLeft />
-                </IconButton>
-                
-                <Typography variant="body2" color="text.secondary">
-                  {((pageIndex - 1) * rabbitsPerPage) + 1}-{Math.min(pageIndex * rabbitsPerPage, totalCount)} of {totalCount}
+        {(() => {
+          if (loading) {
+            return renderRabbitSkeletons();
+          }
+          
+          if (rabbits.length === 0) {
+            return (
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                minHeight: 150,
+                border: 1,
+                borderColor: 'divider',
+                borderRadius: 1,
+                backgroundColor: 'grey.50'
+              }}>
+                <Typography variant="body1" color="text.secondary">
+                  {rabbitError || "No available female rabbits found"}
                 </Typography>
-                
-                <IconButton 
-                  onClick={handleNextPage}
-                  disabled={pageIndex === totalPages}
-                  size="small"
-                >
-                  <ChevronRight />
-                </IconButton>
               </Box>
-            )}
-          </>
-        ) : (
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            minHeight: 150,
-            border: 1,
-            borderColor: 'divider',
-            borderRadius: 1,
-            backgroundColor: 'grey.50'
-          }}>
-            <Typography variant="body1" color="text.secondary">
-              {rabbitError || "No available female rabbits found"}
-            </Typography>
-          </Box>
-        )}
+            );
+          }
+
+          return (
+            <>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2 }}>
+                {rabbits.map((rabbit) => (
+                  <Card 
+                    key={rabbit.rabbitId}
+                    sx={{ 
+                      cursor: 'pointer',
+                      border: selectedFemaleId === rabbit.rabbitId ? 2 : 1,
+                      borderColor: getBorderColor(rabbit.rabbitId),
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        boxShadow: 2
+                      }
+                    }}
+                    onClick={() => handleFemaleSelect(rabbit)}
+                  >
+                    <CardContent sx={{ py: 2 }}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                        <Typography variant="body1" fontWeight="medium" sx={{ mb: 0.5 }}>
+                          {rabbit.name}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                          ID: {rabbit.rabbitId}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                          Cage: {rabbit.cageId}
+                        </Typography>
+                        <Chip 
+                          label={rabbit.status}
+                          color={getBreedingStatusColor(rabbit.status)}
+                          size="small" 
+                        />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Box>
+
+              {errors.femaleRabbitId && selectedFemaleId === null && (
+                <Typography 
+                  variant="body2" 
+                  color="error.main" 
+                  sx={{ mb: 2, textAlign: 'left' }}
+                >
+                  Please select a female rabbit for pairing
+                </Typography>
+              )}
+
+              {totalPages > 1 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
+                  <IconButton 
+                    onClick={handlePreviousPage}
+                    disabled={pageIndex === 1}
+                    size="small"
+                  >
+                    <ChevronLeft />
+                  </IconButton>
+                  
+                  <Typography variant="body2" color="text.secondary">
+                    {((pageIndex - 1) * rabbitsPerPage) + 1}-{Math.min(pageIndex * rabbitsPerPage, totalCount)} of {totalCount}
+                  </Typography>
+                  
+                  <IconButton 
+                    onClick={handleNextPage}
+                    disabled={pageIndex === totalPages}
+                    size="small"
+                  >
+                    <ChevronRight />
+                  </IconButton>
+                </Box>
+              )}
+            </>
+          );
+        })()}
       </Box>
 
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>

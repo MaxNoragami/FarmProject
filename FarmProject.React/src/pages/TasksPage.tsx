@@ -31,13 +31,12 @@ const TasksPage = () => {
         taskType?: string;
         isCompleted?: boolean;
     }>({});
-    const [logicalOperator, setLogicalOperator] = React.useState<'AND' | 'OR'>('AND');
 
+    // Temp state for modal form
     const [tempFilters, setTempFilters] = React.useState<{
-        taskId: string;
         taskType: string;
         isCompleted: boolean | null;
-    }>({ taskId: '', taskType: '', isCompleted: null });
+    }>({ taskType: '', isCompleted: null });
     const [tempSortBy, setTempSortBy] = React.useState('dueOn');
     const [tempSortOrder, setTempSortOrder] = React.useState<'asc' | 'desc'>('asc');
 
@@ -63,6 +62,17 @@ const TasksPage = () => {
         return date.format('YYYY-MM-DD');
     };
 
+    // Map UI sort field to API sort field
+    const getApiSortField = (uiSortField: string) => {
+        const sortFieldMap: Record<string, string> = {
+            'taskId': 'id',
+            'id': 'id',
+            'createdOn': 'createdOn',
+            'dueOn': 'dueOn'
+        };
+        return sortFieldMap[uiSortField] || uiSortField;
+    };
+
     // Fetch tasks data
     const {
         tasks,
@@ -76,8 +86,8 @@ const TasksPage = () => {
         pageSize: rowsPerPage,
         dueOn: formatDateForApi(selectedDate),
         filters: apiFilters,
-        logicalOperator: logicalOperator === 'AND' ? 0 : 1,
-        sort: sortBy ? `${sortBy}:${sortOrder}` : undefined,
+        logicalOperator: 0, // Always AND
+        sort: sortBy ? `${getApiSortField(sortBy)}:${sortOrder}` : undefined,
     });
 
     // Handlers
@@ -109,7 +119,7 @@ const TasksPage = () => {
         return (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2, alignItems: 'center' }}>
                 <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-                    Filters ({logicalOperator}):
+                    Filters:
                 </Typography>
                 
                 {filters.taskType && (
@@ -161,7 +171,7 @@ const TasksPage = () => {
         sortBy: newSortBy, 
         sortOrder: newSortOrder 
     }: { 
-        filters: { taskId: string; taskType: string; isCompleted: boolean | null }, 
+        filters: { taskType: string; isCompleted: boolean | null }, 
         sortBy: string, 
         sortOrder: 'asc' | 'desc' 
     }) => {
@@ -179,7 +189,6 @@ const TasksPage = () => {
     // Open modal: sync temp state with current state
     const handleOpenFilterDialog = () => {
         setTempFilters({ 
-            taskId: '', 
             taskType: filters.taskType || '', 
             isCompleted: filters.isCompleted !== undefined ? filters.isCompleted : null 
         });
@@ -510,11 +519,8 @@ const TasksPage = () => {
                 onClose={() => setFilterDialogOpen(false)}
                 tempFilters={tempFilters}
                 onTempFiltersChange={setTempFilters}
-                onClearTaskId={() => setTempFilters((f) => ({ ...f, taskId: '' }))}
                 onClearTaskType={() => setTempFilters((f) => ({ ...f, taskType: '' }))}
                 onClearCompleted={() => setTempFilters((f) => ({ ...f, isCompleted: null }))}
-                logicalOperator={logicalOperator}
-                onLogicalOperatorChange={setLogicalOperator}
                 onApply={handleApplyFiltersAndSort}
                 sortBy={tempSortBy}
                 sortOrder={tempSortOrder}

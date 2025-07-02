@@ -6,8 +6,6 @@ export interface TaskSortColumn {
 
 export const taskSortColumns: readonly TaskSortColumn[] = [
   { id: 'taskId', label: 'TASK ID', sortable: true },
-  { id: 'taskType', label: 'TASK TYPE', sortable: true },
-  { id: 'isCompleted', label: 'COMPLETION STATUS', sortable: true },
   { id: 'createdOn', label: 'CREATED ON', sortable: true },
   { id: 'dueOn', label: 'DUE ON', sortable: true },
 ];
