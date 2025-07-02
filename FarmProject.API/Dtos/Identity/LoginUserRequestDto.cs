@@ -1,4 +1,4 @@
-﻿using FarmProject.Domain.Identity;
+﻿using FarmProject.Application.IdentityService;
 
 namespace FarmProject.API.Dtos.Identity;
 

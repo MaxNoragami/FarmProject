@@ -1,17 +1,16 @@
-﻿using FarmProject.Application.BreedingRabbitsService;
+﻿using FarmProject.API.Attributes;
+using FarmProject.API.Dtos;
+using FarmProject.API.Dtos.BreedingRabbits;
+using FarmProject.Application.BreedingRabbitsService;
+using FarmProject.Application.CageService;
+using FarmProject.Application.Common;
+using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.IdentityService;
+using FarmProject.Domain.Errors;
 using FarmProject.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
-using FarmProject.Application.Common;
-using FarmProject.API.Dtos.BreedingRabbits;
-using FarmProject.Application.CageService;
-using FarmProject.Domain.Errors;
-using FarmProject.Application.Common.Models.Dtos;
-using FarmProject.Application.Common.Models;
-using FarmProject.API.Dtos;
-using Microsoft.AspNetCore.Authorization;
-using FarmProject.API.Attributes;
 using System.Data;
-using FarmProject.Domain.Identity;
 
 
 namespace FarmProject.API.Controllers;

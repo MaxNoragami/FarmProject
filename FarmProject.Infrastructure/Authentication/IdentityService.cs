@@ -1,5 +1,4 @@
 ﻿using FarmProject.Application.IdentityService;
-using FarmProject.Domain.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

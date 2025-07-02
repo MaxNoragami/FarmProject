@@ -1,5 +1,5 @@
 ﻿using FarmProject.API.Attributes;
-using FarmProject.Domain.Identity;
+using FarmProject.Application.IdentityService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;

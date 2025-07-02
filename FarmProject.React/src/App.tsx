@@ -25,5 +25,4 @@ function App() {
     )
 }
 
-// To be able to use is somewhere else
 export default App

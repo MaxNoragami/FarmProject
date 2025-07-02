@@ -1,16 +1,16 @@
-﻿using FarmProject.Domain.Events;
-using FarmProject.Application.BreedingRabbitsService;
+﻿using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Application.BreedingRabbitsService.Validators;
 using FarmProject.Application.CageService;
+using FarmProject.Application.CageService.Validators;
+using FarmProject.Application.Common;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.Common.Validators;
 using FarmProject.Application.Events;
 using FarmProject.Application.FarmTaskService;
 using FarmProject.Application.PairingService;
-using FarmProject.Application.Common;
-using FluentValidation;
-using FarmProject.Application.CageService.Validators;
 using FarmProject.Application.PairingService.Validators;
-using FarmProject.Application.Common.Validators;
-using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Domain.Events;
+using FluentValidation;
 
 namespace FarmProject.API.DependencyInjection;
 

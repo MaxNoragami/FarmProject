@@ -1,6 +1,4 @@
 ﻿using FarmProject.Domain.Common;
-using FarmProject.Domain.Errors;
-using FarmProject.Domain.Identity;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 

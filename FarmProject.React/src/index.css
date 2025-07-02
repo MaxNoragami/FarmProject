@@ -49,9 +49,105 @@ button {
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+button:focus-visible,
+button:active,
+.MuiButton-root:focus,
+.MuiButton-root:focus-visible,
+.MuiButton-root:active,
+.MuiIconButton-root:focus,
+.MuiIconButton-root:focus-visible,
+.MuiIconButton-root:active,
+.MuiBottomNavigationAction-root:focus,
+.MuiBottomNavigationAction-root:focus-visible,
+.MuiBottomNavigationAction-root:active,
+.MuiListItemButton-root:focus,
+.MuiListItemButton-root:focus-visible,
+.MuiListItemButton-root:active,
+.MuiChip-root:focus,
+.MuiChip-root:focus-visible,
+.MuiChip-root:active,
+.MuiTableSortLabel-root:focus,
+.MuiTableSortLabel-root:focus-visible,
+.MuiTableSortLabel-root:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom scrollbar styling for consistent appearance across browsers */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  /* More aggressive Edge fixes */
+  overscroll-behavior: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: auto;
+  /* Disable all touch actions except vertical scrolling */
+  touch-action: pan-y pinch-zoom;
+  -ms-touch-action: pan-y pinch-zoom;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Edge-specific fixes for trackpad gestures */
+html, body {
+  overscroll-behavior: none;
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: none;
+  /* Completely disable touch actions that could trigger navigation */
+  touch-action: none;
+  -ms-touch-action: none;
+  /* Prevent all momentum and elastic scrolling */
+  -webkit-overflow-scrolling: auto;
+  /* Disable Edge swipe navigation */
+  -ms-scroll-chaining: none;
+  -ms-scroll-rails: none;
+}
+
+/* Allow scrolling only on specific scrollable containers */
+.scrollable-container,
+[data-scrollable="true"] {
+  touch-action: pan-y;
+  -ms-touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
+@media screen and (max-width: 900px) {
+  html {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+  
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
 }
 
 @media (prefers-color-scheme: light) {

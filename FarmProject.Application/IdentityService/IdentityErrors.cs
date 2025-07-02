@@ -1,6 +1,6 @@
 ﻿using FarmProject.Domain.Common;
 
-namespace FarmProject.Domain.Errors;
+namespace FarmProject.Application.IdentityService;
 
 public static class IdentityErrors
 {

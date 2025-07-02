@@ -1,6 +1,4 @@
-﻿using FarmProject.Domain.Constants;
-
-namespace FarmProject.API.Dtos.BreedingRabbits;
+﻿namespace FarmProject.API.Dtos.BreedingRabbits;
 
 public class CreateBreedingRabbitDto
 {

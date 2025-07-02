@@ -1,7 +1,5 @@
 ﻿using FarmProject.Application.Common;
 using FarmProject.Domain.Common;
-using FarmProject.Domain.Constants;
-using FarmProject.Domain.Identity;
 
 namespace FarmProject.Application.IdentityService;
 

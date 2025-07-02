@@ -1,6 +1,4 @@
 ﻿using FarmProject.Domain.Constants;
-using FarmProject.Domain.Models;
-using System.ComponentModel.DataAnnotations;
 
 namespace FarmProject.API.Dtos.Cages;
 

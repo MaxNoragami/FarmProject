@@ -1,13 +1,12 @@
-﻿using FarmProject.Application.PairingService;
-using FarmProject.Application.Common;
-using Microsoft.AspNetCore.Mvc;
-using FarmProject.API.Dtos.Pairs;
-using FarmProject.Application.Common.Models.Dtos;
-using FarmProject.Application.Common.Models;
+﻿using FarmProject.API.Attributes;
 using FarmProject.API.Dtos;
-using Microsoft.AspNetCore.Authorization;
-using FarmProject.API.Attributes;
-using FarmProject.Domain.Identity;
+using FarmProject.API.Dtos.Pairs;
+using FarmProject.Application.Common;
+using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.IdentityService;
+using FarmProject.Application.PairingService;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FarmProject.API.Controllers;
 

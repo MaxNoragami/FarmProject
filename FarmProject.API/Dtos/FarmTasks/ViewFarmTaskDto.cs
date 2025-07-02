@@ -1,6 +1,4 @@
 ﻿using FarmProject.Domain.Constants;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 
 namespace FarmProject.API.Dtos.FarmTasks;
 

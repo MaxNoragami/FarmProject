@@ -1,6 +1,4 @@
-﻿using FarmProject.Domain.Constants;
-
-namespace FarmProject.API.Dtos.Cages;
+﻿namespace FarmProject.API.Dtos.Cages;
 
 public class CreateCageDto
 {
