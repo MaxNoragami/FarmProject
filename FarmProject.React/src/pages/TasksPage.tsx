@@ -33,7 +33,6 @@ const TasksPage = () => {
     }>({});
     const [logicalOperator, setLogicalOperator] = React.useState<'AND' | 'OR'>('AND');
 
-    // Temp state for modal form
     const [tempFilters, setTempFilters] = React.useState<{
         taskId: string;
         taskType: string;
@@ -71,7 +70,7 @@ const TasksPage = () => {
         error,
         totalCount,
         refetch,
-        updateTaskStatus
+        completeTask
     } = useTaskData({
         pageIndex: page,
         pageSize: rowsPerPage,
@@ -82,11 +81,11 @@ const TasksPage = () => {
     });
 
     // Handlers
-    const handleToggleTaskComplete = async (taskId: string, newStatus: boolean) => {
+    const handleCompleteTask = async (taskId: number) => {
         try {
-            await updateTaskStatus(Number(taskId), newStatus);
+            await completeTask(taskId);
         } catch (err) {
-            console.error('Failed to update task status:', err);
+            console.error('Failed to complete task:', err);
         }
     };
 
@@ -349,7 +348,7 @@ const TasksPage = () => {
                                         >
                                             <TaskCard 
                                                 task={task} 
-                                                onToggleComplete={handleToggleTaskComplete}
+                                                onCompleteTask={handleCompleteTask}
                                             />
                                         </Grid>
                                     ))
@@ -478,7 +477,7 @@ const TasksPage = () => {
                                         >
                                             <TaskCard 
                                                 task={task} 
-                                                onToggleComplete={handleToggleTaskComplete}
+                                                onCompleteTask={handleCompleteTask}
                                             />
                                         </Grid>
                                     ))

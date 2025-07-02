@@ -109,7 +109,6 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
                                 </IconButton>
                             )}
                         >
-                            <MenuItem value="">All</MenuItem>
                             {farmTaskTypeOptions.map((type) => (
                                 <MenuItem key={type} value={type}>
                                     {getFarmTaskTypeLabel(type)}

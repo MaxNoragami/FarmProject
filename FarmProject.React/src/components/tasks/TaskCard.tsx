@@ -5,10 +5,10 @@ import { getFarmTaskTypeColor, getFarmTaskTypeLabel } from '../../types/FarmTask
 
 interface TaskCardProps {
     task: TaskData;
-    onToggleComplete?: (taskId: string, newStatus: boolean) => void;
+    onCompleteTask?: (taskId: number) => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onToggleComplete }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, onCompleteTask }) => {
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', {
@@ -20,9 +20,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onToggleComplete }) => {
         });
     };
 
-    const handleToggleComplete = () => {
-        if (onToggleComplete) {
-            onToggleComplete(task.taskId, !task.isCompleted);
+    const handleCompleteTask = () => {
+        if (onCompleteTask && !task.isCompleted) {
+            onCompleteTask(task.id);
         }
     };
 
@@ -41,9 +41,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onToggleComplete }) => {
                             size="small" 
                         />
                         <IconButton 
-                            onClick={handleToggleComplete}
+                            onClick={handleCompleteTask}
+                            disabled={task.isCompleted}
                             size="small"
-                            sx={{ p: 0.5 }}
+                            sx={{ 
+                                p: 0.5,
+                                cursor: task.isCompleted ? 'default' : 'pointer'
+                            }}
                         >
                             {task.isCompleted ? (
                                 <CheckCircle sx={{ color: 'success.main' }} />

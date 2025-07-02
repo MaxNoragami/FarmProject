@@ -11,7 +11,7 @@ interface UseTaskDataResult {
   hasNextPage: boolean;
   hasPreviousPage: boolean;
   refetch: () => Promise<void>;
-  updateTaskStatus: (taskId: number, isCompleted: boolean) => Promise<void>;
+  completeTask: (taskId: number) => Promise<void>;
 }
 
 interface UseTaskDataOptions {
@@ -75,20 +75,25 @@ export const useTaskData = ({
     }
   }, [pageIndex, pageSize, dueOn, filters, logicalOperator, sort]);
 
-  const updateTaskStatus = useCallback(async (taskId: number, isCompleted: boolean) => {
+  const completeTask = useCallback(async (taskId: number) => {
     try {
-      await TaskService.updateTaskStatus(taskId, isCompleted);
+      const updatedTask = await TaskService.completeTask(taskId);
       
-      // Update local state
+      // Update local state with the response from API
       setTasks(prevTasks => 
         prevTasks.map(task => 
           task.id === taskId 
-            ? { ...task, isCompleted }
+            ? { 
+                ...task, 
+                isCompleted: updatedTask.isCompleted,
+                message: updatedTask.message,
+                farmTaskType: updatedTask.farmTaskType
+              }
             : task
         )
       );
     } catch (err) {
-      console.error('Error updating task status:', err);
+      console.error('Error completing task:', err);
       throw err;
     }
   }, []);
@@ -106,6 +111,6 @@ export const useTaskData = ({
     hasNextPage,
     hasPreviousPage,
     refetch: fetchTasks,
-    updateTaskStatus,
+    completeTask,
   };
 };

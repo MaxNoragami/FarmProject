@@ -32,11 +32,10 @@ export class TaskService {
     return response.data;
   }
 
-  static async updateTaskStatus(taskId: number, isCompleted: boolean): Promise<ApiTaskDto> {
-    const response = await apiClient.patch<ApiTaskDto>(`${this.BASE_PATH}/${taskId}`, {
-      isCompleted
-    });
+  static async completeTask(taskId: number): Promise<ApiTaskDto> {
+    const response = await apiClient.put<ApiTaskDto>(`${this.BASE_PATH}/${taskId}`);
     
     return response.data;
   }
 }
+
