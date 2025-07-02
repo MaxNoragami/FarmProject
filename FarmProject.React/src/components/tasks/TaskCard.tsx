@@ -1,6 +1,6 @@
 import { Card, CardContent, Box, Typography, Chip, IconButton } from '@mui/material';
 import { CheckCircle, Cancel } from '@mui/icons-material';
-import { type TaskData } from '../../data/mockTaskData';
+import { type TaskData } from '../../utils/taskMappers';
 import { getFarmTaskTypeColor, getFarmTaskTypeLabel } from '../../types/FarmTaskType';
 
 interface TaskCardProps {

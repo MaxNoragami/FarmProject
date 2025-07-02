@@ -1,4 +1,4 @@
-import { Typography, Box, Button, Divider, Chip, useMediaQuery, useTheme, Grid, Paper, TablePagination, IconButton, Modal, Backdrop } from '@mui/material';
+import { Typography, Box, Button, Divider, Chip, useMediaQuery, useTheme, Grid, Paper, TablePagination, IconButton, Modal, Backdrop, Skeleton } from '@mui/material';
 import { Add, FilterList, ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -6,196 +6,193 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { mockTasksData, type TaskData } from '../data/mockTaskData';
-import { useTaskFilters, type TaskFilter } from '../hooks/useTaskFilters';
-import { useTaskSorting } from '../hooks/useTaskSorting';
-import { getSortableTaskColumns } from '../constants/taskColumns';
+import { useTaskData } from '../hooks/useTaskData';
+import { type TaskData } from '../utils/taskMappers';
 import TaskCard from '../components/tasks/TaskCard';
 import TaskFilterDialog from '../components/tasks/TaskFilterDialog';
+import ErrorAlert from '../components/common/ErrorAlert';
+import type { TaskFilter } from '../hooks/useTaskFilters';
+import { getSortableTaskColumns } from '../constants/taskColumns';
 
 const TasksPage = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-    // Tasks state
-    const [tasks, setTasks] = React.useState(mockTasksData);
-    
     // Date state
     const [selectedDate, setSelectedDate] = React.useState(dayjs());
-
-    // Filter state
-    const {
-        filters,
-        setFilters,
-        logicalOperator,
-        setLogicalOperator,
-        filteredData,
-        removeFilter
-    } = useTaskFilters(tasks);
-
-    // Sort state
-    const {
-        order,
-        orderBy,
-        sortedData,
-        handleRequestSort,
-        setOrder,
-        setOrderBy
-    } = useTaskSorting(filteredData, 'dueOn');
 
     // Pagination state
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(12);
 
-    // Filter dialog state
+    // Filter state
     const [filterDialogOpen, setFilterDialogOpen] = React.useState(false);
+    const [filters, setFilters] = React.useState<{
+        taskType?: string;
+        isCompleted?: boolean;
+    }>({});
+    const [logicalOperator, setLogicalOperator] = React.useState<'AND' | 'OR'>('AND');
+
+    // Temp state for modal form
     const [tempFilters, setTempFilters] = React.useState<{
         taskId: string;
         taskType: string;
         isCompleted: boolean | null;
     }>({ taskId: '', taskType: '', isCompleted: null });
-    const [tempSortBy, setTempSortBy] = React.useState(String(orderBy));
-    const [tempSortOrder, setTempSortOrder] = React.useState(order);
+    const [tempSortBy, setTempSortBy] = React.useState('dueOn');
+    const [tempSortOrder, setTempSortOrder] = React.useState<'asc' | 'desc'>('asc');
+
+    // Sorting state
+    const [sortBy, setSortBy] = React.useState<string>('dueOn');
+    const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc');
+
+    // Convert filters for API
+    const apiFilters = React.useMemo(() => {
+        const converted: any = {};
+        if (filters.taskType) {
+            // Map task type string to number if needed
+            converted.farmTaskType = 0; // Default to NestPreparation for now
+        }
+        if (typeof filters.isCompleted === 'boolean') {
+            converted.isCompleted = filters.isCompleted;
+        }
+        return converted;
+    }, [filters]);
+
+    // Format date for API (YYYY-MM-DD)
+    const formatDateForApi = (date: any) => {
+        return date.format('YYYY-MM-DD');
+    };
+
+    // Fetch tasks data
+    const {
+        tasks,
+        loading,
+        error,
+        totalCount,
+        refetch,
+        updateTaskStatus
+    } = useTaskData({
+        pageIndex: page,
+        pageSize: rowsPerPage,
+        dueOn: formatDateForApi(selectedDate),
+        filters: apiFilters,
+        logicalOperator: logicalOperator === 'AND' ? 0 : 1,
+        sort: sortBy ? `${sortBy}:${sortOrder}` : undefined,
+    });
 
     // Handlers
-    const handleToggleTaskComplete = (taskId: string, newStatus: boolean) => {
-        setTasks(prevTasks => 
-            prevTasks.map(task => 
-                task.taskId === taskId 
-                    ? { ...task, isCompleted: newStatus }
-                    : task
-            )
+    const handleToggleTaskComplete = async (taskId: string, newStatus: boolean) => {
+        try {
+            await updateTaskStatus(Number(taskId), newStatus);
+        } catch (err) {
+            console.error('Failed to update task status:', err);
+        }
+    };
+
+    // Clear individual filters
+    const handleClearTaskTypeFilter = () => {
+        setFilters(prev => ({ ...prev, taskType: undefined }));
+        setPage(0);
+    };
+
+    const handleClearCompletedFilter = () => {
+        setFilters(prev => ({ ...prev, isCompleted: undefined }));
+        setPage(0);
+    };
+
+    // Filter chips component
+    const FilterChips = () => {
+        const hasFilters = filters.taskType || typeof filters.isCompleted === 'boolean';
+        
+        if (!hasFilters) return null;
+
+        return (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2, alignItems: 'center' }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+                    Filters ({logicalOperator}):
+                </Typography>
+                
+                {filters.taskType && (
+                    <Chip
+                        label={`TASK TYPE is "${filters.taskType}"`}
+                        onDelete={handleClearTaskTypeFilter}
+                        size="small"
+                        variant="filled"
+                        sx={{ 
+                            backgroundColor: '#e0e0e0',
+                            color: '#424242',
+                            '& .MuiChip-deleteIcon': {
+                                color: '#757575',
+                                fontSize: '16px',
+                                '&:hover': {
+                                    color: '#424242'
+                                }
+                            }
+                        }}
+                    />
+                )}
+
+                {typeof filters.isCompleted === 'boolean' && (
+                    <Chip
+                        label={`IS COMPLETED is "${filters.isCompleted ? 'Yes' : 'No'}"`}
+                        onDelete={handleClearCompletedFilter}
+                        size="small"
+                        variant="filled"
+                        sx={{ 
+                            backgroundColor: '#e0e0e0',
+                            color: '#424242',
+                            '& .MuiChip-deleteIcon': {
+                                color: '#757575',
+                                fontSize: '16px',
+                                '&:hover': {
+                                    color: '#424242'
+                                }
+                            }
+                        }}
+                    />
+                )}
+            </Box>
         );
     };
 
-    const clearTaskIdFilter = () => {
-        const newTempFilters = { ...tempFilters, taskId: '' };
-        setTempFilters(newTempFilters);
-        updateFiltersFromTemp(newTempFilters);
-    };
-
-    const clearTaskTypeFilter = () => {
-        const newTempFilters = { ...tempFilters, taskType: '' };
-        setTempFilters(newTempFilters);
-        updateFiltersFromTemp(newTempFilters);
-    };
-
-    const clearCompletedFilter = () => {
-        const newTempFilters = { ...tempFilters, isCompleted: null };
-        setTempFilters(newTempFilters);
-        updateFiltersFromTemp(newTempFilters);
-    };
-
-    const updateFiltersFromTemp = (filters: { taskId: string; taskType: string; isCompleted: boolean | null }) => {
-        const newFilters: TaskFilter[] = [];
-        
-        if (filters.taskId.trim()) {
-            newFilters.push({
-                id: `taskId-${Date.now()}`,
-                column: 'taskId',
-                operator: 'contains',
-                value: filters.taskId.trim()
-            });
-        }
-        
-        if (filters.taskType.trim()) {
-            newFilters.push({
-                id: `taskType-${Date.now()}`,
-                column: 'taskType',
-                operator: 'equals',
-                value: filters.taskType.trim()
-            });
-        }
-
-        if (filters.isCompleted !== null) {
-            newFilters.push({
-                id: `isCompleted-${Date.now()}`,
-                column: 'isCompleted',
-                operator: 'equals',
-                value: String(filters.isCompleted)
-            });
-        }
+    // Update apply filters handler
+    const handleApplyFiltersAndSort = React.useCallback(({ 
+        filters, 
+        sortBy: newSortBy, 
+        sortOrder: newSortOrder 
+    }: { 
+        filters: { taskId: string; taskType: string; isCompleted: boolean | null }, 
+        sortBy: string, 
+        sortOrder: 'asc' | 'desc' 
+    }) => {
+        const newFilters: any = {};
+        if (filters.taskType.trim()) newFilters.taskType = filters.taskType.trim();
+        if (filters.isCompleted !== null) newFilters.isCompleted = filters.isCompleted;
         
         setFilters(newFilters);
-        setPage(0);
-    };
-
-    const handleRemoveFilter = (filterId: string) => {
-        const filterToRemove = filters.find(f => f.id === filterId);
-        removeFilter(filterId);
-        setPage(0);
-        
-        if (filterToRemove) {
-            if (filterToRemove.column === 'taskId') {
-                setTempFilters({ ...tempFilters, taskId: '' });
-            } else if (filterToRemove.column === 'taskType') {
-                setTempFilters({ ...tempFilters, taskType: '' });
-            } else if (filterToRemove.column === 'isCompleted') {
-                setTempFilters({ ...tempFilters, isCompleted: null });
-            }
-        }
-    };
-
-    // Only apply filters and sorting when "Apply" is clicked
-    const handleApplyFiltersAndSort = React.useCallback(({ filters, sortBy, sortOrder }: { filters: { taskId: string; taskType: string; isCompleted: boolean | null }, sortBy: string, sortOrder: 'asc' | 'desc' }) => {
-        // Update filters
-        const newFilters: TaskFilter[] = [];
-        if (filters.taskId.trim()) {
-            newFilters.push({
-                id: `taskId-${Date.now()}`,
-                column: 'taskId',
-                operator: 'contains',
-                value: filters.taskId.trim()
-            });
-        }
-        if (filters.taskType.trim()) {
-            newFilters.push({
-                id: `taskType-${Date.now()}`,
-                column: 'taskType',
-                operator: 'equals',
-                value: filters.taskType.trim()
-            });
-        }
-        if (filters.isCompleted !== null) {
-            newFilters.push({
-                id: `isCompleted-${Date.now()}`,
-                column: 'isCompleted',
-                operator: 'equals',
-                value: String(filters.isCompleted)
-            });
-        }
-        setFilters(newFilters);
-        setOrderBy(sortBy as keyof TaskData);
-        setOrder(sortOrder);
+        setSortBy(newSortBy || 'dueOn');
+        setSortOrder(newSortOrder || 'asc');
         setPage(0);
         setFilterDialogOpen(false);
-    }, [setFilters, setOrderBy, setOrder]);
+    }, []);
 
     // Open modal: sync temp state with current state
     const handleOpenFilterDialog = () => {
-        setTempFilters({ taskId: '', taskType: '', isCompleted: null, ...filters.reduce((acc, f) => ({ ...acc, [f.column]: f.value }), {}) });
-        setTempSortBy(String(orderBy));
-        setTempSortOrder(order);
+        setTempFilters({ 
+            taskId: '', 
+            taskType: filters.taskType || '', 
+            isCompleted: filters.isCompleted !== undefined ? filters.isCompleted : null 
+        });
+        setTempSortBy(String(sortBy));
+        setTempSortOrder(sortOrder);
         setFilterDialogOpen(true);
     };
 
-    // Data calculation with date filtering
+    // Data calculation - no date filtering needed since API already filters by date
     const visibleTasks = React.useMemo(() => {
-        const dateFilteredTasks = sortedData.filter(task => {
-            const taskDueDate = dayjs(task.dueOn);
-            return taskDueDate.isSame(selectedDate, 'day');
-        });
-        
-        return dateFilteredTasks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-    }, [sortedData, page, rowsPerPage, selectedDate]);
-
-    // Update filtered data count to include date filtering
-    const dateFilteredCount = React.useMemo(() => {
-        return sortedData.filter(task => {
-            const taskDueDate = dayjs(task.dueOn);
-            return taskDueDate.isSame(selectedDate, 'day');
-        }).length;
-    }, [sortedData, selectedDate]);
+        return tasks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    }, [tasks, page, rowsPerPage]);
 
     const getFilterLabel = (filter: TaskFilter) => {
         const columnLabels: Record<string, string> = {
@@ -306,21 +303,7 @@ const TasksPage = () => {
                             </Box>
                             
                             {/* Active Filters Display */}
-                            {filters.length > 0 && (
-                                <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
-                                    <Typography variant="body2" sx={{ mr: 1 }}>
-                                        Filters ({logicalOperator}):
-                                    </Typography>
-                                    {filters.map((filter) => (
-                                        <Chip
-                                            key={filter.id}
-                                            label={`${getFilterLabel(filter)} ${filter.operator} "${filter.value}"`}
-                                            onDelete={() => handleRemoveFilter(filter.id)}
-                                            size="small"
-                                        />
-                                    ))}
-                                </Box>
-                            )}
+                            <FilterChips />
 
                             <Divider />
                         </Box>
@@ -333,18 +316,44 @@ const TasksPage = () => {
                         px: 2
                     }}>
                         <Box sx={{ py: 2 }}>
+                            {error && <ErrorAlert message={error} onRetry={refetch} />}
+                            
                             <Grid container rowSpacing={2} columnSpacing={{ xs: 1, sm: 2 }}>
-                                {visibleTasks.map((task) => (
-                                    <Grid 
-                                        size={{ xs: 12, sm: 6 }}
-                                        key={task.id}
-                                    >
-                                        <TaskCard 
-                                            task={task} 
-                                            onToggleComplete={handleToggleTaskComplete}
-                                        />
-                                    </Grid>
-                                ))}
+                                {loading ? (
+                                    Array.from(new Array(rowsPerPage)).map((_, index) => (
+                                        <Grid size={{ xs: 12, sm: 6 }} key={`skeleton-${index}`}>
+                                            <Paper sx={{ p: 2, height: '100%' }}>
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                                                    <Skeleton variant="text" width={120} height={32} />
+                                                    <Skeleton variant="rounded" width={80} height={24} />
+                                                </Box>
+                                                
+                                                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                                                    <Box>
+                                                        <Skeleton variant="text" width={60} height={16} />
+                                                        <Skeleton variant="text" width={40} height={20} />
+                                                    </Box>
+                                                    <Box>
+                                                        <Skeleton variant="text" width={60} height={16} />
+                                                        <Skeleton variant="text" width={40} height={20} />
+                                                    </Box>
+                                                </Box>
+                                            </Paper>
+                                        </Grid>
+                                    ))
+                                ) : (
+                                    visibleTasks.map((task) => (
+                                        <Grid 
+                                            size={{ xs: 12, sm: 6 }}
+                                            key={task.id}
+                                        >
+                                            <TaskCard 
+                                                task={task} 
+                                                onToggleComplete={handleToggleTaskComplete}
+                                            />
+                                        </Grid>
+                                    ))
+                                )}
                             </Grid>
                         </Box>
                     </Box>
@@ -360,7 +369,7 @@ const TasksPage = () => {
                             <TablePagination
                                 rowsPerPageOptions={[12, 24, 48]}
                                 component="div"
-                                count={dateFilteredCount}
+                                count={totalCount}
                                 rowsPerPage={rowsPerPage}
                                 page={page}
                                 onPageChange={handleChangePage}
@@ -420,21 +429,7 @@ const TasksPage = () => {
                     </Box>
                     
                     {/* Active Filters Display */}
-                    {filters.length > 0 && (
-                        <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
-                            <Typography variant="body2" sx={{ mr: 1 }}>
-                                Filters ({logicalOperator}):
-                            </Typography>
-                            {filters.map((filter) => (
-                                <Chip
-                                    key={filter.id}
-                                    label={`${getFilterLabel(filter)} ${filter.operator} "${filter.value}"`}
-                                    onDelete={() => handleRemoveFilter(filter.id)}
-                                    size="small"
-                                />
-                            ))}
-                        </Box>
-                    )}
+                    <FilterChips />
 
                     <Divider sx={{ mb: 3 }} />
                     
@@ -444,7 +439,7 @@ const TasksPage = () => {
                         overflow: 'hidden', 
                         display: 'flex', 
                         flexDirection: 'column',
-                        height: filters.length > 0 ? 'calc(100vh - 280px)' : 'calc(100vh - 240px)'
+                        height: (filters.taskType || typeof filters.isCompleted === 'boolean') ? 'calc(100vh - 280px)' : 'calc(100vh - 240px)'
                     }}>
                         {/* Cards Grid */}
                         <Box sx={{ 
@@ -453,17 +448,41 @@ const TasksPage = () => {
                             p: 2
                         }}>
                             <Grid container rowSpacing={2} columnSpacing={{ xs: 1, sm: 2, md: 2 }}>
-                                {visibleTasks.map((task) => (
-                                    <Grid 
-                                        size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
-                                        key={task.id}
-                                    >
-                                        <TaskCard 
-                                            task={task} 
-                                            onToggleComplete={handleToggleTaskComplete}
-                                        />
-                                    </Grid>
-                                ))}
+                                {loading ? (
+                                    Array.from(new Array(rowsPerPage)).map((_, index) => (
+                                        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={`skeleton-${index}`}>
+                                            <Paper sx={{ p: 2, height: '100%' }}>
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                                                    <Skeleton variant="text" width={120} height={32} />
+                                                    <Skeleton variant="rounded" width={80} height={24} />
+                                                </Box>
+                                                
+                                                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                                                    <Box>
+                                                        <Skeleton variant="text" width={60} height={16} />
+                                                        <Skeleton variant="text" width={40} height={20} />
+                                                    </Box>
+                                                    <Box>
+                                                        <Skeleton variant="text" width={60} height={16} />
+                                                        <Skeleton variant="text" width={40} height={20} />
+                                                    </Box>
+                                                </Box>
+                                            </Paper>
+                                        </Grid>
+                                    ))
+                                ) : (
+                                    visibleTasks.map((task) => (
+                                        <Grid 
+                                            size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
+                                            key={task.id}
+                                        >
+                                            <TaskCard 
+                                                task={task} 
+                                                onToggleComplete={handleToggleTaskComplete}
+                                            />
+                                        </Grid>
+                                    ))
+                                )}
                             </Grid>
                         </Box>
 
@@ -471,7 +490,7 @@ const TasksPage = () => {
                         <TablePagination
                             rowsPerPageOptions={[12, 24, 48]}
                             component="div"
-                            count={dateFilteredCount}
+                            count={totalCount}
                             rowsPerPage={rowsPerPage}
                             page={page}
                             onPageChange={handleChangePage}
