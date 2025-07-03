@@ -2,7 +2,7 @@
 
 namespace FarmProject.Domain.Errors;
 
-public class ValidationErrors
+public static class ValidationErrors
 {
     public static class Codes
     {

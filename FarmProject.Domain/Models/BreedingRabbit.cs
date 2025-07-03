@@ -40,6 +40,7 @@ public class BreedingRabbit(string name) : Entity
         AddDomainEvent(new BirthEvent
             {
                 BreedingRabbitId = Id,
+                CageId = CageId!.Value,
                 OffspringCount = offspringCount,
                 BirthDate = birthDate
             }

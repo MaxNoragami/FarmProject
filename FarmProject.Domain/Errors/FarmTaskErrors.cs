@@ -2,7 +2,7 @@
 
 namespace FarmProject.Domain.Errors;
 
-public class FarmTaskErrors
+public static class FarmTaskErrors
 {
     public static readonly Error NotFound = new(
         "FarmTask.NotFound", "Farm task not found");
