@@ -18,4 +18,7 @@ public static class BreedingRabbitErrors
 
     public static readonly Error NotAvailableToPair = new(
         "BreedingRabbit.NotAvailableToPair", "The breeding rabbit is not available to pair");
+
+    public static readonly Error NotPregnant = new(
+        "BreedingRabbit.NotPregnant", "Only preganant breeding rabbits can give birth");
 }
