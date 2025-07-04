@@ -52,9 +52,16 @@ public class FarmTaskController(IFarmTaskService farmTaskService) : AppBaseContr
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<ViewFarmTaskDto>> MarkTaskCompleted(int id)
+    public async Task<ActionResult<ViewFarmTaskDto>> MarkTaskCompleted(
+        int id, 
+        [FromBody] CompleteTaskDto? completeTaskDto)
     {
-        var result = await _farmTaskService.MarkFarmTaskAsCompleted(id);
+        CompleteTaskData? completeTaskData = null;
+
+        if (completeTaskDto != null)
+            completeTaskData = completeTaskDto.ToCompleteTaskData();
+
+        var result = await _farmTaskService.MarkFarmTaskAsCompleted(id, completeTaskData);
 
         if (result.IsSuccess)
             return Ok(result.Value.ToViewFarmTaskDto());

@@ -21,11 +21,16 @@ public class ValidationFarmTaskService(
     public Task<Result<FarmTask>> GetFarmTaskById(int taskId)
         => _inner.GetFarmTaskById(taskId);
 
-    public Task<Result<PaginatedResult<FarmTask>>> GetPaginatedFarmTasks(PaginatedRequest<FarmTaskFilterDto> request)
+    public Task<Result<PaginatedResult<FarmTask>>> GetPaginatedFarmTasks(
+        PaginatedRequest<FarmTaskFilterDto> request
+    )
         => _validationHelper.ValidateAndExecute(
                 new PaginatedRequestParam<FarmTaskFilterDto>(request),
                 () => _inner.GetPaginatedFarmTasks(request));
 
-    public Task<Result<FarmTask>> MarkFarmTaskAsCompleted(int taskId)
-        => _inner.MarkFarmTaskAsCompleted(taskId);
+    public Task<Result<FarmTask>> MarkFarmTaskAsCompleted(
+        int taskId, 
+        CompleteTaskData? completeTaskData = null
+    )
+        => _inner.MarkFarmTaskAsCompleted(taskId, completeTaskData);
 }
