@@ -14,6 +14,9 @@ export interface TaskData {
 // Map farm task type number to string
 const farmTaskTypeEnumToString: Record<number, FarmTaskType> = {
   0: FarmTaskType.NestPreparation,
+  1: FarmTaskType.NestRemoval,
+  2: FarmTaskType.Weaning,
+  3: FarmTaskType.OffspringSeparation,
 };
 
 export const mapApiTaskToUI = (apiTask: ApiTaskDto): TaskData => {
