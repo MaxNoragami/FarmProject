@@ -1,14 +1,18 @@
 ﻿using FarmProject.API.Controllers;
 using FarmProject.API.Dtos.BreedingRabbits;
 using FarmProject.API.IntegrationTests.Helpers;
+using FarmProject.Application.BirthService;
 using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Application.CageService;
 using FarmProject.Application.Common.Models;
+using FarmProject.Application.Events;
 using FarmProject.Domain.Constants;
 using FarmProject.Infrastructure;
 using FarmProject.Infrastructure.Repositories;
 using FluentAssertions;
+using FluentAssertions.Common;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FarmProject.API.IntegrationTests;
 
@@ -171,14 +175,20 @@ public class BreedingRabbitControllerTests
         var unitOfWork = new UnitOfWork(
             dbContext,
             breedingRabbitRepository,
-            pairingRepository,
+        pairingRepository,
             farmTaskRepository,
             cageRepository
         );
 
+        var services = new ServiceCollection();
+
+        var serviceProvider = services.BuildServiceProvider();
+        var domainEventDispatcher = new DomainEventDispatcher(serviceProvider);
+        var birthService = new BirthService(unitOfWork, domainEventDispatcher);
+
         var breedingRabbitService = new BreedingRabbitService(unitOfWork);
         var cageService = new CageService(unitOfWork);
-        var controller = new BreedingRabbitController(breedingRabbitService, cageService);
+        var controller = new BreedingRabbitController(breedingRabbitService, cageService, birthService);
 
         return (controller, factory);
     }

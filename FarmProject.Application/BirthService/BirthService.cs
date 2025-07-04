@@ -73,6 +73,9 @@ public class BirthService(
         if (newCage == null)
             return Result.Failure(CageErrors.NotFound);
 
+        if (newCage.BreedingRabbit != null || newCage.OffspringType != OffspringType.None)
+            return Result.Failure(CageErrors.Occupied);
+
         var offspringAmount = oldCage.OffspringCount;
 
         oldCage.RemoveOffspring(offspringAmount);
@@ -115,7 +118,10 @@ public class BirthService(
 
         if (otherOffspringCage == null)
             return Result.Failure(CageErrors.InvalidSeparation);
-        
+
+        if (otherOffspringCage.BreedingRabbit != null || otherOffspringCage.OffspringType != OffspringType.None)
+            return Result.Failure(CageErrors.Occupied);
+
         currentOffspringCage.RemoveOffspring(femaleOffspringCount.Value);
         currentOffspringCage.OffspringType = OffspringType.Male;
         otherOffspringCage.AddOffspring(femaleOffspringCount.Value);
