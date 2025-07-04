@@ -61,15 +61,4 @@ public class FarmTaskController(IFarmTaskService farmTaskService) : AppBaseContr
         else
             return HandleError<ViewFarmTaskDto>(result.Error);
     }
-
-    private static DateTime ParseDate(string? dateInput)
-    {
-        if (string.IsNullOrEmpty(dateInput))
-            return DateTime.Today;
-
-        if (DateTime.TryParse(dateInput, out var result))
-            return result;
-
-        return DateTime.Today;
-    }
 }
