@@ -203,10 +203,11 @@ const TasksPage = () => {
         setFilterDialogOpen(true);
     };
 
-    
+    // Remove the redundant client-side pagination with visibleTasks
     const visibleTasks = React.useMemo(() => {
-        return tasks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-    }, [tasks, page, rowsPerPage]);
+        // Don't slice the data here since it's already paginated from the server
+        return tasks;
+    }, [tasks]);
 
     const getFilterLabel = (filter: TaskFilter) => {
         const columnLabels: Record<string, string> = {
