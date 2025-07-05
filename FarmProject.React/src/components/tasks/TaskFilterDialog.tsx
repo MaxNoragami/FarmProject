@@ -31,15 +31,15 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
     sortOrder,
     sortableColumns = []
 }) => {
-    // Local state for filters and sorting
+    
     const [localFilters, setLocalFilters] = React.useState({ ...tempFilters });
     const [localSortBy, setLocalSortBy] = React.useState(sortBy || '');
     const [localSortOrder, setLocalSortOrder] = React.useState<'asc' | 'desc'>(sortOrder || 'asc');
 
-    // Store the element that opened the dialog
+    
     const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
-    // Store the trigger element when dialog opens
+    
     React.useEffect(() => {
         if (open) {
             triggerElementRef.current = document.activeElement as HTMLElement;
@@ -49,7 +49,7 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
         }
     }, [open, tempFilters, sortBy, sortOrder]);
 
-    // Handle dialog close with proper focus restoration
+    
     const handleClose = React.useCallback(() => {
         onClose();
         setTimeout(() => {
@@ -59,7 +59,7 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
         }, 100);
     }, [onClose]);
 
-    // Enable Apply if any filter or sort value has changed
+    
     const sortChanged = localSortBy !== (sortBy || '') || localSortOrder !== (sortOrder || 'asc');
     const filtersChanged =
         localFilters.taskType !== (tempFilters.taskType || '') ||

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Alert, Typography, Card, CardContent, Chip, IconButton, Skeleton } from '@mui/material';
+import { Box, Button, TextField, Typography, Card, CardContent, Chip, IconButton, Skeleton } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -53,7 +53,7 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) =>
     }
   };
 
-  // Show cage loading skeleton
+  
   const renderCageSkeletons = () => (
     <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2 }}>
       {[1, 2].map((_, index) => (
@@ -80,7 +80,6 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) =>
     return 'divider';
   };
 
-  // Handle page navigation with direct values instead of callbacks
   const handlePreviousPage = () => {
     if (pageIndex > 1) {
       setPageIndex(pageIndex - 1);
@@ -102,9 +101,9 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) =>
           color="error.main" 
           sx={{ 
             mb: 2, 
-            mt: 1,  // Adjusted spacing
+            mt: 1, 
             fontWeight: 500,
-            display: 'block' // Ensure it's a block element
+            display: 'block'
           }}
         >
           {errors.root?.message || error}
@@ -126,7 +125,7 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) =>
         Select a Cage
       </Typography>
 
-      <Box sx={{ mb: 2, minHeight: 'auto' }}>
+      <Box sx={{ minHeight: 'auto' }}>
         {cages.length > 0 ? (
           <>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2 }}>
@@ -174,7 +173,7 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) =>
             )}
 
             {totalPages > 1 && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1, mt: 2, mb: 0 }}>
                 <IconButton 
                   onClick={handlePreviousPage}
                   disabled={pageIndex === 1}
@@ -215,13 +214,7 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) =>
         )}
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-        <Button
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
-          Cancel
-        </Button>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button
           type="submit"
           variant="contained"

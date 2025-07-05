@@ -11,7 +11,7 @@ export interface TaskListFilters {
 }
 
 export class TaskService {
-  private static readonly BASE_PATH = '/farm-tasks';
+  private static readonly BASE_PATH = '/farm-tasks'; 
 
   static async getTasks(request: TaskListRequest & TaskListFilters): Promise<PaginatedResponse<ApiTaskDto>> {
     const params = new URLSearchParams({
@@ -32,8 +32,21 @@ export class TaskService {
     return response.data;
   }
 
-  static async completeTask(taskId: number): Promise<ApiTaskDto> {
-    const response = await apiClient.put<ApiTaskDto>(`${this.BASE_PATH}/${taskId}`);
+  /**
+   * Completes a farm task
+   * @param taskId - The ID of the task to complete
+   * @param requestBody - Optional parameters for specific task types
+   * @returns The completed task
+   */
+  static async completeTask(taskId: number, requestBody?: {
+    newCageId?: number;
+    otherCageId?: number;
+    femaleOffspringCount?: number;
+  }): Promise<ApiTaskDto> {
+    const response = await apiClient.put<ApiTaskDto>(
+      `${this.BASE_PATH}/${taskId}`, 
+      requestBody || {}
+    );
     
     return response.data;
   }

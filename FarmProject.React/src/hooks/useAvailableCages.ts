@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CageService } from '../services/CageService';
-import { type CageData } from '../data/mockCageData'; // Or the correct path
+import { type CageData } from '../data/mockCageData'; 
 
 interface UseAvailableCagesResult {
   cages: CageData[];
@@ -29,7 +29,7 @@ export const useAvailableCages = ({
   const [totalPages, setTotalPages] = useState(0);
   const [pageIndex, setPageIndexInternal] = useState(initialPage);
 
-  // Create a wrapper function that can accept either a direct value or a function
+  
   const setPageIndex = useCallback((newPageOrUpdater: number | ((prevPage: number) => number)) => {
     if (typeof newPageOrUpdater === 'function') {
       setPageIndexInternal(prevPage => newPageOrUpdater(prevPage));
@@ -46,13 +46,11 @@ export const useAvailableCages = ({
       const response = await CageService.getCages({
         pageIndex: pageIndex,
         pageSize,
-        filters: { isOccupied: false }, // Only get available cages
+        filters: { isOccupied: false }, 
         logicalOperator: 0,
       });
 
       setCages(response.items);
-      // Calculate totalCount from available info (pageSize * totalPages)
-      // Note: This is an approximation as the last page may not be full
       setTotalCount(response.totalPages * pageSize);
       setTotalPages(response.totalPages);
     } catch (err) {

@@ -9,9 +9,10 @@ export interface TaskData {
   isCompleted: boolean;
   createdOn: string;
   dueOn: string;
+  cageId: number | null; 
 }
 
-// Map farm task type number to string
+
 const farmTaskTypeEnumToString: Record<number, FarmTaskType> = {
   0: FarmTaskType.NestPreparation,
   1: FarmTaskType.NestRemoval,
@@ -28,6 +29,7 @@ export const mapApiTaskToUI = (apiTask: ApiTaskDto): TaskData => {
     isCompleted: apiTask.isCompleted,
     createdOn: apiTask.createdOn,
     dueOn: apiTask.dueOn,
+    cageId: apiTask.cageId ?? null, 
   };
 };
 

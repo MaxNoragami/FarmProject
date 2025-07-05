@@ -8,7 +8,7 @@ public class SeparateOffspringParamValidator : AbstractValidator<SeparateOffspri
     public SeparateOffspringParamValidator()
     {
         RuleFor(x => x.femaleOffspringCount)
-            .GreaterThan(0)
+            .GreaterThan(-1)
             .WithMessage("Female Offspring Count must be a positive number")
             .WithErrorCode(ValidationErrors.Codes.InvalidInput);
 

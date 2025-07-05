@@ -52,7 +52,7 @@ const PairForm: React.FC<PairFormProps> = ({ onSubmit, onCancel, error }) => {
     }
   };
 
-  // Show rabbit loading skeleton
+  
   const renderRabbitSkeletons = () => (
     <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2 }}>
       {[1, 2].map((_, index) => (
@@ -80,7 +80,7 @@ const PairForm: React.FC<PairFormProps> = ({ onSubmit, onCancel, error }) => {
     return 'divider';
   };
 
-  // Handle page navigation
+  
   const handlePreviousPage = () => {
     if (pageIndex > 1) {
       setPageIndex(pageIndex - 1);
@@ -201,7 +201,7 @@ const PairForm: React.FC<PairFormProps> = ({ onSubmit, onCancel, error }) => {
               )}
 
               {totalPages > 1 && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1, mt: 2, mb: 0 }}>
                   <IconButton 
                     onClick={handlePreviousPage}
                     disabled={pageIndex === 1}
@@ -228,13 +228,7 @@ const PairForm: React.FC<PairFormProps> = ({ onSubmit, onCancel, error }) => {
         })()}
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-        <Button
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
-          Cancel
-        </Button>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button
           type="submit"
           variant="contained"

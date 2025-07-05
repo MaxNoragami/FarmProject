@@ -11,7 +11,7 @@ interface UseTaskDataResult {
   hasNextPage: boolean;
   hasPreviousPage: boolean;
   refetch: () => Promise<void>;
-  completeTask: (taskId: number) => Promise<void>;
+  completeTask: (taskId: number, newCageId?: number, otherCageId?: number, femaleOffspringCount?: number) => Promise<void>;
 }
 
 interface UseTaskDataOptions {
@@ -75,11 +75,30 @@ export const useTaskData = ({
     }
   }, [pageIndex, pageSize, dueOn, filters, logicalOperator, sort]);
 
-  const completeTask = useCallback(async (taskId: number) => {
+  const completeTask = useCallback(async (
+    taskId: number, 
+    newCageId?: number, 
+    otherCageId?: number, 
+    femaleOffspringCount?: number
+  ) => {
     try {
-      const updatedTask = await TaskService.completeTask(taskId);
+      const requestBody: any = {};
       
-      // Update local state with the response from API
+      if (newCageId !== undefined) {
+        requestBody.newCageId = newCageId;
+      }
+      
+      if (otherCageId !== undefined) {
+        requestBody.otherCageId = otherCageId;
+      }
+      
+      if (femaleOffspringCount !== undefined) {
+        requestBody.femaleOffspringCount = femaleOffspringCount;
+      }
+      
+      const updatedTask = await TaskService.completeTask(taskId, requestBody);
+      
+      
       setTasks(prevTasks => 
         prevTasks.map(task => 
           task.id === taskId 

@@ -18,21 +18,21 @@ const TasksPage = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-    // Date state
+    
     const [selectedDate, setSelectedDate] = React.useState(dayjs());
 
-    // Pagination state
+    
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(12);
 
-    // Filter state
+    
     const [filterDialogOpen, setFilterDialogOpen] = React.useState(false);
     const [filters, setFilters] = React.useState<{
         taskType?: string;
         isCompleted?: boolean;
     }>({});
 
-    // Temp state for modal form
+    
     const [tempFilters, setTempFilters] = React.useState<{
         taskType: string;
         isCompleted: boolean | null;
@@ -40,16 +40,16 @@ const TasksPage = () => {
     const [tempSortBy, setTempSortBy] = React.useState('dueOn');
     const [tempSortOrder, setTempSortOrder] = React.useState<'asc' | 'desc'>('asc');
 
-    // Sorting state
+    
     const [sortBy, setSortBy] = React.useState<string>('dueOn');
     const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc');
 
-    // Convert filters for API
+    
     const apiFilters = React.useMemo(() => {
         const converted: any = {};
         if (filters.taskType) {
-            // Map task type string to number if needed
-            converted.farmTaskType = 0; // Default to NestPreparation for now
+            
+            converted.farmTaskType = 0; 
         }
         if (typeof filters.isCompleted === 'boolean') {
             converted.isCompleted = filters.isCompleted;
@@ -57,12 +57,12 @@ const TasksPage = () => {
         return converted;
     }, [filters]);
 
-    // Format date for API (YYYY-MM-DD)
+    
     const formatDateForApi = (date: any) => {
         return date.format('YYYY-MM-DD');
     };
 
-    // Map UI sort field to API sort field
+    
     const getApiSortField = (uiSortField: string) => {
         const sortFieldMap: Record<string, string> = {
             'taskId': 'id',
@@ -73,7 +73,7 @@ const TasksPage = () => {
         return sortFieldMap[uiSortField] || uiSortField;
     };
 
-    // Fetch tasks data
+    
     const {
         tasks,
         loading,
@@ -86,20 +86,26 @@ const TasksPage = () => {
         pageSize: rowsPerPage,
         dueOn: formatDateForApi(selectedDate),
         filters: apiFilters,
-        logicalOperator: 0, // Always AND
+        logicalOperator: 0, 
         sort: sortBy ? `${getApiSortField(sortBy)}:${sortOrder}` : undefined,
     });
 
-    // Handlers
-    const handleCompleteTask = async (taskId: number) => {
+    
+    const handleCompleteTask = async (
+        taskId: number, 
+        newCageId?: number, 
+        otherCageId?: number, 
+        femaleOffspringCount?: number
+    ) => {
         try {
-            await completeTask(taskId);
+            await completeTask(taskId, newCageId, otherCageId, femaleOffspringCount);
         } catch (err) {
             console.error('Failed to complete task:', err);
+            throw err;
         }
     };
 
-    // Clear individual filters
+    
     const handleClearTaskTypeFilter = () => {
         setFilters(prev => ({ ...prev, taskType: undefined }));
         setPage(0);
@@ -110,7 +116,7 @@ const TasksPage = () => {
         setPage(0);
     };
 
-    // Filter chips component
+    
     const FilterChips = () => {
         const hasFilters = filters.taskType || typeof filters.isCompleted === 'boolean';
         
@@ -165,7 +171,7 @@ const TasksPage = () => {
         );
     };
 
-    // Update apply filters handler
+    
     const handleApplyFiltersAndSort = React.useCallback(({ 
         filters, 
         sortBy: newSortBy, 
@@ -186,7 +192,7 @@ const TasksPage = () => {
         setFilterDialogOpen(false);
     }, []);
 
-    // Open modal: sync temp state with current state
+    
     const handleOpenFilterDialog = () => {
         setTempFilters({ 
             taskType: filters.taskType || '', 
@@ -197,7 +203,7 @@ const TasksPage = () => {
         setFilterDialogOpen(true);
     };
 
-    // Data calculation - no date filtering needed since API already filters by date
+    
     const visibleTasks = React.useMemo(() => {
         return tasks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
     }, [tasks, page, rowsPerPage]);
@@ -211,7 +217,7 @@ const TasksPage = () => {
         return columnLabels[filter.column] || filter.column;
     };
 
-    // Pagination handlers
+    
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
     };
@@ -242,7 +248,7 @@ const TasksPage = () => {
             </Helmet>
             
             {isMobile ? (
-                // Mobile Layout
+                
                 <>
                     {/* Sticky Header */}
                     <Box 
@@ -388,7 +394,7 @@ const TasksPage = () => {
                     </Box>
                 </>
             ) : (
-                // Desktop Layout
+                
                 <>
                     {/* Header */}
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
