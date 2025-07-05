@@ -34,7 +34,7 @@ public class Pair : Entity
 
         var dueDate = EndDate.Value.AddMonths(1).AddDays(-3);
 
-        var message = $"Prepare nest in cage for rabbit #{FemaleRabbit!.Id}";
+        var message = $"Prepare nest in cage #{FemaleRabbit.CageId} for rabbit #{FemaleRabbit.Id}";
 
         AddDomainEvent(new NestPrepEvent()
         {

@@ -54,7 +54,7 @@ public class FarmTaskController(IFarmTaskService farmTaskService) : AppBaseContr
     [HttpPut("{id}")]
     public async Task<ActionResult<ViewFarmTaskDto>> MarkTaskCompleted(
         int id, 
-        [FromBody] CompleteTaskDto? completeTaskDto)
+        [FromBody] CompleteTaskDto? completeTaskDto = null)
     {
         CompleteTaskData? completeTaskData = null;
 

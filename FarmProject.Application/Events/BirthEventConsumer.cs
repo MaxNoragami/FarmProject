@@ -21,13 +21,13 @@ public class BirthEventConsumer(
 
             var kitsWeaningDate = birthDate.AddDays(30);
             var removeNestDate = birthDate.AddDays(30);
-            var separateOffspringsDate = birthDate.AddDays(56);
 
             var kitsWeaningTask = new FarmTask(
                 farmTaskType: FarmTaskType.Weaning,
                 message: $"The {domainEvent.OffspringCount} offsprings must be moved out from cage #{domainEvent.CageId}",
                 createdOn: birthDate,
-                dueOn: kitsWeaningDate
+                dueOn: kitsWeaningDate,
+                cageId: domainEvent.CageId
             );
 
             var removeNestTask = new FarmTask(
@@ -37,16 +37,8 @@ public class BirthEventConsumer(
                 dueOn: removeNestDate
             );
 
-            var separateOffspringsTask = new FarmTask(
-                farmTaskType: FarmTaskType.OffspringSeparation,
-                $"The {domainEvent.OffspringCount} offsprings from cage #{domainEvent.CageId} have to be separated by gender",
-                createdOn: birthDate,
-                dueOn: separateOffspringsDate
-            );
-
             await _farmTaskRepository.AddAsync(kitsWeaningTask);
             await _farmTaskRepository.AddAsync(removeNestTask);
-            await _farmTaskRepository.AddAsync(separateOffspringsTask);
 
             return Result.Success();
         }

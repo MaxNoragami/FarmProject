@@ -2,6 +2,7 @@
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
+using FarmProject.Domain.Events;
 using FarmProject.Domain.Models;
 
 
@@ -87,6 +88,14 @@ public class BirthService(
         await _unitOfWork.BreedingRabbitRepository.UpdateAsync(oldCage.BreedingRabbit);
         await _unitOfWork.CageRepository.UpdateAsync(oldCage);
         await _unitOfWork.CageRepository.UpdateAsync(newCage);
+
+        var offspringSeparationEvent = new OffspringSeparationEvent
+        {
+            NewCageId = newCageId,
+            CreatedOn = DateTime.Now
+        };
+
+        await _domainEventDispatcher.DispatchEventsAsync(new[] { offspringSeparationEvent });
 
         return Result.Success();
     }

@@ -12,11 +12,6 @@ public class SeparateOffspringParamValidator : AbstractValidator<SeparateOffspri
             .WithMessage("Female Offspring Count must be a positive number")
             .WithErrorCode(ValidationErrors.Codes.InvalidInput);
 
-        RuleFor(x => x.currentCageId)
-            .GreaterThan(0)
-            .WithMessage("Current Cage Id must be a positive number")
-            .WithErrorCode(ValidationErrors.Codes.InvalidInput);
-
         RuleFor(x => x.otherCageId)
             .GreaterThan(0)
             .WithMessage("Other Cage Id must be a positive number")

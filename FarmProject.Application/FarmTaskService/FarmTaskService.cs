@@ -48,7 +48,7 @@ public class FarmTaskService(
 
             var requestTask = await _unitOfWork.FarmTaskRepository.GetByIdAsync(taskId);
 
-            if (requestTask is null)
+            if (requestTask == null)
             {
                 await _unitOfWork.RollbackTransactionAsync();
                 return Result.Failure<FarmTask>(FarmTaskErrors.NotFound);
@@ -63,8 +63,8 @@ public class FarmTaskService(
 
             var taskActionResult = requestTask.FarmTaskType switch
             {
-                FarmTaskType.Weaning => await HandleWeaningCompletion(completeTaskData),
-                FarmTaskType.OffspringSeparation => await HandleOffspringSeparationCompletion(completeTaskData),
+                FarmTaskType.Weaning => await HandleWeaningCompletion(requestTask, completeTaskData),
+                FarmTaskType.OffspringSeparation => await HandleOffspringSeparationCompletion(requestTask, completeTaskData),
                 _ => Result.Success()
             };
 
@@ -90,26 +90,24 @@ public class FarmTaskService(
         }
     }
 
-    private async Task<Result> HandleWeaningCompletion(CompleteTaskData? completeTaskData)
+    private async Task<Result> HandleWeaningCompletion(FarmTask farmTask, CompleteTaskData? completeTaskData)
     {
-        if (completeTaskData?.OldCageId == null ||
-            completeTaskData.NewCageId == null
-        )
+        if (farmTask.CageId == null || completeTaskData?.NewCageId == null)
             return Result.Failure(FarmTaskErrors.MissingParameter);
 
         return await _birthService.WeanOffspring
-            (completeTaskData.OldCageId.Value, 
+            (farmTask.CageId.Value, 
             completeTaskData.NewCageId.Value
         );
     }
 
-    private async Task<Result> HandleOffspringSeparationCompletion(CompleteTaskData? completeTaskData)
+    private async Task<Result> HandleOffspringSeparationCompletion(FarmTask farmTask, CompleteTaskData? completeTaskData)
     {
-        if (completeTaskData?.CurrentCageId == null)
+        if (farmTask.CageId == null || completeTaskData == null)
             return Result.Failure(FarmTaskErrors.MissingParameter);
 
         return await _birthService.SeparateOffspring(
-            completeTaskData.CurrentCageId.Value,
+            farmTask.CageId.Value,
             completeTaskData.OtherCageId,
             completeTaskData.FemaleOffspringCount
         );

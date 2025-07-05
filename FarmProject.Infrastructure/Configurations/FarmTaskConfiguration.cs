@@ -27,5 +27,7 @@ public class FarmTaskConfiguration : IEntityTypeConfiguration<FarmTask>
         builder.Property(fe => fe.DueOn)
             .IsRequired();
 
+        builder.Property(t => t.CageId)
+            .IsRequired(false);
     }
 }
