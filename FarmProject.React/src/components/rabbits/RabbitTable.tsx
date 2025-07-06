@@ -1,13 +1,25 @@
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TableSortLabel, Chip, Skeleton, Box } from '@mui/material';
-import * as React from 'react';
-import { type RabbitData } from '../../utils/rabbitMappers';
-import { getBreedingStatusColor } from '../../types/BreedingStatus';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TableSortLabel,
+  Chip,
+  Skeleton,
+  Box,
+} from "@mui/material";
+import * as React from "react";
+import { type RabbitData } from "../../utils/rabbitMappers";
+import { getBreedingStatusColor } from "../../types/BreedingStatus";
 
 interface RabbitTableProps {
   rabbits: RabbitData[];
   loading: boolean;
   sortBy: string;
-  sortOrder: 'asc' | 'desc';
+  sortOrder: "asc" | "desc";
   onSort: (field: string) => void;
   onRabbitClick?: (rabbit: RabbitData) => void;
   isRabbitClickable?: (rabbit: RabbitData) => boolean;
@@ -20,7 +32,7 @@ const RabbitTable: React.FC<RabbitTableProps> = ({
   sortOrder,
   onSort,
   onRabbitClick,
-  isRabbitClickable
+  isRabbitClickable,
 }) => {
   const createSortHandler = (property: string) => () => {
     onSort(property);
@@ -47,10 +59,18 @@ const RabbitTable: React.FC<RabbitTableProps> = ({
           <TableBody>
             {Array.from({ length: 10 }).map((_, index) => (
               <TableRow key={index}>
-                <TableCell><Skeleton width={60} /></TableCell>
-                <TableCell><Skeleton width={120} /></TableCell>
-                <TableCell><Skeleton width={60} /></TableCell>
-                <TableCell><Skeleton width={100} /></TableCell>
+                <TableCell>
+                  <Skeleton width={60} />
+                </TableCell>
+                <TableCell>
+                  <Skeleton width={120} />
+                </TableCell>
+                <TableCell>
+                  <Skeleton width={60} />
+                </TableCell>
+                <TableCell>
+                  <Skeleton width={100} />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -61,10 +81,8 @@ const RabbitTable: React.FC<RabbitTableProps> = ({
 
   if (rabbits.length === 0) {
     return (
-      <Box sx={{ textAlign: 'center', py: 4 }}>
-        <Paper sx={{ p: 3 }}>
-          No rabbits found.
-        </Paper>
+      <Box sx={{ textAlign: "center", py: 4 }}>
+        <Paper sx={{ p: 3 }}>No rabbits found.</Paper>
       </Box>
     );
   }
@@ -76,51 +94,49 @@ const RabbitTable: React.FC<RabbitTableProps> = ({
           <TableRow>
             <TableCell>
               <TableSortLabel
-                active={sortBy === 'rabbitId'}
-                direction={sortBy === 'rabbitId' ? sortOrder : 'asc'}
-                onClick={createSortHandler('rabbitId')}
+                active={sortBy === "rabbitId"}
+                direction={sortBy === "rabbitId" ? sortOrder : "asc"}
+                onClick={createSortHandler("rabbitId")}
               >
                 Rabbit ID
               </TableSortLabel>
             </TableCell>
             <TableCell>
               <TableSortLabel
-                active={sortBy === 'name'}
-                direction={sortBy === 'name' ? sortOrder : 'asc'}
-                onClick={createSortHandler('name')}
+                active={sortBy === "name"}
+                direction={sortBy === "name" ? sortOrder : "asc"}
+                onClick={createSortHandler("name")}
               >
                 Name
               </TableSortLabel>
             </TableCell>
-            <TableCell>
-              Cage ID
-            </TableCell>
-            <TableCell>
-              Status
-            </TableCell>
+            <TableCell>Cage ID</TableCell>
+            <TableCell>Status</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {rabbits.map((rabbit) => {
-            const isClickable = isRabbitClickable ? isRabbitClickable(rabbit) : false;
-            
+            const isClickable = isRabbitClickable
+              ? isRabbitClickable(rabbit)
+              : false;
+
             return (
-              <TableRow 
-                key={rabbit.rabbitId} 
+              <TableRow
+                key={rabbit.rabbitId}
                 hover={isClickable}
                 onClick={() => handleRowClick(rabbit)}
                 sx={{
-                  cursor: isClickable ? 'pointer' : 'default',
+                  cursor: isClickable ? "pointer" : "default",
                 }}
               >
                 <TableCell>{rabbit.rabbitId}</TableCell>
                 <TableCell>{rabbit.name}</TableCell>
                 <TableCell>{rabbit.cageId}</TableCell>
                 <TableCell>
-                  <Chip 
-                    label={rabbit.status} 
-                    color={getBreedingStatusColor(rabbit.status)} 
-                    size="small" 
+                  <Chip
+                    label={rabbit.status}
+                    color={getBreedingStatusColor(rabbit.status)}
+                    size="small"
                   />
                 </TableCell>
               </TableRow>

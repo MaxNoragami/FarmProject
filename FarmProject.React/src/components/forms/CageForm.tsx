@@ -1,9 +1,12 @@
-import React from 'react';
-import { Box, Button, TextField, Alert } from '@mui/material';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { addCageSchema, type AddCageFormFields } from '../../schemas/cageSchemas';
-import { handleFormError } from '../../utils/formErrorHandler';
+import React from "react";
+import { Box, Button, TextField, Alert } from "@mui/material";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  addCageSchema,
+  type AddCageFormFields,
+} from "../../schemas/cageSchemas";
+import { handleFormError } from "../../utils/formErrorHandler";
 
 interface CageFormProps {
   onSubmit: (data: AddCageFormFields) => Promise<void>;
@@ -29,7 +32,11 @@ const CageForm: React.FC<CageFormProps> = ({ onSubmit, onCancel }) => {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit(handleFormSubmit)} sx={{ width: '100%' }}>
+    <Box
+      component="form"
+      onSubmit={handleSubmit(handleFormSubmit)}
+      sx={{ width: "100%" }}
+    >
       <TextField
         {...register("name")}
         label="Cage Name"
@@ -47,12 +54,8 @@ const CageForm: React.FC<CageFormProps> = ({ onSubmit, onCancel }) => {
         </Alert>
       )}
 
-      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-        <Button
-          type="submit"
-          variant="contained"
-          disabled={isSubmitting}
-        >
+      <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
+        <Button type="submit" variant="contained" disabled={isSubmitting}>
           {isSubmitting ? "Adding..." : "Add Cage"}
         </Button>
       </Box>

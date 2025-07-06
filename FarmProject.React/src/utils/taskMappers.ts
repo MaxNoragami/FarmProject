@@ -1,22 +1,27 @@
-import { type ApiTaskDto } from '../api/types/taskTypes';
-import { FarmTaskType } from '../types/FarmTaskType';
+import { type ApiTaskDto } from "../api/types/taskTypes";
+import { FarmTaskType } from "../types/FarmTaskType";
 
 export interface TaskData {
   id: number;
-  taskId: string;
+
   taskType: FarmTaskType;
   message: string;
   isCompleted: boolean;
   createdOn: string;
   dueOn: string;
+  cageId: number | null;
 }
 
-// Map task type from API to UI enum
 const mapTaskTypeFromApi = (apiType: number): FarmTaskType => {
   switch (apiType) {
     case 0:
       return FarmTaskType.NestPreparation;
-    // Add other cases as needed
+    case 1:
+      return FarmTaskType.NestRemoval;
+    case 2:
+      return FarmTaskType.Weaning;
+    case 3:
+      return FarmTaskType.OffspringSeparation;
     default:
       return FarmTaskType.NestPreparation;
   }
@@ -25,12 +30,12 @@ const mapTaskTypeFromApi = (apiType: number): FarmTaskType => {
 export const mapApiTaskToUI = (apiTask: ApiTaskDto): TaskData => {
   return {
     id: apiTask.id,
-    taskId: String(apiTask.id),
     taskType: mapTaskTypeFromApi(apiTask.farmTaskType),
     message: apiTask.message,
     isCompleted: apiTask.isCompleted,
     createdOn: apiTask.createdOn,
-    dueOn: apiTask.dueOn
+    dueOn: apiTask.dueOn,
+    cageId: apiTask.cageId,
   };
 };
 

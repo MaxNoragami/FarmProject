@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { RabbitService } from '../api/services/rabbitService';
-import { mapApiRabbitsToUI, type RabbitData } from '../utils/rabbitMappers';
+import { useState, useEffect, useCallback } from "react";
+import { RabbitService } from "../api/services/rabbitService";
+import { mapApiRabbitsToUI, type RabbitData } from "../utils/rabbitMappers";
 
 interface UseRabbitDataResult {
   rabbits: RabbitData[];
@@ -30,7 +30,7 @@ export const useRabbitData = ({
   pageSize,
   filters = {},
   logicalOperator = 0,
-  sort = '',
+  sort = "",
 }: UseRabbitDataOptions): UseRabbitDataResult => {
   const [rabbits, setRabbits] = useState<RabbitData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -43,7 +43,7 @@ export const useRabbitData = ({
   const fetchRabbits = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await RabbitService.getRabbits({
         pageIndex: pageIndex + 1,
@@ -60,8 +60,8 @@ export const useRabbitData = ({
       setHasNextPage(response.hasNextPage);
       setHasPreviousPage(response.hasPreviousPage);
     } catch (err) {
-      console.error('Error fetching rabbits:', err);
-      setError('Failed to load rabbits. Please try again.');
+      console.error("Error fetching rabbits:", err);
+      setError("Failed to load rabbits. Please try again.");
       setRabbits([]);
       setTotalCount(0);
       setTotalPages(0);
@@ -87,4 +87,3 @@ export const useRabbitData = ({
     refetch: fetchRabbits,
   };
 };
-

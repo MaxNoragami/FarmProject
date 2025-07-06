@@ -1,5 +1,5 @@
-import { type ApiCageDto } from '../api/types/cageTypes';
-import { OffspringType } from '../types/OffspringType';
+import { type ApiCageDto } from "../api/types/cageTypes";
+import { OffspringType } from "../types/OffspringType";
 
 export interface CageData {
   id: number;
@@ -9,7 +9,6 @@ export interface CageData {
   offspringType: OffspringType;
 }
 
-// Map API enum numbers to OffspringType strings
 const mapOffspringTypeFromApi = (apiType: number): OffspringType => {
   switch (apiType) {
     case 0:
@@ -39,12 +38,11 @@ export const mapApiCagesToUI = (apiCages: ApiCageDto[]): CageData[] => {
   return apiCages.map(mapApiCageToUI);
 };
 
-// Helper to check if error is CORS-related
 export const isCorsError = (error: any): boolean => {
   return (
-    error?.code === 'ERR_NETWORK' ||
-    error?.message?.includes('CORS') ||
-    error?.message?.includes('Network Error') ||
+    error?.code === "ERR_NETWORK" ||
+    error?.message?.includes("CORS") ||
+    error?.message?.includes("Network Error") ||
     error?.response?.status === 0
   );
 };

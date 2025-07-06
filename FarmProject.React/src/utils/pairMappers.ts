@@ -1,5 +1,8 @@
-import { type ApiPairDto } from '../api/types/pairTypes';
-import { pairingStatusEnumToString, PairingStatus } from '../types/PairingStatus';
+import { type ApiPairDto } from "../api/types/pairTypes";
+import {
+  pairingStatusEnumToString,
+  PairingStatus,
+} from "../types/PairingStatus";
 
 export interface PairData {
   id: number;
@@ -19,7 +22,8 @@ export const mapApiPairToUI = (apiPair: ApiPairDto): PairData => {
     maleRabbitId: apiPair.maleRabbitId,
     startDate: apiPair.startDate,
     endDate: apiPair.endDate,
-    status: pairingStatusEnumToString[apiPair.pairingStatus] || PairingStatus.Active,
+    status:
+      pairingStatusEnumToString[apiPair.pairingStatus] || PairingStatus.Active,
   };
 };
 

@@ -1,9 +1,9 @@
-import React from 'react';
-import { Dialog, DialogTitle, DialogContent, IconButton } from '@mui/material';
-import { Close } from '@mui/icons-material';
-import UpdatePairStatusForm from '../forms/UpdatePairStatusForm';
-import type { UpdatePairStatusFormFields } from '../../schemas/pairSchemas';
-import type { PairData } from '../../utils/pairMappers';
+import React from "react";
+import { Dialog, DialogTitle, DialogContent, IconButton } from "@mui/material";
+import { Close } from "@mui/icons-material";
+import UpdatePairStatusForm from "../forms/UpdatePairStatusForm";
+import type { UpdatePairStatusFormFields } from "../../schemas/pairSchemas";
+import type { PairData } from "../../utils/pairMappers";
 
 interface UpdatePairStatusModalProps {
   open: boolean;
@@ -13,18 +13,24 @@ interface UpdatePairStatusModalProps {
   error?: string | null;
 }
 
-const UpdatePairStatusModal: React.FC<UpdatePairStatusModalProps> = ({ 
-  open, 
-  onClose, 
-  onSubmit, 
-  pair, 
-  error 
+const UpdatePairStatusModal: React.FC<UpdatePairStatusModalProps> = ({
+  open,
+  onClose,
+  onSubmit,
+  pair,
+  error,
 }) => {
   if (!pair) return null;
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         Update Pair Status - Pair ID: {pair.pairId}
         <IconButton onClick={onClose} size="small">
           <Close />

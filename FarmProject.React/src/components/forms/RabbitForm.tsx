@@ -1,13 +1,26 @@
-import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Card, CardContent, Chip, IconButton, Skeleton } from '@mui/material';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { addRabbitSchema, type AddRabbitFormFields } from '../../schemas/rabbitSchemas';
-import { handleFormError } from '../../utils/formErrorHandler';
-import { useAvailableCages } from '../../hooks/useAvailableCages';
-import { type CageData } from '../../utils/cageMappers';
-import { getCageLabel, getCageChipColor } from '../../utils/typeMappers';
+import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Card,
+  CardContent,
+  Chip,
+  IconButton,
+  Skeleton,
+} from "@mui/material";
+import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  addRabbitSchema,
+  type AddRabbitFormFields,
+} from "../../schemas/rabbitSchemas";
+import { handleFormError } from "../../utils/formErrorHandler";
+import { useAvailableCages } from "../../hooks/useAvailableCages";
+import { type CageData } from "../../utils/cageMappers";
+import { getCageLabel, getCageChipColor } from "../../utils/typeMappers";
 
 interface RabbitFormProps {
   onSubmit: (data: AddRabbitFormFields) => Promise<void>;
@@ -15,7 +28,11 @@ interface RabbitFormProps {
   error?: string | null;
 }
 
-const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) => {
+const RabbitForm: React.FC<RabbitFormProps> = ({
+  onSubmit,
+  onCancel,
+  error,
+}) => {
   const [selectedCageId, setSelectedCageId] = useState<number | null>(null);
   const cagesPerPage = 2;
 
@@ -26,7 +43,7 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) =>
     totalCount,
     totalPages,
     pageIndex,
-    setPageIndex
+    setPageIndex,
   } = useAvailableCages({ pageSize: cagesPerPage });
 
   const {
@@ -41,7 +58,7 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) =>
 
   const handleCageSelect = (cage: CageData) => {
     setSelectedCageId(cage.id);
-    setValue('cageId', cage.id);
+    setValue("cageId", cage.id);
   };
 
   const handleFormSubmit = async (data: AddRabbitFormFields) => {
@@ -52,14 +69,31 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) =>
     }
   };
 
-  
   const renderCageSkeletons = () => (
-    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2 }}>
+    <Box
+      sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2, mb: 2 }}
+    >
       {[1, 2].map((_, index) => (
         <Card key={`skeleton-${index}`} sx={{ p: 2 }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Skeleton variant="rectangular" width={120} height={24} sx={{ mb: 1 }} />
-            <Skeleton variant="rectangular" width={60} height={16} sx={{ mb: 2 }} />
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <Skeleton
+              variant="rectangular"
+              width={120}
+              height={24}
+              sx={{ mb: 1 }}
+            />
+            <Skeleton
+              variant="rectangular"
+              width={60}
+              height={16}
+              sx={{ mb: 2 }}
+            />
             <Skeleton variant="rounded" width={60} height={24} />
           </Box>
         </Card>
@@ -69,14 +103,14 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) =>
 
   const getBorderColor = (cageId: number): string => {
     if (selectedCageId === cageId) {
-      return 'primary.main';
+      return "primary.main";
     }
-    
+
     if (errors.cageId && selectedCageId === null) {
-      return 'error.main';
+      return "error.main";
     }
-    
-    return 'divider';
+
+    return "divider";
   };
 
   const handlePreviousPage = () => {
@@ -92,17 +126,20 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) =>
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit(handleFormSubmit)} sx={{ width: '100%' }}>
-      {/* Display server or root errors with proper spacing */}
+    <Box
+      component="form"
+      onSubmit={handleSubmit(handleFormSubmit)}
+      sx={{ width: "100%" }}
+    >
       {(errors.root || error) && (
-        <Typography 
-          variant="body2" 
-          color="error.main" 
-          sx={{ 
-            mb: 2, 
-            mt: 1, 
+        <Typography
+          variant="body2"
+          color="error.main"
+          sx={{
+            mb: 2,
+            mt: 1,
             fontWeight: 500,
-            display: 'block'
+            display: "block",
           }}
         >
           {errors.root?.message || error}
@@ -124,36 +161,58 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) =>
         Select a Cage
       </Typography>
 
-      <Box sx={{ minHeight: 'auto' }}>
+      <Box sx={{ minHeight: "auto" }}>
         {cages.length > 0 ? (
           <>
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2 }}>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 2,
+                mb: 2,
+              }}
+            >
               {cages.map((cage) => (
-                <Card 
+                <Card
                   key={cage.id}
-                  sx={{ 
-                    cursor: 'pointer',
+                  sx={{
+                    cursor: "pointer",
                     border: selectedCageId === cage.id ? 2 : 1,
                     borderColor: getBorderColor(cage.id),
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      boxShadow: 2
-                    }
+                    "&:hover": {
+                      borderColor: "primary.main",
+                      boxShadow: 2,
+                    },
                   }}
                   onClick={() => handleCageSelect(cage)}
                 >
                   <CardContent sx={{ py: 2 }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                      <Typography variant="body1" fontWeight="medium" sx={{ mb: 0.5 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        textAlign: "center",
+                      }}
+                    >
+                      <Typography
+                        variant="body1"
+                        fontWeight="medium"
+                        sx={{ mb: 0.5 }}
+                      >
                         {cage.name}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 1 }}
+                      >
                         ID: {cage.id}
                       </Typography>
-                      <Chip 
+                      <Chip
                         label={getCageLabel(cage)}
                         color={getCageChipColor(cage)}
-                        size="small" 
+                        size="small"
                       />
                     </Box>
                   </CardContent>
@@ -162,30 +221,41 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) =>
             </Box>
 
             {errors.cageId && selectedCageId === null && (
-              <Typography 
-                variant="body2" 
-                color="error.main" 
-                sx={{ mb: 2, textAlign: 'left' }}
+              <Typography
+                variant="body2"
+                color="error.main"
+                sx={{ mb: 2, textAlign: "left" }}
               >
                 Please select a cage for the rabbit
               </Typography>
             )}
 
             {totalPages > 1 && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1, mt: 2, mb: 0 }}>
-                <IconButton 
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: 1,
+                  mt: 2,
+                  mb: 0,
+                }}
+              >
+                <IconButton
                   onClick={handlePreviousPage}
                   disabled={pageIndex === 1}
                   size="small"
                 >
                   <ChevronLeft />
                 </IconButton>
-                
+
                 <Typography variant="body2" color="text.secondary">
-                  {((pageIndex - 1) * cagesPerPage) + 1}-{Math.min(pageIndex * cagesPerPage, totalCount)} of {totalCount}
+                  {(pageIndex - 1) * cagesPerPage + 1}-
+                  {Math.min(pageIndex * cagesPerPage, totalCount)} of{" "}
+                  {totalCount}
                 </Typography>
-                
-                <IconButton 
+
+                <IconButton
                   onClick={handleNextPage}
                   disabled={pageIndex === totalPages}
                   size="small"
@@ -196,16 +266,18 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) =>
             )}
           </>
         ) : (
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            minHeight: 150,
-            border: 1,
-            borderColor: 'divider',
-            borderRadius: 1,
-            backgroundColor: 'grey.50'
-          }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: 150,
+              border: 1,
+              borderColor: "divider",
+              borderRadius: 1,
+              backgroundColor: "grey.50",
+            }}
+          >
             <Typography variant="body1" color="text.secondary">
               No empty cages available
             </Typography>
@@ -213,12 +285,8 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) =>
         )}
       </Box>
 
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Button
-          type="submit"
-          variant="contained"
-          disabled={isSubmitting}
-        >
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Button type="submit" variant="contained" disabled={isSubmitting}>
           {isSubmitting ? "Adding..." : "Add Rabbit"}
         </Button>
       </Box>

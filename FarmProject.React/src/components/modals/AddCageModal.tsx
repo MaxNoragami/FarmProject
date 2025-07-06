@@ -1,8 +1,8 @@
-import React from 'react';
-import { Dialog, DialogTitle, DialogContent, IconButton } from '@mui/material';
-import { Close } from '@mui/icons-material';
-import AddCageForm from '../forms/CageForm';
-import type { AddCageFormFields } from '../../schemas/cageSchemas';
+import React from "react";
+import { Dialog, DialogTitle, DialogContent, IconButton } from "@mui/material";
+import { Close } from "@mui/icons-material";
+import AddCageForm from "../forms/CageForm";
+import type { AddCageFormFields } from "../../schemas/cageSchemas";
 
 interface AddCageModalProps {
   open: boolean;
@@ -11,10 +11,21 @@ interface AddCageModalProps {
   error?: string | null;
 }
 
-const AddCageModal: React.FC<AddCageModalProps> = ({ open, onClose, onSubmit, error }) => {
+const AddCageModal: React.FC<AddCageModalProps> = ({
+  open,
+  onClose,
+  onSubmit,
+  error,
+}) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         Add New Cage
         <IconButton onClick={onClose} size="small">
           <Close />

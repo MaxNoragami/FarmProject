@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo } from "react";
 
-export type Order = 'asc' | 'desc';
+export type Order = "asc" | "desc";
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -14,33 +14,36 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
 
 function getComparator<T extends Record<string, any>>(
   order: Order,
-  orderBy: keyof T,
+  orderBy: keyof T
 ): (a: T, b: T) => number {
-  return order === 'desc'
+  return order === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-export function useCageSorting<T extends Record<string, any>>(data: T[], initialOrderBy: keyof T) {
-    const [order, setOrder] = useState<Order>('asc');
-    const [orderBy, setOrderBy] = useState<keyof T>(initialOrderBy);
+export function useCageSorting<T extends Record<string, any>>(
+  data: T[],
+  initialOrderBy: keyof T
+) {
+  const [order, setOrder] = useState<Order>("asc");
+  const [orderBy, setOrderBy] = useState<keyof T>(initialOrderBy);
 
-    const handleRequestSort = (property: keyof T) => {
-        const isAsc = orderBy === property && order === 'asc';
-        setOrder(isAsc ? 'desc' : 'asc');
-        setOrderBy(property);
-    };
+  const handleRequestSort = (property: keyof T) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
 
-    const sortedData = useMemo(() => {
-        return [...data].sort(getComparator(order, orderBy));
-    }, [data, order, orderBy]);
+  const sortedData = useMemo(() => {
+    return [...data].sort(getComparator(order, orderBy));
+  }, [data, order, orderBy]);
 
-    return {
-        order,
-        orderBy,
-        sortedData,
-        handleRequestSort,
-        setOrder,
-        setOrderBy
-    };
+  return {
+    order,
+    orderBy,
+    sortedData,
+    handleRequestSort,
+    setOrder,
+    setOrderBy,
+  };
 }

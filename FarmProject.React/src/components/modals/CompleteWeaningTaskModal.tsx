@@ -1,13 +1,29 @@
-import React, { useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, Card, CardContent, Chip, IconButton, Alert } from '@mui/material';
-import { ChevronLeft, ChevronRight, Close } from '@mui/icons-material';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { completeWeaningTaskSchema, type CompleteWeaningTaskFormFields } from '../../schemas/taskSchemas';
-import { type TaskData } from '../../utils/taskMappers';
-import { useAvailableCages } from '../../hooks/useAvailableCages';
-import { getCageLabel, getCageChipColor } from '../../utils/typeMappers';
-import { handleFormError } from '../../utils/formErrorHandler';
+import React, { useState } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Chip,
+  IconButton,
+  Alert,
+} from "@mui/material";
+import { ChevronLeft, ChevronRight, Close } from "@mui/icons-material";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  completeWeaningTaskSchema,
+  type CompleteWeaningTaskFormFields,
+} from "../../schemas/taskSchemas";
+import { type TaskData } from "../../utils/taskMappers";
+import { useAvailableCages } from "../../hooks/useAvailableCages";
+import { getCageLabel, getCageChipColor } from "../../utils/typeMappers";
+import { handleFormError } from "../../utils/formErrorHandler";
 
 interface CompleteWeaningTaskModalProps {
   open: boolean;
@@ -22,12 +38,12 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
   onClose,
   onSubmit,
   error,
-  task
+  task,
 }) => {
   const [selectedCageId, setSelectedCageId] = useState<number | null>(null);
   const cagesPerPage = 2;
 
-  // Pass open state to enable/disable fetching
+  
   const {
     cages,
     loading,
@@ -35,10 +51,10 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
     totalCount,
     totalPages,
     pageIndex,
-    setPageIndex
-  } = useAvailableCages({ 
+    setPageIndex,
+  } = useAvailableCages({
     pageSize: cagesPerPage,
-    enabled: open // Only fetch when modal is open
+    enabled: open, 
   });
 
   const {
@@ -46,33 +62,27 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
     handleSubmit,
     setValue,
     setError,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
   } = useForm<CompleteWeaningTaskFormFields>({
     resolver: zodResolver(completeWeaningTaskSchema),
     defaultValues: {
-      newCageId: undefined
-    }
+      newCageId: undefined,
+    },
   });
 
-  
   const handleCageSelect = (cageId: number) => {
     setSelectedCageId(cageId);
-    setValue('newCageId', cageId);
+    setValue("newCageId", cageId);
   };
 
-  
   const handleFormSubmit = async (data: CompleteWeaningTaskFormFields) => {
     try {
       await onSubmit(data);
-      
     } catch (formError) {
-      
       handleFormError(formError, setError);
-      
     }
   };
 
-  
   const handlePreviousPage = () => {
     if (pageIndex > 1) {
       setPageIndex(pageIndex - 1);
@@ -85,25 +95,23 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
     }
   };
 
-  
   const getBorderColor = (cageId: number): string => {
     if (selectedCageId === cageId) {
-      return 'primary.main';
+      return "primary.main";
     }
-    
+
     if (errors.newCageId && selectedCageId === null) {
-      return 'error.main';
+      return "error.main";
     }
-    
-    return 'divider';
+
+    return "divider";
   };
 
-  
   const renderCageSelection = () => {
     if (loading) {
       return <Typography>Loading available cages...</Typography>;
     }
-    
+
     if (cages.length === 0) {
       return (
         <Alert severity="warning">
@@ -111,36 +119,58 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
         </Alert>
       );
     }
-    
+
     return (
       <>
-        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2 }}>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 2,
+            mb: 2,
+          }}
+        >
           {cages.map((cage) => (
-            <Card 
+            <Card
               key={cage.id}
-              sx={{ 
-                cursor: 'pointer',
+              sx={{
+                cursor: "pointer",
                 border: selectedCageId === cage.id ? 2 : 1,
                 borderColor: getBorderColor(cage.id),
-                '&:hover': {
-                  borderColor: 'primary.main',
-                  boxShadow: 2
-                }
+                "&:hover": {
+                  borderColor: "primary.main",
+                  boxShadow: 2,
+                },
               }}
               onClick={() => handleCageSelect(cage.id)}
             >
               <CardContent sx={{ py: 2 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                  <Typography variant="body1" fontWeight="medium" sx={{ mb: 0.5 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    textAlign: "center",
+                  }}
+                >
+                  <Typography
+                    variant="body1"
+                    fontWeight="medium"
+                    sx={{ mb: 0.5 }}
+                  >
                     {cage.name}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1 }}
+                  >
                     ID: {cage.id}
                   </Typography>
-                  <Chip 
+                  <Chip
                     label={getCageLabel(cage)}
                     color={getCageChipColor(cage)}
-                    size="small" 
+                    size="small"
                   />
                 </Box>
               </CardContent>
@@ -149,30 +179,35 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
         </Box>
 
         {errors.newCageId && (
-          <Typography 
-            variant="body2" 
-            color="error.main" 
-            sx={{ mb: 2 }}
-          >
+          <Typography variant="body2" color="error.main" sx={{ mb: 2 }}>
             {errors.newCageId.message}
           </Typography>
         )}
 
         {totalPages > 1 && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1, mt: 2 }}>
-            <IconButton 
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 1,
+              mt: 2,
+            }}
+          >
+            <IconButton
               onClick={handlePreviousPage}
               disabled={pageIndex === 1}
               size="small"
             >
               <ChevronLeft />
             </IconButton>
-            
+
             <Typography variant="body2" color="text.secondary">
-              {((pageIndex - 1) * cagesPerPage) + 1}-{Math.min(pageIndex * cagesPerPage, totalCount)} of {totalCount}
+              {(pageIndex - 1) * cagesPerPage + 1}-
+              {Math.min(pageIndex * cagesPerPage, totalCount)} of {totalCount}
             </Typography>
-            
-            <IconButton 
+
+            <IconButton
               onClick={handleNextPage}
               disabled={pageIndex === totalPages}
               size="small"
@@ -187,7 +222,13 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         Complete Weaning Task
         <IconButton onClick={onClose} size="small">
           <Close />
@@ -205,9 +246,7 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
             Select a Cage for the Offspring
           </Typography>
 
-          <Box sx={{ mb: 3 }}>
-            {renderCageSelection()}
-          </Box>
+          <Box sx={{ mb: 3 }}>{renderCageSelection()}</Box>
 
           {task.cageId && (
             <Typography variant="body2" color="text.secondary">
@@ -217,12 +256,8 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
-          <Button 
-            type="submit" 
-            variant="contained" 
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Completing...' : 'Complete Task'}
+          <Button type="submit" variant="contained" disabled={isSubmitting}>
+            {isSubmitting ? "Completing..." : "Complete Task"}
           </Button>
         </DialogActions>
       </form>

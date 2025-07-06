@@ -1,23 +1,23 @@
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box, CircularProgress, Typography } from "@mui/material";
 
 interface LoadingSpinnerProps {
   message?: string;
   size?: number;
 }
 
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ 
-  message = 'Loading...', 
-  size = 40 
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+  message = "Loading...",
+  size = 40,
 }) => {
   return (
-    <Box 
-      sx={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        alignItems: 'center', 
-        justifyContent: 'center',
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
         gap: 2,
-        py: 4
+        py: 4,
       }}
     >
       <CircularProgress size={size} />

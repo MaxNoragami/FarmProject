@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
-import { Box, Button, Typography, Card, CardContent, Chip, IconButton, Skeleton } from '@mui/material';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { completeWeaningTaskSchema, type CompleteWeaningTaskFormFields } from '../../schemas/taskSchemas';
-import { handleFormError } from '../../utils/formErrorHandler';
-import { useAvailableCages } from '../../hooks/useAvailableCages';
-import { getCageLabel, getCageChipColor } from '../../utils/typeMappers';
+import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  Typography,
+  Card,
+  CardContent,
+  Chip,
+  IconButton,
+  Skeleton,
+} from "@mui/material";
+import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  completeWeaningTaskSchema,
+  type CompleteWeaningTaskFormFields,
+} from "../../schemas/taskSchemas";
+import { handleFormError } from "../../utils/formErrorHandler";
+import { useAvailableCages } from "../../hooks/useAvailableCages";
+import { getCageLabel, getCageChipColor } from "../../utils/typeMappers";
 
 interface WeaningTaskFormProps {
   onSubmit: (data: CompleteWeaningTaskFormFields) => Promise<void>;
@@ -14,9 +26,13 @@ interface WeaningTaskFormProps {
   taskId: number;
 }
 
-const WeaningTaskForm: React.FC<WeaningTaskFormProps> = ({ onSubmit, onCancel, taskId }) => {
+const WeaningTaskForm: React.FC<WeaningTaskFormProps> = ({
+  onSubmit,
+  onCancel,
+  taskId,
+}) => {
   const [selectedCageId, setSelectedCageId] = useState<number | null>(null);
-  const cagesPerPage = 2; 
+  const cagesPerPage = 2;
 
   const {
     cages,
@@ -25,7 +41,7 @@ const WeaningTaskForm: React.FC<WeaningTaskFormProps> = ({ onSubmit, onCancel, t
     totalCount,
     totalPages,
     pageIndex,
-    setPageIndex
+    setPageIndex,
   } = useAvailableCages({ pageSize: cagesPerPage });
 
   const {
@@ -39,7 +55,7 @@ const WeaningTaskForm: React.FC<WeaningTaskFormProps> = ({ onSubmit, onCancel, t
 
   const handleCageSelect = (cageId: number) => {
     setSelectedCageId(cageId);
-    setValue('newCageId', cageId);
+    setValue("newCageId", cageId);
   };
 
   const handleFormSubmit = async (data: CompleteWeaningTaskFormFields) => {
@@ -52,17 +68,16 @@ const WeaningTaskForm: React.FC<WeaningTaskFormProps> = ({ onSubmit, onCancel, t
 
   const getBorderColor = (cageId: number): string => {
     if (selectedCageId === cageId) {
-      return 'primary.main';
+      return "primary.main";
     }
-    
+
     if (errors.newCageId && selectedCageId === null) {
-      return 'error.main';
+      return "error.main";
     }
-    
-    return 'divider';
+
+    return "divider";
   };
 
-  
   const handlePreviousPage = () => {
     if (pageIndex > 1) {
       setPageIndex(pageIndex - 1);
@@ -75,15 +90,38 @@ const WeaningTaskForm: React.FC<WeaningTaskFormProps> = ({ onSubmit, onCancel, t
     }
   };
 
-  
   const renderCageSkeletons = () => (
-    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2, mb: 2 }}>
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: "repeat(2, 1fr)",
+        gap: 2,
+        mb: 2,
+      }}
+    >
       {[1, 2].map((_, index) => (
         <Card key={`skeleton-${index}`} sx={{ p: 2 }}>
           <CardContent sx={{ py: 2 }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-              <Skeleton variant="rectangular" width={120} height={24} sx={{ mb: 1 }} />
-              <Skeleton variant="rectangular" width={60} height={16} sx={{ mb: 1 }} />
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+              }}
+            >
+              <Skeleton
+                variant="rectangular"
+                width={120}
+                height={24}
+                sx={{ mb: 1 }}
+              />
+              <Skeleton
+                variant="rectangular"
+                width={60}
+                height={16}
+                sx={{ mb: 1 }}
+              />
               <Skeleton variant="rounded" width={60} height={24} />
             </Box>
           </CardContent>
@@ -92,64 +130,89 @@ const WeaningTaskForm: React.FC<WeaningTaskFormProps> = ({ onSubmit, onCancel, t
     </Box>
   );
 
-  
   const renderCageContent = () => {
     if (loading) {
       return renderCageSkeletons();
     }
-    
+
     if (cageError) {
-      return <Typography color="error">Error loading cages: {cageError}</Typography>;
+      return (
+        <Typography color="error">Error loading cages: {cageError}</Typography>
+      );
     }
-    
+
     if (cages.length === 0) {
       return (
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          minHeight: 150,
-          border: 1,
-          borderColor: 'divider',
-          borderRadius: 1,
-          backgroundColor: 'grey.50'
-        }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: 150,
+            border: 1,
+            borderColor: "divider",
+            borderRadius: 1,
+            backgroundColor: "grey.50",
+          }}
+        >
           <Typography variant="body1" color="text.secondary">
             No empty cages available
           </Typography>
         </Box>
       );
     }
-    
+
     return (
       <>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2, mb: 2 }}>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gap: 2,
+            mb: 2,
+          }}
+        >
           {cages.map((cage) => (
-            <Card 
+            <Card
               key={cage.id}
-              sx={{ 
-                cursor: 'pointer',
+              sx={{
+                cursor: "pointer",
                 border: selectedCageId === cage.id ? 2 : 1,
                 borderColor: getBorderColor(cage.id),
-                '&:hover': {
-                  borderColor: 'primary.main',
-                  boxShadow: 2
-                }
+                "&:hover": {
+                  borderColor: "primary.main",
+                  boxShadow: 2,
+                },
               }}
               onClick={() => handleCageSelect(cage.id)}
             >
               <CardContent sx={{ py: 2 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                  <Typography variant="body1" fontWeight="medium" sx={{ mb: 0.5 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    textAlign: "center",
+                  }}
+                >
+                  <Typography
+                    variant="body1"
+                    fontWeight="medium"
+                    sx={{ mb: 0.5 }}
+                  >
                     {cage.name}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1 }}
+                  >
                     ID: {cage.id}
                   </Typography>
-                  <Chip 
+                  <Chip
                     label={getCageLabel(cage)}
                     color={getCageChipColor(cage)}
-                    size="small" 
+                    size="small"
                   />
                 </Box>
               </CardContent>
@@ -158,30 +221,40 @@ const WeaningTaskForm: React.FC<WeaningTaskFormProps> = ({ onSubmit, onCancel, t
         </Box>
 
         {errors.newCageId && (
-          <Typography 
-            variant="body2" 
-            color="error.main" 
-            sx={{ mb: 2, textAlign: 'left' }}
+          <Typography
+            variant="body2"
+            color="error.main"
+            sx={{ mb: 2, textAlign: "left" }}
           >
             {errors.newCageId.message}
           </Typography>
         )}
 
         {totalPages > 1 && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1, mt: 2, mb: 0 }}>
-            <IconButton 
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 1,
+              mt: 2,
+              mb: 0,
+            }}
+          >
+            <IconButton
               onClick={handlePreviousPage}
               disabled={pageIndex === 1}
               size="small"
             >
               <ChevronLeft />
             </IconButton>
-            
+
             <Typography variant="body2" color="text.secondary">
-              {((pageIndex - 1) * cagesPerPage) + 1}-{Math.min(pageIndex * cagesPerPage, totalCount)} of {totalCount}
+              {(pageIndex - 1) * cagesPerPage + 1}-
+              {Math.min(pageIndex * cagesPerPage, totalCount)} of {totalCount}
             </Typography>
-            
-            <IconButton 
+
+            <IconButton
               onClick={handleNextPage}
               disabled={pageIndex === totalPages}
               size="small"
@@ -195,12 +268,15 @@ const WeaningTaskForm: React.FC<WeaningTaskFormProps> = ({ onSubmit, onCancel, t
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit(handleFormSubmit)} sx={{ width: '100%' }}>
-      {/* Display root error if exists */}
+    <Box
+      component="form"
+      onSubmit={handleSubmit(handleFormSubmit)}
+      sx={{ width: "100%" }}
+    >
       {errors.root && (
-        <Typography 
-          variant="body2" 
-          color="error.main" 
+        <Typography
+          variant="body2"
+          color="error.main"
           sx={{ mb: 2, fontWeight: 500 }}
         >
           {errors.root.message}
@@ -209,7 +285,7 @@ const WeaningTaskForm: React.FC<WeaningTaskFormProps> = ({ onSubmit, onCancel, t
 
       {renderCageContent()}
 
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end'}}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
         <Button
           type="submit"
           variant="contained"
