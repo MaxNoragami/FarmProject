@@ -8,8 +8,10 @@ import FilterDialog from '../components/common/FilterDialog';
 import { breedingStatusOptions, breedingStatusStringToEnum, getBreedingStatusColor } from '../types/BreedingStatus';
 import { useRabbitData } from '../hooks/useRabbitData';
 import AddRabbitModal from '../components/modals/AddRabbitModal';
+import BirthModal from '../components/modals/BirthModal';
 import { RabbitService } from '../api/services/rabbitService';
 import { type AddRabbitFormFields } from '../schemas/rabbitSchemas';
+import { type RabbitData } from '../utils/rabbitMappers';
 
 const RabbitsPage = () => {
     const theme = useTheme();
@@ -18,6 +20,11 @@ const RabbitsPage = () => {
     // Modal state
     const [addModalOpen, setAddModalOpen] = React.useState(false);
     const [addRabbitError, setAddRabbitError] = React.useState<string | null>(null);
+
+    // Birth modal state
+    const [birthModalOpen, setBirthModalOpen] = React.useState(false);
+    const [birthModalRabbit, setBirthModalRabbit] = React.useState<RabbitData | null>(null);
+    const [birthModalError, setBirthModalError] = React.useState<string | null>(null);
 
     // Pagination state
     const [page, setPage] = React.useState(0);
@@ -105,6 +112,38 @@ const RabbitsPage = () => {
                 err?.response?.data?.message ||
                 err?.message ||
                 "An unexpected error occurred while adding the rabbit."
+            );
+            throw err;
+        }
+    };
+
+    // Birth handlers
+    const handleOpenBirthModal = (rabbit: RabbitData) => {
+        if (rabbit.status === 'Pregnant') {
+            setBirthModalRabbit(rabbit);
+            setBirthModalError(null);
+            setBirthModalOpen(true);
+        }
+    };
+
+    const handleCloseBirthModal = () => {
+        setBirthModalOpen(false);
+        setBirthModalError(null);
+    };
+
+    const handleRegisterBirth = async (offspringCount: number) => {
+        if (!birthModalRabbit) return;
+        
+        setBirthModalError(null);
+        try {
+            await RabbitService.registerBirth(birthModalRabbit.rabbitId, offspringCount);
+            setBirthModalOpen(false);
+            await refetch();
+        } catch (err: any) {
+            setBirthModalError(
+                err?.response?.data?.message ||
+                err?.message ||
+                "An unexpected error occurred while registering birth."
             );
             throw err;
         }
@@ -210,6 +249,10 @@ const RabbitsPage = () => {
         );
     };
 
+    const isRabbitClickable = (rabbit: RabbitData) => {
+        return rabbit.status === 'Pregnant';
+    };
+
     return (
         <>
             <Helmet>
@@ -302,7 +345,17 @@ const RabbitsPage = () => {
                                 ) : (
                                     rabbits.map((rabbit) => (
                                         <Grid size={{ xs: 12, sm: 6 }} key={rabbit.rabbitId}>
-                                            <Paper sx={{ p: 2, height: '100%' }}>
+                                            <Paper 
+                                                sx={{ 
+                                                    p: 2, 
+                                                    height: '100%',
+                                                    cursor: isRabbitClickable(rabbit) ? 'pointer' : 'default',
+                                                    '&:hover': isRabbitClickable(rabbit) ? {
+                                                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                                                    } : {}
+                                                }}
+                                                onClick={() => handleOpenBirthModal(rabbit)}
+                                            >
                                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                                                     <Typography variant="h6" component="div">
                                                         {rabbit.name}
@@ -420,6 +473,8 @@ const RabbitsPage = () => {
                                     }
                                     setPage(0);
                                 }}
+                                onRabbitClick={handleOpenBirthModal}
+                                isRabbitClickable={isRabbitClickable}
                             />
                         </Box>
 
@@ -467,6 +522,14 @@ const RabbitsPage = () => {
                 onClose={handleCloseAddModal}
                 onSubmit={handleAddRabbit}
                 error={addRabbitError}
+            />
+
+            <BirthModal
+                open={birthModalOpen}
+                onClose={handleCloseBirthModal}
+                onSubmit={handleRegisterBirth}
+                rabbit={birthModalRabbit}
+                error={birthModalError}
             />
         </>
     );

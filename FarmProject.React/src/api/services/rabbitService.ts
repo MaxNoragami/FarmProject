@@ -40,4 +40,8 @@ export class RabbitService {
     
     return response.data;
   }
+
+  public static async registerBirth(rabbitId: number, offspringCount: number): Promise<void> {
+    await apiClient.post(`/breeding-rabbits/${rabbitId}/birth`, { offspringCount });
+  }
 }

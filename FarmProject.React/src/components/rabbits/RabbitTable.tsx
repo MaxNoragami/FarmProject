@@ -9,6 +9,8 @@ interface RabbitTableProps {
   sortBy: string;
   sortOrder: 'asc' | 'desc';
   onSort: (field: string) => void;
+  onRabbitClick?: (rabbit: RabbitData) => void;
+  isRabbitClickable?: (rabbit: RabbitData) => boolean;
 }
 
 const RabbitTable: React.FC<RabbitTableProps> = ({
@@ -16,10 +18,18 @@ const RabbitTable: React.FC<RabbitTableProps> = ({
   loading,
   sortBy,
   sortOrder,
-  onSort
+  onSort,
+  onRabbitClick,
+  isRabbitClickable
 }) => {
   const createSortHandler = (property: string) => () => {
     onSort(property);
+  };
+
+  const handleRowClick = (rabbit: RabbitData) => {
+    if (onRabbitClick && isRabbitClickable && isRabbitClickable(rabbit)) {
+      onRabbitClick(rabbit);
+    }
   };
 
   if (loading) {
@@ -91,20 +101,31 @@ const RabbitTable: React.FC<RabbitTableProps> = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {rabbits.map((rabbit) => (
-            <TableRow key={rabbit.rabbitId} hover>
-              <TableCell>{rabbit.rabbitId}</TableCell>
-              <TableCell>{rabbit.name}</TableCell>
-              <TableCell>{rabbit.cageId}</TableCell>
-              <TableCell>
-                <Chip 
-                  label={rabbit.status} 
-                  color={getBreedingStatusColor(rabbit.status)} 
-                  size="small" 
-                />
-              </TableCell>
-            </TableRow>
-          ))}
+          {rabbits.map((rabbit) => {
+            const isClickable = isRabbitClickable ? isRabbitClickable(rabbit) : false;
+            
+            return (
+              <TableRow 
+                key={rabbit.rabbitId} 
+                hover={isClickable}
+                onClick={() => handleRowClick(rabbit)}
+                sx={{
+                  cursor: isClickable ? 'pointer' : 'default',
+                }}
+              >
+                <TableCell>{rabbit.rabbitId}</TableCell>
+                <TableCell>{rabbit.name}</TableCell>
+                <TableCell>{rabbit.cageId}</TableCell>
+                <TableCell>
+                  <Chip 
+                    label={rabbit.status} 
+                    color={getBreedingStatusColor(rabbit.status)} 
+                    size="small" 
+                  />
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </TableContainer>
