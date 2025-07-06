@@ -35,7 +35,6 @@ const CompleteOffspringSeparationTaskModal: React.FC<CompleteOffspringSeparation
       onClose={handleClose}
       maxWidth="sm" 
       fullWidth
-      
       disableEscapeKeyDown={!!error}
     >
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -50,6 +49,7 @@ const CompleteOffspringSeparationTaskModal: React.FC<CompleteOffspringSeparation
           onCancel={onClose} 
           error={error}
           task={task}
+          isModalOpen={open}
         />
       </DialogContent>
     </Dialog>

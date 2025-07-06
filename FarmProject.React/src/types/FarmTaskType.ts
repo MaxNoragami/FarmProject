@@ -38,3 +38,10 @@ export const getFarmTaskTypeLabel = (type: FarmTaskType) => {
             return type;
     }
 };
+
+export const farmTaskTypeStringToEnum: Record<string, number> = {
+    NestPreparation: 0,
+    NestRemoval: 1,
+    Weaning: 2,
+    OffspringSeparation: 3
+};

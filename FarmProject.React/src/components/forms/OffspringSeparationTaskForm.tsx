@@ -14,18 +14,20 @@ interface OffspringSeparationTaskFormProps {
   onCancel: () => void;
   error?: string | null;
   task: TaskData;
+  isModalOpen: boolean; // Add this new prop
 }
 
 const OffspringSeparationTaskForm: React.FC<OffspringSeparationTaskFormProps> = ({ 
   onSubmit, 
   onCancel, 
   error,
-  task
+  task,
+  isModalOpen
 }) => {
   const [selectedCageId, setSelectedCageId] = useState<number | null>(null);
   const cagesPerPage = 2;
 
-  
+  // Use the isModalOpen prop to control when to fetch cages
   const {
     cages,
     loading,
@@ -34,7 +36,10 @@ const OffspringSeparationTaskForm: React.FC<OffspringSeparationTaskFormProps> = 
     totalPages,
     pageIndex,
     setPageIndex
-  } = useAvailableCages({ pageSize: cagesPerPage });
+  } = useAvailableCages({ 
+    pageSize: cagesPerPage,
+    enabled: isModalOpen // Only fetch when modal is open
+  });
 
   const {
     register,

@@ -27,7 +27,7 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
   const [selectedCageId, setSelectedCageId] = useState<number | null>(null);
   const cagesPerPage = 2;
 
-  
+  // Pass open state to enable/disable fetching
   const {
     cages,
     loading,
@@ -36,7 +36,10 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
     totalPages,
     pageIndex,
     setPageIndex
-  } = useAvailableCages({ pageSize: cagesPerPage });
+  } = useAvailableCages({ 
+    pageSize: cagesPerPage,
+    enabled: open // Only fetch when modal is open
+  });
 
   const {
     control,

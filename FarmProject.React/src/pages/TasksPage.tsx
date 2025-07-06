@@ -7,12 +7,12 @@ import dayjs from 'dayjs';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTaskData } from '../hooks/useTaskData';
-import { type TaskData } from '../utils/taskMappers';
 import TaskCard from '../components/tasks/TaskCard';
 import TaskFilterDialog from '../components/tasks/TaskFilterDialog';
 import ErrorAlert from '../components/common/ErrorAlert';
 import type { TaskFilter } from '../hooks/useTaskFilters';
 import { getSortableTaskColumns } from '../constants/taskColumns';
+import { farmTaskTypeStringToEnum } from '../types/FarmTaskType';
 
 const TasksPage = () => {
     const theme = useTheme();
@@ -48,8 +48,7 @@ const TasksPage = () => {
     const apiFilters = React.useMemo(() => {
         const converted: any = {};
         if (filters.taskType) {
-            
-            converted.farmTaskType = 0; 
+            converted.farmTaskType = farmTaskTypeStringToEnum[filters.taskType];
         }
         if (typeof filters.isCompleted === 'boolean') {
             converted.isCompleted = filters.isCompleted;

@@ -16,11 +16,13 @@ interface UseAvailableCagesResult {
 interface UseAvailableCagesOptions {
   pageSize: number;
   initialPage?: number;
+  enabled?: boolean; // Add this new prop
 }
 
 export const useAvailableCages = ({
   pageSize,
-  initialPage = 1
+  initialPage = 1,
+  enabled = true // Default to true for backward compatibility
 }: UseAvailableCagesOptions): UseAvailableCagesResult => {
   const [cages, setCages] = useState<CageData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -28,8 +30,8 @@ export const useAvailableCages = ({
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [pageIndex, setPageIndexInternal] = useState(initialPage);
+  const [hasFetched, setHasFetched] = useState(false);
 
-  
   const setPageIndex = useCallback((newPageOrUpdater: number | ((prevPage: number) => number)) => {
     if (typeof newPageOrUpdater === 'function') {
       setPageIndexInternal(prevPage => newPageOrUpdater(prevPage));
@@ -39,6 +41,9 @@ export const useAvailableCages = ({
   }, []);
 
   const fetchCages = useCallback(async () => {
+    // Skip fetching if not enabled
+    if (!enabled) return;
+    
     setLoading(true);
     setError(null);
     
@@ -62,11 +67,14 @@ export const useAvailableCages = ({
     } finally {
       setLoading(false);
     }
-  }, [pageIndex, pageSize]);
+  }, [pageIndex, pageSize, enabled]); // Add enabled to dependencies
 
   useEffect(() => {
-    fetchCages();
-  }, [fetchCages]);
+    // Only fetch data if enabled is true
+    if (enabled) {
+      fetchCages();
+    }
+  }, [fetchCages, enabled]); // Add enabled to dependencies
 
   return {
     cages,
@@ -79,3 +87,4 @@ export const useAvailableCages = ({
     refetch: fetchCages,
   };
 };
+
