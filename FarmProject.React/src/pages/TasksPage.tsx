@@ -203,9 +203,7 @@ const TasksPage = () => {
         setFilterDialogOpen(true);
     };
 
-    // Remove the redundant client-side pagination with visibleTasks
     const visibleTasks = React.useMemo(() => {
-        // Don't slice the data here since it's already paginated from the server
         return tasks;
     }, [tasks]);
 
