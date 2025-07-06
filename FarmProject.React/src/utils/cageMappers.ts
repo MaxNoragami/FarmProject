@@ -1,6 +1,13 @@
 import { type ApiCageDto } from '../api/types/cageTypes';
-import { type CageData, mockCagesData } from '../data/mockCageData';
 import { OffspringType } from '../types/OffspringType';
+
+export interface CageData {
+  id: number;
+  name: string;
+  rabbitId: number | null;
+  offspringCount: number;
+  offspringType: OffspringType;
+}
 
 // Map API enum numbers to OffspringType strings
 const mapOffspringTypeFromApi = (apiType: number): OffspringType => {
@@ -30,23 +37,6 @@ export const mapApiCageToUI = (apiCage: ApiCageDto): CageData => {
 
 export const mapApiCagesToUI = (apiCages: ApiCageDto[]): CageData[] => {
   return apiCages.map(mapApiCageToUI);
-};
-
-// Fallback function to get mock data with pagination simulation
-export const getMockCagesWithPagination = (pageIndex: number, pageSize: number) => {
-  const startIndex = pageIndex * pageSize;
-  const endIndex = startIndex + pageSize;
-  const paginatedItems = mockCagesData.slice(startIndex, endIndex);
-
-  return {
-    items: paginatedItems,
-    pageIndex: pageIndex + 1, // API uses 1-based indexing
-    pageSize,
-    totalCount: mockCagesData.length,
-    totalPages: Math.ceil(mockCagesData.length / pageSize),
-    hasNextPage: endIndex < mockCagesData.length,
-    hasPreviousPage: pageIndex > 0,
-  };
 };
 
 // Helper to check if error is CORS-related

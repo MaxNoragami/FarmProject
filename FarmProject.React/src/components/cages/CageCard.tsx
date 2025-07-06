@@ -1,5 +1,5 @@
 import { Card, CardContent, Box, Typography, Chip } from '@mui/material';
-import { type CageData } from '../../data/mockCageData';
+import { type CageData } from '../../utils/cageMappers';
 import { getOffspringTypeColor } from '../../types/OffspringType';
 
 interface CageCardProps {

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { RabbitService } from '../api/services/rabbitService';
-import { mapApiRabbitsToUI } from '../utils/rabbitMappers';
-import { type RabbitData } from '../data/mockData';
+import { mapApiRabbitsToUI, type RabbitData } from '../utils/rabbitMappers';
 
 interface UseRabbitDataResult {
   rabbits: RabbitData[];
@@ -88,3 +87,4 @@ export const useRabbitData = ({
     refetch: fetchRabbits,
   };
 };
+

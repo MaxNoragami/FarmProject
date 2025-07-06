@@ -6,8 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { addRabbitSchema, type AddRabbitFormFields } from '../../schemas/rabbitSchemas';
 import { handleFormError } from '../../utils/formErrorHandler';
 import { useAvailableCages } from '../../hooks/useAvailableCages';
-import { type CageData as ApiCageData } from '../../api/types/cageTypes';
-import { type CageData as MockCageData } from '../../data/mockCageData';
+import { type CageData } from '../../utils/cageMappers';
 import { getCageLabel, getCageChipColor } from '../../utils/typeMappers';
 
 interface RabbitFormProps {
@@ -40,7 +39,7 @@ const RabbitForm: React.FC<RabbitFormProps> = ({ onSubmit, onCancel, error }) =>
     resolver: zodResolver(addRabbitSchema),
   });
 
-  const handleCageSelect = (cage: MockCageData | ApiCageData) => {
+  const handleCageSelect = (cage: CageData) => {
     setSelectedCageId(cage.id);
     setValue('cageId', cage.id);
   };

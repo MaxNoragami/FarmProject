@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CageService } from '../services/CageService';
-import { type CageData } from '../data/mockCageData'; 
+import { type CageData } from '../utils/cageMappers'; 
 
 interface UseAvailableCagesResult {
   cages: CageData[];

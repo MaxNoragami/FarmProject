@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CageService } from '../api/services/cageService';
-import { mapApiCagesToUI } from '../utils/cageMappers';
-import { type CageData } from '../data/mockCageData';
+import { mapApiCagesToUI, type CageData } from '../utils/cageMappers';
 import { OffspringType } from '../types/OffspringType';
 
 interface UseCageDataResult {
@@ -98,4 +97,4 @@ export const useCageData = ({
     hasPreviousPage,
     refetch: fetchCages,
   };
-};
+}

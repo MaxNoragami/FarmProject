@@ -1,6 +1,6 @@
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TableSortLabel, Chip, Skeleton, Box } from '@mui/material';
 import * as React from 'react';
-import { type RabbitData } from '../../data/mockData';
+import { type RabbitData } from '../../utils/rabbitMappers';
 import { getBreedingStatusColor } from '../../types/BreedingStatus';
 
 interface RabbitTableProps {
