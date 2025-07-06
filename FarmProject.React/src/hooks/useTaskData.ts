@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { TaskService } from '../api/services/taskService';
-import { mapApiTasksToUI, type TaskData } from '../utils/taskMappers';
+import { useState, useEffect, useCallback } from "react";
+import { TaskService } from "../api/services/taskService";
+import { mapApiTasksToUI, type TaskData } from "../utils/taskMappers";
 
 interface UseTaskDataResult {
   tasks: TaskData[];
@@ -11,7 +11,12 @@ interface UseTaskDataResult {
   hasNextPage: boolean;
   hasPreviousPage: boolean;
   refetch: () => Promise<void>;
-  completeTask: (taskId: number) => Promise<void>;
+  completeTask: (
+    taskId: number,
+    newCageId?: number,
+    otherCageId?: number,
+    femaleOffspringCount?: number
+  ) => Promise<void>;
 }
 
 interface UseTaskDataOptions {
@@ -32,7 +37,7 @@ export const useTaskData = ({
   dueOn,
   filters = {},
   logicalOperator = 0,
-  sort = '',
+  sort = "",
 }: UseTaskDataOptions): UseTaskDataResult => {
   const [tasks, setTasks] = useState<TaskData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -45,7 +50,7 @@ export const useTaskData = ({
   const fetchTasks = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await TaskService.getTasks({
         pageIndex: pageIndex + 1,
@@ -63,8 +68,8 @@ export const useTaskData = ({
       setHasNextPage(response.hasNextPage);
       setHasPreviousPage(response.hasPreviousPage);
     } catch (err) {
-      console.error('Error fetching tasks:', err);
-      setError('Failed to load tasks. Please try again.');
+      console.error("Error fetching tasks:", err);
+      setError("Failed to load tasks. Please try again.");
       setTasks([]);
       setTotalCount(0);
       setTotalPages(0);
@@ -75,28 +80,49 @@ export const useTaskData = ({
     }
   }, [pageIndex, pageSize, dueOn, filters, logicalOperator, sort]);
 
-  const completeTask = useCallback(async (taskId: number) => {
-    try {
-      const updatedTask = await TaskService.completeTask(taskId);
-      
-      // Update local state with the response from API
-      setTasks(prevTasks => 
-        prevTasks.map(task => 
-          task.id === taskId 
-            ? { 
-                ...task, 
-                isCompleted: updatedTask.isCompleted,
-                message: updatedTask.message,
-                farmTaskType: updatedTask.farmTaskType
-              }
-            : task
-        )
-      );
-    } catch (err) {
-      console.error('Error completing task:', err);
-      throw err;
-    }
-  }, []);
+  const completeTask = useCallback(
+    async (
+      taskId: number,
+      newCageId?: number,
+      otherCageId?: number,
+      femaleOffspringCount?: number
+    ) => {
+      try {
+        const requestBody: any = {};
+
+        if (newCageId !== undefined) {
+          requestBody.newCageId = newCageId;
+        }
+
+        if (otherCageId !== undefined) {
+          requestBody.otherCageId = otherCageId;
+        }
+
+        if (femaleOffspringCount !== undefined) {
+          requestBody.femaleOffspringCount = femaleOffspringCount;
+        }
+
+        const updatedTask = await TaskService.completeTask(taskId, requestBody);
+
+        setTasks((prevTasks) =>
+          prevTasks.map((task) =>
+            task.id === taskId
+              ? {
+                  ...task,
+                  isCompleted: updatedTask.isCompleted,
+                  message: updatedTask.message,
+                  farmTaskType: updatedTask.farmTaskType,
+                }
+              : task
+          )
+        );
+      } catch (err) {
+        console.error("Error completing task:", err);
+        throw err;
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     fetchTasks();

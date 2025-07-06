@@ -1,8 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { CageService } from '../api/services/cageService';
-import { mapApiCagesToUI } from '../utils/cageMappers';
-import { type CageData } from '../data/mockCageData';
-import { OffspringType } from '../types/OffspringType';
+import { useState, useEffect, useCallback } from "react";
+import { CageService } from "../api/services/cageService";
+import { mapApiCagesToUI, type CageData } from "../utils/cageMappers";
 
 interface UseCageDataResult {
   cages: CageData[];
@@ -29,11 +27,11 @@ interface UseCageDataOptions {
 
 function normalizeSort(sort?: string): string | undefined {
   if (!sort) return undefined;
-  const [field, order] = sort.split(':');
+  const [field, order] = sort.split(":");
   let normalizedField = field;
-  if (field === 'cageId') normalizedField = 'id';
-  if (normalizedField !== 'id' && normalizedField !== 'name') return undefined;
-  return `${normalizedField}:${order || 'asc'}`;
+  if (field === "cageId") normalizedField = "id";
+  if (normalizedField !== "id" && normalizedField !== "name") return undefined;
+  return `${normalizedField}:${order || "asc"}`;
 }
 
 export const useCageData = ({
@@ -41,7 +39,7 @@ export const useCageData = ({
   pageSize,
   filters = {},
   logicalOperator = 0,
-  sort = '',
+  sort = "",
 }: UseCageDataOptions): UseCageDataResult => {
   const [cages, setCages] = useState<CageData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -54,7 +52,7 @@ export const useCageData = ({
   const fetchCages = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const normalizedSort = normalizeSort(sort);
       const response = await CageService.getCages({
@@ -72,8 +70,8 @@ export const useCageData = ({
       setHasNextPage(response.hasNextPage);
       setHasPreviousPage(response.hasPreviousPage);
     } catch (err) {
-      console.error('Error fetching cages:', err);
-      setError('Failed to load cages. Please try again.');
+      console.error("Error fetching cages:", err);
+      setError("Failed to load cages. Please try again.");
       setCages([]);
       setTotalCount(0);
       setTotalPages(0);

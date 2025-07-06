@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { CageService } from '../services/CageService';
-import { type CageData } from '../data/mockCageData'; // Or the correct path
+import { useState, useEffect, useCallback } from "react";
+import { CageService } from "../services/CageService";
+import { type CageData } from "../utils/cageMappers";
 
 interface UseAvailableCagesResult {
   cages: CageData[];
@@ -16,11 +16,13 @@ interface UseAvailableCagesResult {
 interface UseAvailableCagesOptions {
   pageSize: number;
   initialPage?: number;
+  enabled?: boolean;
 }
 
 export const useAvailableCages = ({
   pageSize,
-  initialPage = 1
+  initialPage = 1,
+  enabled = true,
 }: UseAvailableCagesOptions): UseAvailableCagesResult => {
   const [cages, setCages] = useState<CageData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -28,47 +30,52 @@ export const useAvailableCages = ({
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [pageIndex, setPageIndexInternal] = useState(initialPage);
+  const [hasFetched, setHasFetched] = useState(false);
 
-  // Create a wrapper function that can accept either a direct value or a function
-  const setPageIndex = useCallback((newPageOrUpdater: number | ((prevPage: number) => number)) => {
-    if (typeof newPageOrUpdater === 'function') {
-      setPageIndexInternal(prevPage => newPageOrUpdater(prevPage));
-    } else {
-      setPageIndexInternal(newPageOrUpdater);
-    }
-  }, []);
+  const setPageIndex = useCallback(
+    (newPageOrUpdater: number | ((prevPage: number) => number)) => {
+      if (typeof newPageOrUpdater === "function") {
+        setPageIndexInternal((prevPage) => newPageOrUpdater(prevPage));
+      } else {
+        setPageIndexInternal(newPageOrUpdater);
+      }
+    },
+    []
+  );
 
   const fetchCages = useCallback(async () => {
+    if (!enabled) return;
+
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await CageService.getCages({
         pageIndex: pageIndex,
         pageSize,
-        filters: { isOccupied: false }, // Only get available cages
+        filters: { isOccupied: false },
         logicalOperator: 0,
       });
 
       setCages(response.items);
-      // Calculate totalCount from available info (pageSize * totalPages)
-      // Note: This is an approximation as the last page may not be full
       setTotalCount(response.totalPages * pageSize);
       setTotalPages(response.totalPages);
     } catch (err) {
-      console.error('Error fetching available cages:', err);
-      setError('Failed to load available cages. Please try again.');
+      console.error("Error fetching available cages:", err);
+      setError("Failed to load available cages. Please try again.");
       setCages([]);
       setTotalCount(0);
       setTotalPages(0);
     } finally {
       setLoading(false);
     }
-  }, [pageIndex, pageSize]);
+  }, [pageIndex, pageSize, enabled]);
 
   useEffect(() => {
-    fetchCages();
-  }, [fetchCages]);
+    if (enabled) {
+      fetchCages();
+    }
+  }, [fetchCages, enabled]);
 
   return {
     cages,

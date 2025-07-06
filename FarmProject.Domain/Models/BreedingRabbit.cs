@@ -29,4 +29,23 @@ public class BreedingRabbit(string name) : Entity
 
         return Result.Success();
     }
+
+    public Result RecordBirth(int offspringCount, DateTime birthDate)
+    {
+        if (BreedingStatus != BreedingStatus.Pregnant)
+            return Result.Failure(BreedingRabbitErrors.NotPregnant);
+
+        BreedingStatus = BreedingStatus.Nursing;
+
+        AddDomainEvent(new BirthEvent
+            {
+                BreedingRabbitId = Id,
+                CageId = CageId!.Value,
+                OffspringCount = offspringCount,
+                BirthDate = birthDate
+            }
+        );
+
+        return Result.Success();
+    }
 }

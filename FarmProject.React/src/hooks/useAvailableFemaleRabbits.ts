@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { RabbitService } from '../api/services/rabbitService';
-import { mapApiRabbitsToUI, type RabbitData } from '../utils/rabbitMappers';
+import { useState, useEffect, useCallback } from "react";
+import { RabbitService } from "../api/services/rabbitService";
+import { mapApiRabbitsToUI, type RabbitData } from "../utils/rabbitMappers";
 
 interface UseAvailableFemaleRabbitsResult {
   rabbits: RabbitData[];
@@ -20,7 +20,7 @@ interface UseAvailableFemaleRabbitsOptions {
 
 export const useAvailableFemaleRabbits = ({
   pageSize,
-  initialPage = 1
+  initialPage = 1,
 }: UseAvailableFemaleRabbitsOptions): UseAvailableFemaleRabbitsResult => {
   const [rabbits, setRabbits] = useState<RabbitData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -29,18 +29,21 @@ export const useAvailableFemaleRabbits = ({
   const [totalPages, setTotalPages] = useState(0);
   const [pageIndex, setPageIndexInternal] = useState(initialPage);
 
-  const setPageIndex = useCallback((newPageOrUpdater: number | ((prevPage: number) => number)) => {
-    if (typeof newPageOrUpdater === 'function') {
-      setPageIndexInternal(prevPage => newPageOrUpdater(prevPage));
-    } else {
-      setPageIndexInternal(newPageOrUpdater);
-    }
-  }, []);
+  const setPageIndex = useCallback(
+    (newPageOrUpdater: number | ((prevPage: number) => number)) => {
+      if (typeof newPageOrUpdater === "function") {
+        setPageIndexInternal((prevPage) => newPageOrUpdater(prevPage));
+      } else {
+        setPageIndexInternal(newPageOrUpdater);
+      }
+    },
+    []
+  );
 
   const fetchRabbits = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await RabbitService.getRabbits({
         pageIndex: pageIndex,
@@ -54,8 +57,8 @@ export const useAvailableFemaleRabbits = ({
       setTotalCount(response.totalPages * pageSize);
       setTotalPages(response.totalPages);
     } catch (err) {
-      console.error('Error fetching available female rabbits:', err);
-      setError('Failed to load available female rabbits. Please try again.');
+      console.error("Error fetching available female rabbits:", err);
+      setError("Failed to load available female rabbits. Please try again.");
       setRabbits([]);
       setTotalCount(0);
       setTotalPages(0);

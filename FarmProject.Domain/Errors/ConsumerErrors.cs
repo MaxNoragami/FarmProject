@@ -2,7 +2,7 @@
 
 namespace FarmProject.Domain.Errors;
 
-public class ConsumerErrors
+public static class ConsumerErrors
 {
     public static readonly Error BreedingRabbitNotFound = new(
         "Consumer.BreedingRabbitNotFound", "Rabbit referenced in the event could not be found");

@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { PairService } from '../api/services/pairService';
-import { mapApiPairsToUI, type PairData } from '../utils/pairMappers';
-import { pairingStatusEnumToString } from '../types/PairingStatus';
+import { useState, useEffect, useCallback } from "react";
+import { PairService } from "../api/services/pairService";
+import { mapApiPairsToUI, type PairData } from "../utils/pairMappers";
+import { pairingStatusEnumToString } from "../types/PairingStatus";
 
 interface UsePairDataResult {
   pairs: PairData[];
@@ -34,7 +34,7 @@ export const usePairData = ({
   pageSize,
   filters = {},
   logicalOperator = 0,
-  sort = '',
+  sort = "",
 }: UsePairDataOptions): UsePairDataResult => {
   const [pairs, setPairs] = useState<PairData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -47,7 +47,7 @@ export const usePairData = ({
   const fetchPairs = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await PairService.getPairs({
         pageIndex: pageIndex + 1,
@@ -64,8 +64,8 @@ export const usePairData = ({
       setHasNextPage(response.hasNextPage);
       setHasPreviousPage(response.hasPreviousPage);
     } catch (err) {
-      console.error('Error fetching pairs:', err);
-      setError('Failed to load pairs. Please try again.');
+      console.error("Error fetching pairs:", err);
+      setError("Failed to load pairs. Please try again.");
       setPairs([]);
       setTotalCount(0);
       setTotalPages(0);
@@ -76,27 +76,34 @@ export const usePairData = ({
     }
   }, [pageIndex, pageSize, filters, logicalOperator, sort]);
 
-  const updatePairStatus = useCallback(async (pairId: number, pairingStatus: number) => {
-    try {
-      const updatedPair = await PairService.updatePairStatus(pairId, pairingStatus);
-      
-      // Update local state with the response from API
-      setPairs(prevPairs => 
-        prevPairs.map(pair => 
-          pair.id === pairId 
-            ? {
-                ...pair,
-                status: pairingStatusEnumToString[updatedPair.pairingStatus] || pair.status,
-                endDate: updatedPair.endDate
-              }
-            : pair
-        )
-      );
-    } catch (err) {
-      console.error('Error updating pair status:', err);
-      throw err;
-    }
-  }, []);
+  const updatePairStatus = useCallback(
+    async (pairId: number, pairingStatus: number) => {
+      try {
+        const updatedPair = await PairService.updatePairStatus(
+          pairId,
+          pairingStatus
+        );
+
+        setPairs((prevPairs) =>
+          prevPairs.map((pair) =>
+            pair.id === pairId
+              ? {
+                  ...pair,
+                  status:
+                    pairingStatusEnumToString[updatedPair.pairingStatus] ||
+                    pair.status,
+                  endDate: updatedPair.endDate,
+                }
+              : pair
+          )
+        );
+      } catch (err) {
+        console.error("Error updating pair status:", err);
+        throw err;
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     fetchPairs();

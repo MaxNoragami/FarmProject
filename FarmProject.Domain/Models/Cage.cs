@@ -48,6 +48,7 @@ public class Cage(string name) : Entity
             return Result.Failure(CageErrors.NegativeOffspringNum);
 
         OffspringCount += count;
+
         return Result.Success();
     }
 

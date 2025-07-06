@@ -52,24 +52,20 @@ public class FarmTaskController(IFarmTaskService farmTaskService) : AppBaseContr
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<ViewFarmTaskDto>> MarkTaskCompleted(int id)
+    public async Task<ActionResult<ViewFarmTaskDto>> MarkTaskCompleted(
+        int id, 
+        [FromBody] CompleteTaskDto? completeTaskDto = null)
     {
-        var result = await _farmTaskService.MarkFarmTaskAsCompleted(id);
+        CompleteTaskData? completeTaskData = null;
+
+        if (completeTaskDto != null)
+            completeTaskData = completeTaskDto.ToCompleteTaskData();
+
+        var result = await _farmTaskService.MarkFarmTaskAsCompleted(id, completeTaskData);
 
         if (result.IsSuccess)
             return Ok(result.Value.ToViewFarmTaskDto());
         else
             return HandleError<ViewFarmTaskDto>(result.Error);
-    }
-
-    private static DateTime ParseDate(string? dateInput)
-    {
-        if (string.IsNullOrEmpty(dateInput))
-            return DateTime.Today;
-
-        if (DateTime.TryParse(dateInput, out var result))
-            return result;
-
-        return DateTime.Today;
     }
 }

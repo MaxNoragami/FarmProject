@@ -41,12 +41,16 @@ public class LoggingFarmTaskService(
             async () =>
                 await _farmTaskService.GetPaginatedFarmTasks(request));
 
-    public async Task<Result<FarmTask>> MarkFarmTaskAsCompleted(int taskId)
+    public async Task<Result<FarmTask>> MarkFarmTaskAsCompleted(
+        int taskId, 
+        CompleteTaskData? completeTaskData = null
+    )
         => await _loggingHelper.LogOperation(
             LoggingUtilities.FormatMethodCall(
                 nameof(MarkFarmTaskAsCompleted),
-                (nameof(taskId), taskId)
+                (nameof(taskId), taskId),
+                (nameof(completeTaskData), completeTaskData)
             ),
             async () =>
-                await _farmTaskService.MarkFarmTaskAsCompleted(taskId));
+                await _farmTaskService.MarkFarmTaskAsCompleted(taskId, completeTaskData));
 }

@@ -3,6 +3,7 @@ using FarmProject.API.Dtos.FarmTasks;
 using FarmProject.API.Dtos.Pairs;
 using FarmProject.API.IntegrationTests.Helpers;
 using FarmProject.Application;
+using FarmProject.Application.BirthService;
 using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Application.CageService;
 using FarmProject.Application.Common.Models;
@@ -85,7 +86,7 @@ public class FarmTaskControllerTests
             var endDate = returnedPairDto.EndDate!.Value;
             var expectedDueDate = endDate.AddMonths(1).AddDays(-3).Date;
 
-            var farmTaskResult = await farmTaskController.MarkTaskCompleted(1);
+            var farmTaskResult = await farmTaskController.MarkTaskCompleted(1, null);
             var okFarmTaskResult = Assert.IsType<OkObjectResult>(farmTaskResult.Result);
             var returnedFarmTaskDto = Assert.IsAssignableFrom<ViewFarmTaskDto>(okFarmTaskResult.Value);
 
@@ -135,7 +136,10 @@ public class FarmTaskControllerTests
 
         var domainEventDispatcher = new DomainEventDispatcher(serviceProvider);
         var pairingService = new PairingService(unitOfWork, breedingRabbitService, domainEventDispatcher);
-        var farmTaskService = new FarmTaskService(unitOfWork);
+
+        var birthService = new BirthService(unitOfWork, domainEventDispatcher);
+
+        var farmTaskService = new FarmTaskService(unitOfWork, birthService);
 
         var pairController = new PairController(pairingService);
         var farmTaskController = new FarmTaskController(farmTaskService);

@@ -1,14 +1,20 @@
-﻿using FarmProject.Application.Common.Models;
+﻿using FarmProject.Application.BirthService;
+using FarmProject.Application.Common.Models;
 using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Domain.Common;
+using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Models;
 
 namespace FarmProject.Application.FarmTaskService;
 
-public class FarmTaskService(IUnitOfWork unitOfWork) : IFarmTaskService
+public class FarmTaskService(
+        IUnitOfWork unitOfWork,
+        IBirthService birthService
+    ) : IFarmTaskService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IBirthService _birthService = birthService;
 
     public async Task<Result<FarmTask>> CreateFarmTask(FarmTask farmTask)
     {
@@ -34,19 +40,76 @@ public class FarmTaskService(IUnitOfWork unitOfWork) : IFarmTaskService
         return Result.Success(farmTasks);
     }
 
-    public async Task<Result<FarmTask>> MarkFarmTaskAsCompleted(int taskId)
+    public async Task<Result<FarmTask>> MarkFarmTaskAsCompleted(int taskId, CompleteTaskData? completeTaskData = null)
     {
-        var requestTask = await _unitOfWork.FarmTaskRepository.GetByIdAsync(taskId);
+        try
+        {
+            await _unitOfWork.BeginTransactionAsync();
 
-        if (requestTask is null)
-            return Result.Failure<FarmTask>(FarmTaskErrors.NotFound);
+            var requestTask = await _unitOfWork.FarmTaskRepository.GetByIdAsync(taskId);
 
-        var taskMarkCompletedResult = requestTask.MarkAsCompleted();
-        if (taskMarkCompletedResult.IsFailure)
-            return Result.Failure<FarmTask>(taskMarkCompletedResult.Error);
+            if (requestTask == null)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return Result.Failure<FarmTask>(FarmTaskErrors.NotFound);
+            }
+                
 
-        var updateTask = await _unitOfWork.FarmTaskRepository.UpdateAsync(requestTask);
+            if (requestTask.IsCompleted)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return Result.Failure<FarmTask>(FarmTaskErrors.AlreadyCompleted);
+            }
 
-        return Result.Success(updateTask);
-    }  
+            var taskActionResult = requestTask.FarmTaskType switch
+            {
+                FarmTaskType.Weaning => await HandleWeaningCompletion(requestTask, completeTaskData),
+                FarmTaskType.OffspringSeparation => await HandleOffspringSeparationCompletion(requestTask, completeTaskData),
+                _ => Result.Success()
+            };
+
+            if (taskActionResult.IsFailure)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                return Result.Failure<FarmTask>(taskActionResult.Error);
+            }
+
+            var taskMarkCompletedResult = requestTask.MarkAsCompleted();
+            if (taskMarkCompletedResult.IsFailure)
+                return Result.Failure<FarmTask>(taskMarkCompletedResult.Error);
+
+            var updateTask = await _unitOfWork.FarmTaskRepository.UpdateAsync(requestTask);
+
+            await _unitOfWork.CommitTransactionAsync();
+            return Result.Success(updateTask);
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
+    }
+
+    private async Task<Result> HandleWeaningCompletion(FarmTask farmTask, CompleteTaskData? completeTaskData)
+    {
+        if (farmTask.CageId == null || completeTaskData?.NewCageId == null)
+            return Result.Failure(FarmTaskErrors.MissingParameter);
+
+        return await _birthService.WeanOffspring
+            (farmTask.CageId.Value, 
+            completeTaskData.NewCageId.Value
+        );
+    }
+
+    private async Task<Result> HandleOffspringSeparationCompletion(FarmTask farmTask, CompleteTaskData? completeTaskData)
+    {
+        if (farmTask.CageId == null || completeTaskData == null)
+            return Result.Failure(FarmTaskErrors.MissingParameter);
+
+        return await _birthService.SeparateOffspring(
+            farmTask.CageId.Value,
+            completeTaskData.OtherCageId,
+            completeTaskData.FemaleOffspringCount
+        );
+    }
 }

@@ -28,6 +28,8 @@ public class FarmTaskFilterDto : BaseEntityFilter<FarmTask>
         if (dueOnValue.HasValue)
             expressions.Add(farmTask => farmTask.DueOn.Date == dueOnValue.Value.Date);
 
+        if (FarmTaskType.HasValue)
+            expressions.Add(farmTask => farmTask.FarmTaskType == FarmTaskType.Value);
         return expressions;
     }
 

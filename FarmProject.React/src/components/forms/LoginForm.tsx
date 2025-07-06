@@ -1,9 +1,9 @@
-import React from 'react';
-import { Box, TextField, Button, Typography } from '@mui/material';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, type LoginFormFields } from '../../schemas/loginSchemas';
-import { Link as RouterLink } from 'react-router-dom';
+import React from "react";
+import { Box, TextField, Button, Typography } from "@mui/material";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, type LoginFormFields } from "../../schemas/loginSchemas";
+import { Link as RouterLink } from "react-router-dom";
 
 interface LoginFormProps {
   onSubmit: (data: LoginFormFields) => Promise<void>;
@@ -20,13 +20,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isSubmitting }) => {
   });
 
   return (
-    <Box 
-      component="form" 
-      onSubmit={handleSubmit(onSubmit)} 
-      sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 2.5, sm: 3 } }}
+    <Box
+      component="form"
+      onSubmit={handleSubmit(onSubmit)}
+      sx={{ display: "flex", flexDirection: "column", gap: { xs: 2.5, sm: 3 } }}
     >
       <TextField
-        {...register('email')}
+        {...register("email")}
         label="Email"
         variant="outlined"
         fullWidth
@@ -36,14 +36,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isSubmitting }) => {
         placeholder="Enter your email address"
         size="medium"
         sx={{
-          '& .MuiInputBase-root': {
-            fontSize: { xs: '1rem', sm: '1.1rem' }
-          }
+          "& .MuiInputBase-root": {
+            fontSize: { xs: "1rem", sm: "1.1rem" },
+          },
         }}
       />
 
       <TextField
-        {...register('password')}
+        {...register("password")}
         label="Password"
         variant="outlined"
         fullWidth
@@ -53,9 +53,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isSubmitting }) => {
         placeholder="Enter your password"
         size="medium"
         sx={{
-          '& .MuiInputBase-root': {
-            fontSize: { xs: '1rem', sm: '1.1rem' }
-          }
+          "& .MuiInputBase-root": {
+            fontSize: { xs: "1rem", sm: "1.1rem" },
+          },
         }}
       />
 
@@ -64,29 +64,35 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isSubmitting }) => {
         variant="contained"
         size="medium"
         disabled={isSubmitting}
-        sx={{ 
-          alignSelf: 'center',
-          width: { xs: '70%', sm: '60%' },
+        sx={{
+          alignSelf: "center",
+          width: { xs: "70%", sm: "60%" },
           mt: { xs: 1, sm: 2 },
           py: { xs: 1, sm: 1.2 },
-          fontSize: { xs: '0.95rem', sm: '1rem' },
+          fontSize: { xs: "0.95rem", sm: "1rem" },
           fontWeight: 600,
-          borderRadius: { xs: 1.5, sm: 2 }
+          borderRadius: { xs: 1.5, sm: 2 },
         }}
       >
-        {isSubmitting ? 'Logging in...' : 'Login'}
+        {isSubmitting ? "Logging in..." : "Login"}
       </Button>
       <Typography
         variant="body2"
-        sx={{ mt: 0.5, mb: 0.5, textAlign: 'center', color: 'text.secondary', lineHeight: 1.2 }}
+        sx={{
+          mt: 0.5,
+          mb: 0.5,
+          textAlign: "center",
+          color: "text.secondary",
+          lineHeight: 1.2,
+        }}
       >
-        Don't have an account?{' '}
+        Don't have an account?{" "}
         <RouterLink
           to="/register"
           style={{
-            textDecoration: 'none',
-            color: 'var(--mui-palette-primary-main, #1976d2)',
-            fontWeight: 600
+            textDecoration: "none",
+            color: "var(--mui-palette-primary-main, #1976d2)",
+            fontWeight: 600,
           }}
         >
           Register

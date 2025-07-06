@@ -3,5 +3,8 @@
 public enum FarmTaskType
 {
     NestPreparation,
+    NestRemoval,
+    Weaning,
+    OffspringSeparation
 
 }

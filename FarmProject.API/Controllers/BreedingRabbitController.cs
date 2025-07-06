@@ -1,6 +1,7 @@
 ﻿using FarmProject.API.Attributes;
 using FarmProject.API.Dtos;
 using FarmProject.API.Dtos.BreedingRabbits;
+using FarmProject.Application.BirthService;
 using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Application.CageService;
 using FarmProject.Application.Common;
@@ -19,11 +20,13 @@ namespace FarmProject.API.Controllers;
 [AuthorizeRoles(UserRole.Worker, UserRole.Logistics)]
 public class BreedingRabbitController(
         IBreedingRabbitService breedingRabbitService,
-        ICageService cageService) 
+        ICageService cageService,
+        IBirthService birthService) 
     : AppBaseController
 {
     private readonly IBreedingRabbitService _breedingRabbitService = breedingRabbitService;
     private readonly ICageService _cageService = cageService;
+    private readonly IBirthService _birthService = birthService;
 
     [HttpGet]
     public async Task<ActionResult<PaginatedResult<ViewBreedingRabbitDto>>> GetPaginatedBreedingRabbits(
@@ -84,6 +87,19 @@ public class BreedingRabbitController(
             return CreatedAtAction(nameof(GetBreedingRabbit), 
                 new { id = createdBreedingRabbit.Id }, createdBreedingRabbit);
         }
+        else
+            return HandleError<ViewBreedingRabbitDto>(result.Error);
+    }
+
+    [HttpPost("{id}/birth")]
+    public async Task<ActionResult<ViewBreedingRabbitDto>> RecordBirth(
+        int id,
+        RecordBirthDto recordBirthDto)
+    {
+        var result = await _birthService.RecordBirth(id, recordBirthDto.OffspringCount);
+
+        if (result.IsSuccess)
+            return Ok(result.Value.ToViewBreedingRabbitDto());
         else
             return HandleError<ViewBreedingRabbitDto>(result.Error);
     }

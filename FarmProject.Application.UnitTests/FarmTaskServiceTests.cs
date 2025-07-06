@@ -24,7 +24,7 @@ public class FarmTaskServiceTests
         await mockFarmTaskRepo.AddAsync(expectedTask);
 
         var mockUnitOfWork = new MockUnitOfWork(farmTaskRepository: mockFarmTaskRepo);
-        var farmTaskService = new FarmTaskServiceClass(mockUnitOfWork);
+        var farmTaskService = new FarmTaskServiceClass(mockUnitOfWork, null);
 
         var result = await farmTaskService.GetFarmTaskById(1);
 
@@ -48,7 +48,7 @@ public class FarmTaskServiceTests
         await mockFarmTaskRepo.AddAsync(task);
 
         var mockUnitOfWork = new MockUnitOfWork(farmTaskRepository: mockFarmTaskRepo);
-        var farmTaskService = new FarmTaskServiceClass(mockUnitOfWork);
+        var farmTaskService = new FarmTaskServiceClass(mockUnitOfWork, null);
 
         var result = await farmTaskService.MarkFarmTaskAsCompleted(1);
 

@@ -1,46 +1,35 @@
-import { OffspringType } from '../types/OffspringType';
-import { type CageData as ApiCageData } from '../api/types/cageTypes';
-import { type CageData as MockCageData } from '../data/mockCageData';
+import { OffspringType } from "../types/OffspringType";
+import { type CageData } from "./cageMappers";
 
-export const getCageLabel = (cage: ApiCageData | MockCageData): string => {
-  if (!cage) return 'Empty';
+export const getCageLabel = (cage: CageData): string => {
+  if (!cage) return "Empty";
 
-  if (typeof cage.offspringType === 'number') {
-    switch (cage.offspringType) {
-      case 0:
-        return OffspringType.None;
-      case 1:
-        return OffspringType.Mixed;
-      case 2:
-        return OffspringType.Female;
-      case 3:
-        return OffspringType.Male;
-      default:
-        return 'Empty';
-    }
+  if (cage.rabbitId) {
+    return "Occupied";
+  } else if (cage.offspringCount > 0) {
+    return `${cage.offspringCount} offspring`;
+  } else {
+    return "Empty";
   }
-
-  if (typeof cage.offspringType === 'string') {
-    return cage.offspringType;
-  }
-
-  return 'Empty';
 };
 
-export const getCageChipColor = (cage: ApiCageData | MockCageData): any => {
-  const label = getCageLabel(cage);
-  if (label === OffspringType.None || label === 'Empty') {
-    return 'success';
-  }
+export const getCageChipColor = (
+  cage: CageData
+):
+  | "default"
+  | "primary"
+  | "secondary"
+  | "error"
+  | "info"
+  | "success"
+  | "warning" => {
+  if (!cage) return "default";
 
-  switch (label) {
-    case OffspringType.Mixed:
-      return 'warning';
-    case OffspringType.Female:
-      return 'secondary';
-    case OffspringType.Male:
-      return 'info';
-    default:
-      return 'default';
+  if (cage.rabbitId) {
+    return "primary";
+  } else if (cage.offspringCount > 0) {
+    return "success";
+  } else {
+    return "default";
   }
 };

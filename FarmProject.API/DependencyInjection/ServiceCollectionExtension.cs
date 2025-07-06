@@ -1,4 +1,6 @@
-﻿using FarmProject.Application.BreedingRabbitsService;
+﻿using FarmProject.Application.BirthService;
+using FarmProject.Application.BirthService.Validators;
+using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Application.BreedingRabbitsService.Validators;
 using FarmProject.Application.CageService;
 using FarmProject.Application.CageService.Validators;
@@ -24,6 +26,7 @@ public static class ServiceCollectionExtension
         services.AddScoped<BreedingRabbitService>();
         services.AddScoped<FarmTaskService>();
         services.AddScoped<PairingService>();
+        services.AddScoped<BirthService>();
 
         services.AddScoped<IBreedingRabbitService>(provider =>
         {
@@ -69,6 +72,17 @@ public static class ServiceCollectionExtension
             return new LoggingPairingService(validatedService, loggingHelper);
         });
 
+        services.AddScoped<IBirthService>(provider =>
+        {
+            var baseService = provider.GetRequiredService<BirthService>();
+
+            var validationHelper = provider.GetRequiredService<ValidationHelper>();
+            var validatedService = new ValidationBirthService(baseService, validationHelper);
+
+            var loggingHelper = provider.GetRequiredService<LoggingHelper>();
+            return new LoggingBirthService(validatedService, loggingHelper);
+        });
+
         return services;
     }
 
@@ -87,6 +101,10 @@ public static class ServiceCollectionExtension
         services.AddScoped<IValidator<PaginatedRequestParam<FarmTaskFilterDto>>, PaginatedRequestParamValidator<FarmTaskFilterDto>>();
         services.AddScoped<IValidator<PaginatedRequestParam<PairFilterDto>>, PaginatedRequestParamValidator<PairFilterDto>>();
 
+        services.AddScoped<IValidator<RecordBirthParam>, RecordBirthParamValidator>();
+        services.AddScoped<IValidator<SeparateOffspringParam>, SeparateOffspringParamValidator>();
+        services.AddScoped<IValidator<WeanOffspringParam>, WeanOffspringParamValidator>();
+
         return services;
     }
 
@@ -94,6 +112,8 @@ public static class ServiceCollectionExtension
     {
         services.AddScoped<IEventConsumer<BreedEvent>, BreedEventConsumer>();
         services.AddScoped<IEventConsumer<NestPrepEvent>, NestPrepEventConsumer>();
+        services.AddScoped<IEventConsumer<BirthEvent>, BirthEventConsumer>();
+        services.AddScoped<IEventConsumer<OffspringSeparationEvent>, OffspringSeparationEventConsumer>();
         services.AddScoped<DomainEventDispatcher>();
 
         return services;

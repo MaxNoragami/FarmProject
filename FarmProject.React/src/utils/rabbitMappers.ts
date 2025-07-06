@@ -1,5 +1,5 @@
-import { type ApiRabbitDto } from '../api/types/rabbitTypes';
-import { BreedingStatus } from '../types/BreedingStatus';
+import { type ApiRabbitDto } from "../api/types/rabbitTypes";
+import { BreedingStatus } from "../types/BreedingStatus";
 
 export interface RabbitData {
   number: number;
@@ -9,7 +9,6 @@ export interface RabbitData {
   status: BreedingStatus;
 }
 
-// Map breeding status number to string
 const breedingStatusEnumToString: Record<number, BreedingStatus> = {
   0: BreedingStatus.Available,
   1: BreedingStatus.Paired,
@@ -25,7 +24,9 @@ export const mapApiRabbitToUI = (apiRabbit: ApiRabbitDto): RabbitData => {
     rabbitId: apiRabbit.id,
     name: apiRabbit.name,
     cageId: apiRabbit.cageId,
-    status: breedingStatusEnumToString[apiRabbit.breedingStatus] || BreedingStatus.Available,
+    status:
+      breedingStatusEnumToString[apiRabbit.breedingStatus] ||
+      BreedingStatus.Available,
   };
 };
 

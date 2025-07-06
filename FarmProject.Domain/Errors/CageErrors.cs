@@ -2,7 +2,7 @@
 
 namespace FarmProject.Domain.Errors;
 
-public class CageErrors
+public static class CageErrors
 {
     public static readonly Error NoBreedingRabbit = new(
         "Cage.NoBreedingRabbit", "No breeding rabbit is assigned to this cage");
@@ -30,4 +30,7 @@ public class CageErrors
 
     public static readonly Error MovementFailure = new(
         "Cage.MovementFailure", "An unexpected error occurred while moving the breeding rabbit to another cage");
+
+    public static readonly Error InvalidSeparation = new(
+        "Cage.OffspringSeparationFailure", "Separation of offsprings is not possible with the set parameters");
 }

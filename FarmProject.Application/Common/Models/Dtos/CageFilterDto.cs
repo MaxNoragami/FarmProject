@@ -21,8 +21,13 @@ public class CageFilterDto : BaseEntityFilter<Cage>
         if (IsOccupied.HasValue)
             expressions.Add(
                 cage => (IsOccupied.Value)
-                    ? cage.BreedingRabbit != null
-                    : cage.BreedingRabbit == null);
+                    ? cage.BreedingRabbit != null && 
+                        cage.OffspringCount > 0 &&
+                        cage.OffspringType != Domain.Constants.OffspringType.None
+
+                    : cage.BreedingRabbit == null && 
+                        cage.OffspringCount == 0 && 
+                        cage.OffspringType == Domain.Constants.OffspringType.None);
 
         if (OffspringType.HasValue)
             expressions.Add(

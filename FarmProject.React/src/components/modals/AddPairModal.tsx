@@ -1,8 +1,8 @@
-import React from 'react';
-import { Dialog, DialogTitle, DialogContent, IconButton } from '@mui/material';
-import { Close } from '@mui/icons-material';
-import PairForm from '../forms/PairForm';
-import type { AddPairFormFields } from '../../schemas/pairSchemas';
+import React from "react";
+import { Dialog, DialogTitle, DialogContent, IconButton } from "@mui/material";
+import { Close } from "@mui/icons-material";
+import PairForm from "../forms/PairForm";
+import type { AddPairFormFields } from "../../schemas/pairSchemas";
 
 interface AddPairModalProps {
   open: boolean;
@@ -11,10 +11,21 @@ interface AddPairModalProps {
   error?: string | null;
 }
 
-const AddPairModal: React.FC<AddPairModalProps> = ({ open, onClose, onSubmit, error }) => {
+const AddPairModal: React.FC<AddPairModalProps> = ({
+  open,
+  onClose,
+  onSubmit,
+  error,
+}) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         Create New Breeding Pair
         <IconButton onClick={onClose} size="small">
           <Close />

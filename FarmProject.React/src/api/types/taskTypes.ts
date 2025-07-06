@@ -5,6 +5,7 @@ export interface ApiTaskDto {
   isCompleted: boolean;
   createdOn: string;
   dueOn: string;
+  cageId: number | null; 
 }
 
 export interface TaskListRequest {

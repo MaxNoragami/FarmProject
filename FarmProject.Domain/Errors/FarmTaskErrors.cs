@@ -2,7 +2,7 @@
 
 namespace FarmProject.Domain.Errors;
 
-public class FarmTaskErrors
+public static class FarmTaskErrors
 {
     public static readonly Error NotFound = new(
         "FarmTask.NotFound", "Farm task not found");
@@ -12,4 +12,7 @@ public class FarmTaskErrors
 
     public static readonly Error AlreadyCompleted = new(
         "FarmTask.AlreadyCompleted", "Farm task is already marked as completed");
+
+    public static readonly Error MissingParameter = new(
+        "FarmTask.MissingParameter", "One or more parameters are missing");
 }
