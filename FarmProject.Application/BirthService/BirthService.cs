@@ -1,20 +1,21 @@
 ﻿using FarmProject.Application.Events;
 using FarmProject.Domain.Common;
-using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
-using FarmProject.Domain.Events;
 using FarmProject.Domain.Models;
+using FarmProject.Domain.Services;
 
 
 namespace FarmProject.Application.BirthService;
 
 public class BirthService(
         IUnitOfWork unitOfWork,
-        DomainEventDispatcher domainEventDispatcher)
+        DomainEventDispatcher domainEventDispatcher,
+        BirthDomainService birthDomainService)
     : IBirthService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly DomainEventDispatcher _domainEventDispatcher = domainEventDispatcher;
+    private readonly BirthDomainService _birthDomainService = birthDomainService;
 
     public async Task<Result<BreedingRabbit>> RecordBirth(int breedingRabbitId, int offspringCount)
     {
@@ -30,22 +31,12 @@ public class BirthService(
             if (cage == null)
                 return Result.Failure<BreedingRabbit>(CageErrors.NotFound);
 
-            var birthResult = breedingRabbit.RecordBirth(offspringCount, DateTime.Now);
-            if (birthResult.IsFailure)
+            var result = _birthDomainService.RecordBirth(breedingRabbit, cage, offspringCount, DateTime.Now);
+            if (result.IsFailure)
             {
                 await _unitOfWork.RollbackTransactionAsync();
-                return Result.Failure<BreedingRabbit>(birthResult.Error);
+                return Result.Failure<BreedingRabbit>(result.Error);
             }
-
-            var offspringResult = cage.AddOffspring(offspringCount);
-            if (offspringResult.IsFailure)
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                return Result.Failure<BreedingRabbit>(offspringResult.Error);
-            }
-
-            if (offspringCount > 0)
-                cage.OffspringType = OffspringType.Mixed;
 
             await _unitOfWork.BreedingRabbitRepository.UpdateAsync(breedingRabbit);
             await _unitOfWork.CageRepository.UpdateAsync(cage);
@@ -68,35 +59,19 @@ public class BirthService(
         if (oldCage == null)
             return Result.Failure(CageErrors.NotFound);
 
-        if (oldCage.BreedingRabbit == null || oldCage.BreedingRabbit.BreedingStatus != BreedingStatus.Nursing)
-            return Result.Failure(CageErrors.NoBreedingRabbit);
-
-            var newCage = await _unitOfWork.CageRepository.GetByIdAsync(newCageId);
+        var newCage = await _unitOfWork.CageRepository.GetByIdAsync(newCageId);
         if (newCage == null)
             return Result.Failure(CageErrors.NotFound);
 
-        if (newCage.BreedingRabbit != null || newCage.OffspringType != OffspringType.None)
-            return Result.Failure(CageErrors.Occupied);
+        var result = _birthDomainService.WeanOffspring(oldCage, newCage, DateTime.Now);
+        if (result.IsFailure)
+            return Result.Failure(result.Error);
 
-        var offspringAmount = oldCage.OffspringCount;
-
-        oldCage.RemoveOffspring(offspringAmount);
-        oldCage.OffspringType = OffspringType.None;
-        newCage.AddOffspring(offspringAmount);
-        newCage.OffspringType = OffspringType.Mixed;
-        oldCage.BreedingRabbit.BreedingStatus = BreedingStatus.Recovering;
-
-        await _unitOfWork.BreedingRabbitRepository.UpdateAsync(oldCage.BreedingRabbit);
+        await _unitOfWork.BreedingRabbitRepository.UpdateAsync(oldCage.BreedingRabbit!);
         await _unitOfWork.CageRepository.UpdateAsync(oldCage);
         await _unitOfWork.CageRepository.UpdateAsync(newCage);
 
-        var offspringSeparationEvent = new OffspringSeparationEvent
-        {
-            NewCageId = newCageId,
-            CreatedOn = DateTime.Now
-        };
-
-        await _domainEventDispatcher.DispatchEventsAsync(new[] { offspringSeparationEvent });
+        await _domainEventDispatcher.DispatchEventsAsync([result.Value]);
 
         return Result.Success();
     }
@@ -107,38 +82,25 @@ public class BirthService(
         if (currentOffspringCage == null)
             return Result.Failure(CageErrors.NotFound);
 
-        var currentOffspringAmount = currentOffspringCage.OffspringCount;
-        if (femaleOffspringCount.HasValue && femaleOffspringCount > currentOffspringAmount)
-            return Result.Failure(CageErrors.InvalidSeparation);
-
-        var otherOffspringCage = await _unitOfWork.CageRepository.GetByIdAsync(otherCageId ?? 0);
-
-        if (femaleOffspringCount.HasValue && femaleOffspringCount == currentOffspringAmount)
+        Cage? otherOffspringCage = null;
+        if (otherCageId.HasValue)
         {
-            currentOffspringCage.OffspringType = OffspringType.Female;
-            await _unitOfWork.CageRepository.UpdateAsync(currentOffspringCage);
-            return Result.Success();
-        }
-        else if (!femaleOffspringCount.HasValue || femaleOffspringCount <= 0)
-        {
-            currentOffspringCage.OffspringType = OffspringType.Male;
-            await _unitOfWork.CageRepository.UpdateAsync(currentOffspringCage);
-            return Result.Success();
+            otherOffspringCage = await _unitOfWork.CageRepository.GetByIdAsync(otherCageId.Value);
+            if (otherOffspringCage == null)
+                return Result.Failure(CageErrors.NotFound);
         }
 
-        if (otherOffspringCage == null)
-            return Result.Failure(CageErrors.InvalidSeparation);
+        var result = _birthDomainService.SeparateOffspring(
+            currentOffspringCage,
+            otherOffspringCage,
+            femaleOffspringCount);
 
-        if (otherOffspringCage.BreedingRabbit != null || otherOffspringCage.OffspringType != OffspringType.None)
-            return Result.Failure(CageErrors.Occupied);
-
-        currentOffspringCage.RemoveOffspring(femaleOffspringCount.Value);
-        currentOffspringCage.OffspringType = OffspringType.Male;
-        otherOffspringCage.AddOffspring(femaleOffspringCount.Value);
-        otherOffspringCage.OffspringType = OffspringType.Female;
+        if (result.IsFailure)
+            return Result.Failure(result.Error);
 
         await _unitOfWork.CageRepository.UpdateAsync(currentOffspringCage);
-        await _unitOfWork.CageRepository.UpdateAsync(otherOffspringCage);
+        if (otherOffspringCage != null)
+            await _unitOfWork.CageRepository.UpdateAsync(otherOffspringCage);
 
         return Result.Success();
     }

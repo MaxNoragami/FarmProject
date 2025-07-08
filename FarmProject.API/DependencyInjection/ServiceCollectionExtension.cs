@@ -12,6 +12,7 @@ using FarmProject.Application.FarmTaskService;
 using FarmProject.Application.PairingService;
 using FarmProject.Application.PairingService.Validators;
 using FarmProject.Domain.Events;
+using FarmProject.Domain.Services;
 using FluentValidation;
 
 namespace FarmProject.API.DependencyInjection;
@@ -26,6 +27,7 @@ public static class ServiceCollectionExtension
         services.AddScoped<BreedingRabbitService>();
         services.AddScoped<FarmTaskService>();
         services.AddScoped<PairingService>();
+        services.AddScoped<BirthDomainService>();
         services.AddScoped<BirthService>();
 
         services.AddScoped<IBreedingRabbitService>(provider =>

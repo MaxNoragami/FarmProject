@@ -40,8 +40,8 @@ public class BirthEventConsumer(
                 dueOn: removeNestDate
             );
 
-            await _farmTaskRepository.AddAsync(kitsWeaningTask);
             await _farmTaskRepository.AddAsync(removeNestTask);
+            await _farmTaskRepository.AddAsync(kitsWeaningTask);
 
             return Result.Success();
         }
