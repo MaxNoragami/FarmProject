@@ -53,12 +53,12 @@ const TasksPage = () => {
     taskType: string;
     isCompleted: boolean | null;
   }>({ taskType: "", isCompleted: null });
-  const [tempSortBy, setTempSortBy] = React.useState("dueOn");
+  const [tempSortBy, setTempSortBy] = React.useState("taskId");
   const [tempSortOrder, setTempSortOrder] = React.useState<"asc" | "desc">(
     "asc"
   );
 
-  const [sortBy, setSortBy] = React.useState<string>("dueOn");
+  const [sortBy, setSortBy] = React.useState<string>("taskId");
   const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
 
   const apiFilters = React.useMemo(() => {
@@ -200,7 +200,7 @@ const TasksPage = () => {
         newFilters.isCompleted = filters.isCompleted;
 
       setFilters(newFilters);
-      setSortBy(newSortBy || "dueOn");
+      setSortBy(newSortBy || "taskId");
       setSortOrder(newSortOrder || "asc");
       setPage(0);
       setFilterDialogOpen(false);

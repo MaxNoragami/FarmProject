@@ -43,7 +43,6 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
   const [selectedCageId, setSelectedCageId] = useState<number | null>(null);
   const cagesPerPage = 2;
 
-  
   const {
     cages,
     loading,
@@ -54,7 +53,7 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
     setPageIndex,
   } = useAvailableCages({
     pageSize: cagesPerPage,
-    enabled: open, 
+    enabled: open,
   });
 
   const {
@@ -114,9 +113,23 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
 
     if (cages.length === 0) {
       return (
-        <Alert severity="warning">
-          No empty cages available. Please add a new cage first.
-        </Alert>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: 150,
+            border: 1,
+            borderColor: "divider",
+            borderRadius: 1,
+            backgroundColor: "grey.50",
+            p: 2,
+          }}
+        >
+          <Typography variant="body1" color="text.secondary">
+            No empty cages available
+          </Typography>
+        </Box>
       );
     }
 
@@ -179,7 +192,7 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
         </Box>
 
         {errors.newCageId && (
-          <Typography variant="body2" color="error.main" sx={{ mb: 2 }}>
+          <Typography variant="body2" color="error.main" sx={{ mb: 0, mt: 0 }}>
             {errors.newCageId.message}
           </Typography>
         )}
@@ -191,7 +204,8 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
               justifyContent: "center",
               alignItems: "center",
               gap: 1,
-              mt: 2,
+              mt: 0,
+              mb: 0,
             }}
           >
             <IconButton
@@ -235,7 +249,7 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
         </IconButton>
       </DialogTitle>
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <DialogContent>
+        <DialogContent sx={{ pb: 0 }}>
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
               {error}
@@ -246,16 +260,19 @@ const CompleteWeaningTaskModal: React.FC<CompleteWeaningTaskModalProps> = ({
             Select a Cage for the Offspring
           </Typography>
 
-          <Box sx={{ mb: 3 }}>{renderCageSelection()}</Box>
+          <Box sx={{ mb: 0 }}>{renderCageSelection()}</Box>
 
           {task.cageId && (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mt: 0, mb: 0 }}
+            >
               Original cage ID: {task.cageId}
             </Typography>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
+        <DialogActions sx={{ p: 2, pt: 1, pb: 2 }}>
           <Button type="submit" variant="contained" disabled={isSubmitting}>
             {isSubmitting ? "Completing..." : "Complete Task"}
           </Button>

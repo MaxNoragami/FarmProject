@@ -27,7 +27,7 @@ interface OffspringSeparationTaskFormProps {
   onCancel: () => void;
   error?: string | null;
   task: TaskData;
-  isModalOpen: boolean; 
+  isModalOpen: boolean;
 }
 
 const OffspringSeparationTaskForm: React.FC<
@@ -36,7 +36,6 @@ const OffspringSeparationTaskForm: React.FC<
   const [selectedCageId, setSelectedCageId] = useState<number | null>(null);
   const cagesPerPage = 2;
 
-  
   const {
     cages,
     loading,
@@ -47,7 +46,7 @@ const OffspringSeparationTaskForm: React.FC<
     setPageIndex,
   } = useAvailableCages({
     pageSize: cagesPerPage,
-    enabled: isModalOpen, 
+    enabled: isModalOpen,
   });
 
   const {
@@ -55,6 +54,7 @@ const OffspringSeparationTaskForm: React.FC<
     handleSubmit,
     setError,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<CompleteOffspringSeparationTaskFormFields>({
     resolver: zodResolver(completeOffspringSeparationTaskSchema),
@@ -62,6 +62,9 @@ const OffspringSeparationTaskForm: React.FC<
       femaleOffspringCount: 0,
     },
   });
+
+  const femaleOffspringCount = watch("femaleOffspringCount");
+  const isCageSelectionRequired = femaleOffspringCount > 0;
 
   useEffect(() => {
     if (error) {
@@ -81,7 +84,14 @@ const OffspringSeparationTaskForm: React.FC<
     data: CompleteOffspringSeparationTaskFormFields
   ) => {
     try {
-      await onSubmit(data);
+      if (data.femaleOffspringCount === 0) {
+        const submitData = {
+          femaleOffspringCount: data.femaleOffspringCount,
+        };
+        await onSubmit(submitData as CompleteOffspringSeparationTaskFormFields);
+      } else {
+        await onSubmit(data);
+      }
     } catch (formError) {
       handleFormError(formError, setError);
     }
@@ -144,6 +154,28 @@ const OffspringSeparationTaskForm: React.FC<
   };
 
   const renderCageSection = () => {
+    if (!isCageSelectionRequired) {
+      return (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: 150,
+            border: 1,
+            borderColor: "divider",
+            borderRadius: 1,
+            backgroundColor: "grey.50",
+            p: 2,
+          }}
+        >
+          <Typography variant="body1" color="text.secondary">
+            No cage selection needed when female offspring count is 0
+          </Typography>
+        </Box>
+      );
+    }
+
     if (loading) {
       return renderCageSkeletons();
     }
@@ -320,18 +352,20 @@ const OffspringSeparationTaskForm: React.FC<
 
             "& input[type=number]::-webkit-inner-spin-button, & input[type=number]::-webkit-outer-spin-button":
               {
-                WebkitAppearance: "none", 
+                WebkitAppearance: "none",
                 margin: 0,
               },
             "& input[type=number]": {
-              MozAppearance: "textfield", 
+              MozAppearance: "textfield",
             },
           }}
         />
       </Box>
 
       <Typography variant="h6" sx={{ mb: 2 }}>
-        Select Target Cage
+        {isCageSelectionRequired
+          ? "Select Target Cage"
+          : "Target Cage (Optional)"}
       </Typography>
 
       <Box sx={{ minHeight: "auto", mb: 3 }}>{renderCageSection()}</Box>
