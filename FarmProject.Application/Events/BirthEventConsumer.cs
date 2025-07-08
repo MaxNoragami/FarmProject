@@ -17,6 +17,9 @@ public class BirthEventConsumer(
     {
         try
         {
+            if (domainEvent.OffspringCount <= 0)
+                return Result.Success();
+
             var birthDate = domainEvent.BirthDate;
 
             var kitsWeaningDate = birthDate.AddDays(30);

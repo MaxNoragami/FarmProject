@@ -13,7 +13,7 @@ public class RecordBirthParamValidator : AbstractValidator<RecordBirthParam>
             .WithErrorCode(ValidationErrors.Codes.InvalidInput);
 
         RuleFor(x => x.offspringCount)
-            .GreaterThan(0)
+            .GreaterThan(-1)
             .WithMessage("Offspring Count must be a positive number")
             .WithErrorCode(ValidationErrors.Codes.InvalidInput);
     }

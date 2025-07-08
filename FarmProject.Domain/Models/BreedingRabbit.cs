@@ -35,7 +35,10 @@ public class BreedingRabbit(string name) : Entity
         if (BreedingStatus != BreedingStatus.Pregnant)
             return Result.Failure(BreedingRabbitErrors.NotPregnant);
 
-        BreedingStatus = BreedingStatus.Nursing;
+        if (offspringCount == 0)
+            BreedingStatus = BreedingStatus.Recovering;
+        else
+            BreedingStatus = BreedingStatus.Nursing;
 
         AddDomainEvent(new BirthEvent
             {

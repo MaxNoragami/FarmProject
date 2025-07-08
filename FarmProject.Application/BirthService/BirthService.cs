@@ -44,7 +44,8 @@ public class BirthService(
                 return Result.Failure<BreedingRabbit>(offspringResult.Error);
             }
 
-            cage.OffspringType = OffspringType.Mixed;
+            if (offspringCount > 0)
+                cage.OffspringType = OffspringType.Mixed;
 
             await _unitOfWork.BreedingRabbitRepository.UpdateAsync(breedingRabbit);
             await _unitOfWork.CageRepository.UpdateAsync(cage);
