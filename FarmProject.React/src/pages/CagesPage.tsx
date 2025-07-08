@@ -53,7 +53,7 @@ const CagesPage = () => {
     "AND" | "OR"
   >("AND");
 
-  const [sortBy, setSortBy] = React.useState<string>("name");
+  const [sortBy, setSortBy] = React.useState<string>("cageId");
   const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
 
   const { cages, loading, error, totalCount, refetch } = useCageData({

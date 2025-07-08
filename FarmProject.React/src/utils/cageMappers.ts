@@ -14,11 +14,11 @@ const mapOffspringTypeFromApi = (apiType: number): OffspringType => {
     case 0:
       return OffspringType.None;
     case 1:
-      return OffspringType.Male;
-    case 2:
-      return OffspringType.Female;
-    case 3:
       return OffspringType.Mixed;
+    case 2:
+      return OffspringType.Male;
+    case 3:
+      return OffspringType.Female;
     default:
       return OffspringType.None;
   }

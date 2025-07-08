@@ -28,6 +28,6 @@ export const getOffspringTypeColor = (type: OffspringType) => {
 export const offspringTypeStringToEnum: Record<string, number> = {
   None: 0,
   Mixed: 1,
-  Female: 2,
-  Male: 3,
+  Male: 2,
+  Female: 3,
 };
