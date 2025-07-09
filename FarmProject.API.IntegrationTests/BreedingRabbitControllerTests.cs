@@ -7,10 +7,10 @@ using FarmProject.Application.CageService;
 using FarmProject.Application.Common.Models;
 using FarmProject.Application.Events;
 using FarmProject.Domain.Constants;
+using FarmProject.Domain.Services;
 using FarmProject.Infrastructure;
 using FarmProject.Infrastructure.Repositories;
 using FluentAssertions;
-using FluentAssertions.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -184,7 +184,7 @@ public class BreedingRabbitControllerTests
 
         var serviceProvider = services.BuildServiceProvider();
         var domainEventDispatcher = new DomainEventDispatcher(serviceProvider);
-        var birthService = new BirthService(unitOfWork, domainEventDispatcher);
+        var birthService = new BirthService(unitOfWork, domainEventDispatcher, new BirthDomainService());
 
         var breedingRabbitService = new BreedingRabbitService(unitOfWork);
         var cageService = new CageService(unitOfWork);

@@ -13,6 +13,7 @@ using FarmProject.Application.FarmTaskService;
 using FarmProject.Application.PairingService;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Events;
+using FarmProject.Domain.Services;
 using FarmProject.Infrastructure;
 using FarmProject.Infrastructure.Repositories;
 using FluentAssertions;
@@ -137,7 +138,7 @@ public class FarmTaskControllerTests
         var domainEventDispatcher = new DomainEventDispatcher(serviceProvider);
         var pairingService = new PairingService(unitOfWork, breedingRabbitService, domainEventDispatcher);
 
-        var birthService = new BirthService(unitOfWork, domainEventDispatcher);
+        var birthService = new BirthService(unitOfWork, domainEventDispatcher, new BirthDomainService());
 
         var farmTaskService = new FarmTaskService(unitOfWork, birthService);
 
