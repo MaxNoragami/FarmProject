@@ -58,9 +58,9 @@ var app = builder.Build();
 // CORS must be FIRST middleware
 app.UseCors("AllowReactApp");
 
-app.UseTiming();
-
 app.UseErrorHandling();
+
+app.UseTransactions();
 
 if (app.Environment.IsDevelopment())
 {

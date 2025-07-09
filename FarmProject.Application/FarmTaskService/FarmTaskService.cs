@@ -42,52 +42,31 @@ public class FarmTaskService(
 
     public async Task<Result<FarmTask>> MarkFarmTaskAsCompleted(int taskId, CompleteTaskData? completeTaskData = null)
     {
-        try
+        var requestTask = await _unitOfWork.FarmTaskRepository.GetByIdAsync(taskId);
+
+        if (requestTask == null)
+            return Result.Failure<FarmTask>(FarmTaskErrors.NotFound);
+
+        if (requestTask.IsCompleted)
+            return Result.Failure<FarmTask>(FarmTaskErrors.AlreadyCompleted);
+
+        var taskActionResult = requestTask.FarmTaskType switch
         {
-            await _unitOfWork.BeginTransactionAsync();
+            FarmTaskType.Weaning => await HandleWeaningCompletion(requestTask, completeTaskData),
+            FarmTaskType.OffspringSeparation => await HandleOffspringSeparationCompletion(requestTask, completeTaskData),
+            _ => Result.Success()
+        };
 
-            var requestTask = await _unitOfWork.FarmTaskRepository.GetByIdAsync(taskId);
+        if (taskActionResult.IsFailure)
+            return Result.Failure<FarmTask>(taskActionResult.Error);
 
-            if (requestTask == null)
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                return Result.Failure<FarmTask>(FarmTaskErrors.NotFound);
-            }
-                
+        var taskMarkCompletedResult = requestTask.MarkAsCompleted();
+        if (taskMarkCompletedResult.IsFailure)
+            return Result.Failure<FarmTask>(taskMarkCompletedResult.Error);
 
-            if (requestTask.IsCompleted)
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                return Result.Failure<FarmTask>(FarmTaskErrors.AlreadyCompleted);
-            }
+        var updateTask = await _unitOfWork.FarmTaskRepository.UpdateAsync(requestTask);
 
-            var taskActionResult = requestTask.FarmTaskType switch
-            {
-                FarmTaskType.Weaning => await HandleWeaningCompletion(requestTask, completeTaskData),
-                FarmTaskType.OffspringSeparation => await HandleOffspringSeparationCompletion(requestTask, completeTaskData),
-                _ => Result.Success()
-            };
-
-            if (taskActionResult.IsFailure)
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                return Result.Failure<FarmTask>(taskActionResult.Error);
-            }
-
-            var taskMarkCompletedResult = requestTask.MarkAsCompleted();
-            if (taskMarkCompletedResult.IsFailure)
-                return Result.Failure<FarmTask>(taskMarkCompletedResult.Error);
-
-            var updateTask = await _unitOfWork.FarmTaskRepository.UpdateAsync(requestTask);
-
-            await _unitOfWork.CommitTransactionAsync();
-            return Result.Success(updateTask);
-        }
-        catch
-        {
-            await _unitOfWork.RollbackTransactionAsync();
-            throw;
-        }
+        return Result.Success(updateTask);
     }
 
     private async Task<Result> HandleWeaningCompletion(FarmTask farmTask, CompleteTaskData? completeTaskData)

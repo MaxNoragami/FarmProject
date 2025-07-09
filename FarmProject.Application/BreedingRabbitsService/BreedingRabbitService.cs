@@ -13,34 +13,20 @@ public class BreedingRabbitService(IUnitOfWork unitOfWork) : IBreedingRabbitServ
 
     public async Task<Result<BreedingRabbit>> AddBreedingRabbitToFarm(string name, int cageId)
     {
-        try {     
-            await _unitOfWork.BeginTransactionAsync();
-            var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
-            if (cage == null)
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                return Result.Failure<BreedingRabbit>(CageErrors.NotFound);
-            }
+        var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
+        if (cage == null)
+            return Result.Failure<BreedingRabbit>(CageErrors.NotFound);
 
-            var breedingRabbit = new BreedingRabbit(name);
+        var breedingRabbit = new BreedingRabbit(name);
 
-            var assignmentResult = cage.AssignBreedingRabbit(breedingRabbit);
-            if (assignmentResult.IsFailure)
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                return Result.Failure<BreedingRabbit>(assignmentResult.Error);
-            }
-            var createdRabbit = await _unitOfWork.BreedingRabbitRepository.AddAsync(breedingRabbit);
-            await _unitOfWork.CageRepository.UpdateAsync(cage);
+        var assignmentResult = cage.AssignBreedingRabbit(breedingRabbit);
+        if (assignmentResult.IsFailure)
+            return Result.Failure<BreedingRabbit>(assignmentResult.Error);
 
-            await _unitOfWork.CommitTransactionAsync();
-            return Result.Success(createdRabbit);
-        }
-        catch
-        {
-            await _unitOfWork.RollbackTransactionAsync();
-            throw;
-        }
+        var createdRabbit = await _unitOfWork.BreedingRabbitRepository.AddAsync(breedingRabbit);
+        await _unitOfWork.CageRepository.UpdateAsync(cage);
+
+        return Result.Success(createdRabbit);
     }
 
     public async Task<Result<BreedingRabbit>> GetBreedingRabbitById(int breedingRabbitId)

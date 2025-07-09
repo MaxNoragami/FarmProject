@@ -39,7 +39,7 @@ public class ErrorHandlingMiddleware(
     }
 }
 
-public static class ErrorHandingExtensions
+public static class ErrorHandlingExtensions
 {
     public static IApplicationBuilder UseErrorHandling(this IApplicationBuilder app)
         => app.UseMiddleware<ErrorHandlingMiddleware>();

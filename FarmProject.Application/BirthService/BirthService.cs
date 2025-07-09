@@ -19,38 +19,24 @@ public class BirthService(
 
     public async Task<Result<BreedingRabbit>> RecordBirth(int breedingRabbitId, int offspringCount)
     {
-        try
-        {
-            await _unitOfWork.BeginTransactionAsync();
+        var breedingRabbit = await _unitOfWork.BreedingRabbitRepository.GetByIdAsync(breedingRabbitId);
+        if (breedingRabbit == null)
+            return Result.Failure<BreedingRabbit>(BreedingRabbitErrors.NotFound);
 
-            var breedingRabbit = await _unitOfWork.BreedingRabbitRepository.GetByIdAsync(breedingRabbitId);
-            if (breedingRabbit == null)
-                return Result.Failure<BreedingRabbit>(BreedingRabbitErrors.NotFound);
+        var cage = await _unitOfWork.CageRepository.GetByIdAsync(breedingRabbit.CageId ?? 0);
+        if (cage == null)
+            return Result.Failure<BreedingRabbit>(CageErrors.NotFound);
 
-            var cage = await _unitOfWork.CageRepository.GetByIdAsync(breedingRabbit.CageId ?? 0);
-            if (cage == null)
-                return Result.Failure<BreedingRabbit>(CageErrors.NotFound);
+        var result = _birthDomainService.RecordBirth(breedingRabbit, cage, offspringCount, DateTime.Now);
+        if (result.IsFailure)
+            return Result.Failure<BreedingRabbit>(result.Error);
 
-            var result = _birthDomainService.RecordBirth(breedingRabbit, cage, offspringCount, DateTime.Now);
-            if (result.IsFailure)
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                return Result.Failure<BreedingRabbit>(result.Error);
-            }
+        await _unitOfWork.BreedingRabbitRepository.UpdateAsync(breedingRabbit);
+        await _unitOfWork.CageRepository.UpdateAsync(cage);
 
-            await _unitOfWork.BreedingRabbitRepository.UpdateAsync(breedingRabbit);
-            await _unitOfWork.CageRepository.UpdateAsync(cage);
+        await _domainEventDispatcher.DispatchEventsAsync(breedingRabbit.DomainEvents);
 
-            await _domainEventDispatcher.DispatchEventsAsync(breedingRabbit.DomainEvents);
-
-            await _unitOfWork.CommitTransactionAsync();
-            return Result.Success(breedingRabbit);
-        }
-        catch
-        {
-            await _unitOfWork.RollbackTransactionAsync();
-            throw;
-        }
+        return Result.Success(breedingRabbit);
     }
 
     public async Task<Result> WeanOffspring(int oldCageId, int newCageId)
