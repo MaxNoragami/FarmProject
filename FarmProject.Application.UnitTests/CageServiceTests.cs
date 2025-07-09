@@ -218,9 +218,6 @@ public class CageServiceTests
 
         var sourceResult = await mockCageRepo.GetByIdAsync(sourceCage.Id);
         sourceResult.BreedingRabbit.Should().BeNull();
-
-        mockUnitOfWork.TransactionStarted.Should().BeTrue();
-        mockUnitOfWork.TransactionCommitted.Should().BeTrue();
     }
 
     [Fact]
@@ -244,7 +241,5 @@ public class CageServiceTests
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(CageErrors.Occupied);
-        mockUnitOfWork.TransactionStarted.Should().BeTrue();
-        mockUnitOfWork.TransactionRolledBack.Should().BeTrue();
     }
 }

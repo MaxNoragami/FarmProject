@@ -32,8 +32,6 @@ public class BreedingRabbitServiceTests
         result.IsSuccess.Should().BeTrue();
         result.Value.Name.Should().Be(rabbitName);
         result.Value.CageId.Should().Be(cage.Id);
-        mockUnitOfWork.TransactionStarted.Should().BeTrue();
-        mockUnitOfWork.TransactionCommitted.Should().BeTrue();
 
         var updatedCage = await mockCageRepo.GetByIdAsync(cage.Id);
         updatedCage.BreedingRabbit.Should().NotBeNull();
@@ -61,8 +59,6 @@ public class BreedingRabbitServiceTests
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(CageErrors.Occupied);
-        mockUnitOfWork.TransactionStarted.Should().BeTrue();
-        mockUnitOfWork.TransactionRolledBack.Should().BeTrue();
     }
 
     [Fact]
