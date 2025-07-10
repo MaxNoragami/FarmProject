@@ -22,6 +22,8 @@ public class BirthDomainService
         if (offspringResult.IsFailure)
             return Result.Failure<BreedingRabbit>(offspringResult.Error);
 
+        cage.RecordBirthDate(birthDate);
+
         if (offspringCount > 0)
             cage.OffspringType = OffspringType.Mixed;
 

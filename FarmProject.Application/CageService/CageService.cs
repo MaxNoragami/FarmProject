@@ -25,34 +25,6 @@ public class CageService(IUnitOfWork unitOfWork) : ICageService
         return Result.Success(cage);
     }
 
-    public async Task<Result<Cage>> AddOffspringsToCage(int cageId, int count)
-    {
-        var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
-        if (cage == null)
-            return Result.Failure<Cage>(CageErrors.NotFound);
-
-        var additionResult = cage.AddOffspring(count);
-
-        if (additionResult.IsFailure)
-            return Result.Failure<Cage>(additionResult.Error);
-
-        return Result.Success(cage);
-    }
-
-    public async Task<Result<Cage>> RemoveOffspringsFromCage(int cageId, int count)
-    {
-        var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
-        if (cage == null)
-            return Result.Failure<Cage>(CageErrors.NotFound);
-
-        var subtractionResult = cage.RemoveOffspring(count);
-
-        if (subtractionResult.IsFailure)
-            return Result.Failure<Cage>(subtractionResult.Error);
-
-        return Result.Success(cage);
-    }
-
     public async Task<Result<Cage>> UpdateOffspringType(int cageId, OffspringType offspringType)
     {
         var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);

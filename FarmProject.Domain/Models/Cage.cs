@@ -10,6 +10,8 @@ public class Cage(string name) : Entity
     public BreedingRabbit? BreedingRabbit { get; private set; }
     public int OffspringCount { get; private set; } = 0;
     public OffspringType OffspringType { get; set; } = OffspringType.None;
+    public DateTime? BirthDate { get; private set; }
+    public bool IsSacrificable { get; private set; } = false;
 
     public Result AssignBreedingRabbit(BreedingRabbit breedingRabbit)
     {
@@ -61,5 +63,11 @@ public class Cage(string name) : Entity
 
         OffspringCount -= count;
         return Result.Success();
+    }
+
+    public void RecordBirthDate(DateTime birthDate)
+    {
+        BirthDate = birthDate;
+        IsSacrificable = false;
     }
 }
