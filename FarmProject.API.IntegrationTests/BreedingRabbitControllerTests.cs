@@ -187,7 +187,7 @@ public class BreedingRabbitControllerTests
         var birthService = new BirthService(unitOfWork, domainEventDispatcher, new BirthDomainService());
 
         var breedingRabbitService = new BreedingRabbitService(unitOfWork);
-        var cageService = new CageService(unitOfWork);
+        var cageService = new CageService(unitOfWork, 60);
         var controller = new BreedingRabbitController(breedingRabbitService, cageService, birthService);
 
         return (controller, factory);

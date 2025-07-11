@@ -13,5 +13,5 @@ public interface ICageService
     public Task<Result<Cage>> GetCageById(int cageId);
     public Task<Result<Cage>> UpdateOffspringType(int cageId, OffspringType offspringType);
     public Task<Result<Cage>> MoveBreedingRabbitToCage(int breedingRabbitId, int destinationCageId);
-    
+    public Task<Result<Cage>> SacrificeOffspring(int cageId, int count);
 }

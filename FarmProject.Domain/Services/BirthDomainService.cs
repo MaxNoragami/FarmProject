@@ -43,8 +43,17 @@ public class BirthDomainService
 
         var offspringAmount = motherCage.OffspringCount;
 
+        if (motherCage.BirthDate.HasValue)
+        {
+            newCage.RecordBirthDate(motherCage.BirthDate.Value);
+            newCage.IsSacrificable = motherCage.IsSacrificable;
+        }
+
         motherCage.RemoveOffspring(offspringAmount);
         motherCage.OffspringType = OffspringType.None;
+
+        motherCage.ResetBirthDate();
+
         newCage.AddOffspring(offspringAmount);
         newCage.OffspringType = OffspringType.Mixed;
         motherCage.BreedingRabbit.BreedingStatus = BreedingStatus.Recovering;
@@ -81,6 +90,12 @@ public class BirthDomainService
 
         if (otherCage == null || otherCage.BreedingRabbit != null || otherCage.OffspringType != OffspringType.None)
             return Result.Failure(CageErrors.Occupied);
+
+        if (currentCage.BirthDate.HasValue)
+        {
+            otherCage.RecordBirthDate(currentCage.BirthDate.Value);
+            otherCage.IsSacrificable = currentCage.IsSacrificable;
+        }
 
         currentCage.RemoveOffspring(femaleOffspringCount.Value);
         currentCage.OffspringType = OffspringType.Male;

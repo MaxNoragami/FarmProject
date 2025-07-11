@@ -32,6 +32,11 @@ public class ValidationCageService(
     public Task<Result<Cage>> MoveBreedingRabbitToCage(int breedingRabbitId, int destinationCageId)
         => _inner.MoveBreedingRabbitToCage(breedingRabbitId, destinationCageId);
 
+    public Task<Result<Cage>> SacrificeOffspring(int cageId, int count)
+        => _validationHelper.ValidateAndExecute(
+                new SacrificeOffspringParam(cageId, count),
+                () => _inner.SacrificeOffspring(cageId, count));
+
     public Task<Result<Cage>> UpdateOffspringType(int cageId, OffspringType offspringType)
         => _validationHelper.ValidateAndExecute(
                 new UpdateOffspringTypeParam(cageId, offspringType),
@@ -40,3 +45,4 @@ public class ValidationCageService(
 
 public record CreateCageParam(string Name);
 public record UpdateOffspringTypeParam(int CageId, OffspringType OffspringType);
+public record SacrificeOffspringParam(int CageId, int Count);

@@ -1,4 +1,5 @@
-﻿using FarmProject.Application.BirthService;
+﻿using FarmProject.Application;
+using FarmProject.Application.BirthService;
 using FarmProject.Application.BirthService.Validators;
 using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Application.BreedingRabbitsService.Validators;
@@ -23,7 +24,15 @@ public static class ServiceCollectionExtension
     {
         services.AddScoped<ValidationHelper>();
 
-        services.AddScoped<CageService>();
+        services.AddScoped<CageService>(provider =>
+        {
+            var unitOfWork = provider.GetRequiredService<IUnitOfWork>();
+            var configuration = provider.GetRequiredService<IConfiguration>();
+            var sacrificableAgeInDays = configuration.GetSection("FarmSettings")
+                .GetValue<int>("OffspringSacrificableAgeInDays");
+            return new CageService(unitOfWork, sacrificableAgeInDays);
+        });
+
         services.AddScoped<BreedingRabbitService>();
         services.AddScoped<FarmTaskService>();
         services.AddScoped<PairingService>();

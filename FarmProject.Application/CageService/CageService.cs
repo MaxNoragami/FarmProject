@@ -7,9 +7,13 @@ using FarmProject.Domain.Models;
 
 namespace FarmProject.Application.CageService;
 
-public class CageService(IUnitOfWork unitOfWork) : ICageService
+public class CageService(
+        IUnitOfWork unitOfWork,
+        int sacrificableAgeInDays) 
+    : ICageService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly int _sacrificableAgeInDays = sacrificableAgeInDays;
 
     public async Task<Result<Cage>> CreateCage(string name)
     {
@@ -22,6 +26,9 @@ public class CageService(IUnitOfWork unitOfWork) : ICageService
         var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
         if (cage == null)
             return Result.Failure<Cage>(CageErrors.NotFound);
+
+        cage.UpdateSacrificableStatus(_sacrificableAgeInDays);
+
         return Result.Success(cage);
     }
 
@@ -75,6 +82,25 @@ public class CageService(IUnitOfWork unitOfWork) : ICageService
     {
         var cages = await _unitOfWork.CageRepository.GetPaginatedAsync(request);
 
+        foreach (var cage in cages.Items)
+            cage.UpdateSacrificableStatus(_sacrificableAgeInDays);
+
         return Result.Success(cages);
+    }
+
+    public async Task<Result<Cage>> SacrificeOffspring(int cageId, int count)
+    {
+        var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
+        if (cage == null)
+            return Result.Failure<Cage>(CageErrors.NotFound);
+
+        cage.UpdateSacrificableStatus(_sacrificableAgeInDays);
+
+        var sacrificeResult = cage.SacrificeOffspring(count);
+        if (sacrificeResult.IsFailure)
+            return Result.Failure<Cage>(sacrificeResult.Error);
+
+        await _unitOfWork.CageRepository.UpdateAsync(cage);
+        return Result.Success(cage);
     }
 }
