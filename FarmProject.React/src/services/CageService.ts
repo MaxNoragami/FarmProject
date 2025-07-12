@@ -8,6 +8,7 @@ interface CageListRequest {
     name?: string;
     offspringType?: number;
     isOccupied?: boolean;
+    isSacrificable?: boolean;
   };
   logicalOperator?: number;
   sort?: string;
@@ -40,6 +41,12 @@ export class CageService {
       }
       if (typeof request.filters.isOccupied === "boolean") {
         params.append("IsOccupied", request.filters.isOccupied.toString());
+      }
+      if (request.filters.isSacrificable !== undefined) {
+        params.append(
+          "IsSacrificable",
+          request.filters.isSacrificable.toString()
+        );
       }
     }
 

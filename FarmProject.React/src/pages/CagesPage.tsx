@@ -47,6 +47,7 @@ const CagesPage = () => {
     name?: string;
     offspringType?: number;
     isOccupied?: boolean;
+    isSacrificable?: boolean;
   }>({});
   const [logicalOperator, setLogicalOperator] = React.useState<"AND" | "OR">(
     "AND"
@@ -56,7 +57,8 @@ const CagesPage = () => {
     name: string;
     offspringType: string;
     isOccupied: boolean | null;
-  }>({ name: "", offspringType: "", isOccupied: null });
+    isSacrificable: boolean | null;
+  }>({ name: "", offspringType: "", isOccupied: null, isSacrificable: null });
   const [tempLogicalOperator, setTempLogicalOperator] = React.useState<
     "AND" | "OR"
   >("AND");
@@ -161,6 +163,7 @@ const CagesPage = () => {
       name: filters.name || "",
       offspringType: offspringTypeString,
       isOccupied: filters.isOccupied ?? null,
+      isSacrificable: filters.isSacrificable ?? null,
     });
     setTempLogicalOperator(logicalOperator);
     setSortBy(sortBy);
@@ -177,6 +180,7 @@ const CagesPage = () => {
       name: string;
       offspringType: string;
       isOccupied: boolean | null;
+      isSacrificable: boolean | null;
     };
     sortBy: string;
     sortOrder: "asc" | "desc";
@@ -195,6 +199,9 @@ const CagesPage = () => {
     }
     if (modalFilters.isOccupied !== null)
       apiFilters.isOccupied = modalFilters.isOccupied;
+    if (modalFilters.isSacrificable !== null)
+      apiFilters.isSacrificable = modalFilters.isSacrificable;
+
     setFilters(apiFilters);
     setSortBy(modalSortBy || "name");
     setSortOrder(modalSortOrder || "asc");
@@ -218,6 +225,11 @@ const CagesPage = () => {
     setPage(0);
   };
 
+  const handleClearSacrificableFilter = () => {
+    setFilters((prev) => ({ ...prev, isSacrificable: undefined }));
+    setPage(0);
+  };
+
   const handleClearAllFilters = () => {
     setFilters({});
     setSortBy("name");
@@ -237,7 +249,8 @@ const CagesPage = () => {
     const hasFilters =
       filters.name ||
       filters.offspringType !== undefined ||
-      filters.isOccupied !== undefined;
+      filters.isOccupied !== undefined ||
+      filters.isSacrificable !== undefined;
 
     if (!hasFilters) return null;
 
@@ -301,6 +314,26 @@ const CagesPage = () => {
           <Chip
             label={`OCCUPIED is "${filters.isOccupied ? "Yes" : "No"}"`}
             onDelete={handleClearOccupiedFilter}
+            size="small"
+            variant="filled"
+            sx={{
+              backgroundColor: "#e0e0e0",
+              color: "#424242",
+              "& .MuiChip-deleteIcon": {
+                color: "#757575",
+                fontSize: "16px",
+                "&:hover": {
+                  color: "#424242",
+                },
+              },
+            }}
+          />
+        )}
+
+        {filters.isSacrificable !== undefined && (
+          <Chip
+            label={`SACRIFICABLE is "${filters.isSacrificable ? "Yes" : "No"}"`}
+            onDelete={handleClearSacrificableFilter}
             size="small"
             variant="filled"
             sx={{
@@ -553,6 +586,9 @@ const CagesPage = () => {
         }
         onClearOccupied={() =>
           setTempFilters((f) => ({ ...f, isOccupied: null }))
+        }
+        onClearSacrificable={() =>
+          setTempFilters((f) => ({ ...f, isSacrificable: null }))
         }
         logicalOperator={tempLogicalOperator}
         onLogicalOperatorChange={setTempLogicalOperator}

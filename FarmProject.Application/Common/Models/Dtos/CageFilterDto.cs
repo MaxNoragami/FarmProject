@@ -8,6 +8,7 @@ public class CageFilterDto : BaseEntityFilter<Cage>
 {
     public string? Name { get; set; }
     public bool? IsOccupied { get; set; }
+    public bool? IsSacrificable { get; set; }
     public OffspringType? OffspringType { get; set; }
 
     public override IEnumerable<Expression<Func<Cage, bool>>> GetExpressions()
@@ -28,6 +29,12 @@ public class CageFilterDto : BaseEntityFilter<Cage>
                     : cage.BreedingRabbit == null && 
                         cage.OffspringCount == 0 && 
                         cage.OffspringType == Domain.Constants.OffspringType.None);
+
+        if (IsSacrificable.HasValue)
+            expressions.Add(
+                cage => (IsSacrificable.Value)
+                    ? cage.IsSacrificable
+                    : !cage.IsSacrificable);
 
         if (OffspringType.HasValue)
             expressions.Add(
