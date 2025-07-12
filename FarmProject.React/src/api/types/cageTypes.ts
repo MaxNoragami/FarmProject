@@ -4,6 +4,8 @@ export interface ApiCageDto {
   breedingRabbitId: number | null;
   offspringCount: number;
   offspringType: number;
+  birthDate: string | null;
+  isSacrificable: boolean;
 }
 
 export interface CageListRequest {

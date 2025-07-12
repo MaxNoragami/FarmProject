@@ -16,6 +16,7 @@ import { Helmet } from "react-helmet-async";
 import CageCard from "../components/cages/CageCard";
 import CageCardSkeleton from "../components/common/CageCardSkeleton";
 import AddCageModal from "../components/modals/AddCageModal";
+import SacrificeModal from "../components/modals/SacrificeModal";
 import type { AddCageFormFields } from "../schemas/cageSchemas";
 import ErrorAlert from "../components/common/ErrorAlert";
 import { CageService } from "../services/CageService";
@@ -23,6 +24,7 @@ import CageFilterDialog from "../components/cages/CageFilterDialog";
 import { useCageData } from "../hooks/useCageData";
 import { getSortableCageColumns } from "../constants/cageColumns";
 import { offspringTypeStringToEnum } from "../types/OffspringType";
+import { type CageData } from "../utils/cageMappers";
 
 const CagesPage = () => {
   const theme = useTheme();
@@ -33,6 +35,12 @@ const CagesPage = () => {
 
   const [addModalOpen, setAddModalOpen] = React.useState(false);
   const [addCageError, setAddCageError] = React.useState<string | null>(null);
+
+  const [sacrificeModalOpen, setSacrificeModalOpen] = React.useState(false);
+  const [selectedCage, setSelectedCage] = React.useState<CageData | null>(null);
+  const [sacrificeError, setSacrificeError] = React.useState<string | null>(
+    null
+  );
 
   const [filterDialogOpen, setFilterDialogOpen] = React.useState(false);
   const [filters, setFilters] = React.useState<{
@@ -95,6 +103,39 @@ const CagesPage = () => {
           "An unexpected error occurred."
       );
     }
+  };
+
+  const handleCageClick = (cage: CageData) => {
+    if (cage.isSacrificable && cage.offspringCount > 0) {
+      setSelectedCage(cage);
+      setSacrificeError(null);
+      setSacrificeModalOpen(true);
+    }
+  };
+
+  const handleSacrificeModalClose = () => {
+    setSacrificeModalOpen(false);
+    setSacrificeError(null);
+  };
+
+  const handleSacrifice = async (cageId: number, count: number) => {
+    setSacrificeError(null);
+    try {
+      await CageService.sacrificeOffspring(cageId, count);
+      setSacrificeModalOpen(false);
+      await refetch();
+    } catch (err: any) {
+      setSacrificeError(
+        err?.response?.data?.message ||
+          err?.message ||
+          "An unexpected error occurred while sacrificing offspring."
+      );
+      throw err;
+    }
+  };
+
+  const isCageClickable = (cage: CageData) => {
+    return cage.isSacrificable && cage.offspringCount > 0;
   };
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -370,7 +411,11 @@ const CagesPage = () => {
                   ? mobileSkeleton
                   : cages.map((cage) => (
                       <Grid size={{ xs: 12, sm: 6 }} key={cage.id}>
-                        <CageCard cage={cage} />
+                        <CageCard
+                          cage={cage}
+                          onCageClick={handleCageClick}
+                          isCageClickable={isCageClickable}
+                        />
                       </Grid>
                     ))}
               </Grid>
@@ -466,7 +511,11 @@ const CagesPage = () => {
                         size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
                         key={cage.id}
                       >
-                        <CageCard cage={cage} />
+                        <CageCard
+                          cage={cage}
+                          onCageClick={handleCageClick}
+                          isCageClickable={isCageClickable}
+                        />
                       </Grid>
                     ))}
               </Grid>
@@ -520,6 +569,14 @@ const CagesPage = () => {
         onClose={handleModalClose}
         onSubmit={handleSubmitNewCage}
         error={addCageError}
+      />
+
+      <SacrificeModal
+        open={sacrificeModalOpen}
+        onClose={handleSacrificeModalClose}
+        onSubmit={handleSacrifice}
+        cage={selectedCage}
+        error={sacrificeError}
       />
     </>
   );

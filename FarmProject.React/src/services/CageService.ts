@@ -51,4 +51,12 @@ export class CageService {
 
     return response.data;
   }
+
+  static async sacrificeOffspring(cageId: number, count: number): Promise<any> {
+    const response = await apiClient.put(
+      `${this.BASE_PATH}/${cageId}/sacrifice`,
+      { count }
+    );
+    return response.data;
+  }
 }
