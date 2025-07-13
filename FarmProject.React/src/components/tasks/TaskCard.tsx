@@ -1,11 +1,4 @@
-import {
-  Card,
-  CardContent,
-  Box,
-  Typography,
-  Chip,
-  IconButton,
-} from "@mui/material";
+import { Card, CardContent, Box, Typography, IconButton } from "@mui/material";
 import { CheckCircle, Cancel } from "@mui/icons-material";
 import { type TaskData } from "../../utils/taskMappers";
 import {
@@ -20,6 +13,15 @@ import {
   type CompleteWeaningTaskFormFields,
   type CompleteOffspringSeparationTaskFormFields,
 } from "../../schemas/taskSchemas";
+
+const pastelColors: Record<string, string> = {
+  NestPreparation: "#e3f2fd",
+  NestRemoval: "#fff3e0",
+  Weaning: "#e8f5e9",
+  OffspringSeparation: "#f3e5f5",
+};
+
+const greyedOutColor = "#f5f5f5";
 
 interface TaskCardProps {
   task: TaskData;
@@ -116,9 +118,22 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onCompleteTask }) => {
     }
   };
 
+  const cardBg = task.isCompleted
+    ? greyedOutColor
+    : pastelColors[task.taskType] || "#e0e0e0";
+
   return (
     <>
-      <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <Card
+        sx={{
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          backgroundColor: cardBg,
+          opacity: task.isCompleted ? 0.7 : 1,
+          transition: "background-color 0.2s",
+        }}
+      >
         <CardContent sx={{ flex: 1 }}>
           <Box
             sx={{
@@ -129,31 +144,23 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onCompleteTask }) => {
             }}
           >
             <Typography variant="h6" component="div">
-              Task ID: {task.id}
+              {getFarmTaskTypeLabel(task.taskType)}
             </Typography>
-
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Chip
-                label={getFarmTaskTypeLabel(task.taskType)}
-                color={getFarmTaskTypeColor(task.taskType)}
-                size="small"
-              />
-              <IconButton
-                onClick={handleCompleteTask}
-                disabled={task.isCompleted}
-                size="small"
-                sx={{
-                  p: 0.5,
-                  cursor: task.isCompleted ? "default" : "pointer",
-                }}
-              >
-                {task.isCompleted ? (
-                  <CheckCircle sx={{ color: "success.main" }} />
-                ) : (
-                  <Cancel sx={{ color: "error.main" }} />
-                )}
-              </IconButton>
-            </Box>
+            <IconButton
+              onClick={handleCompleteTask}
+              disabled={task.isCompleted}
+              size="small"
+              sx={{
+                p: 0.5,
+                cursor: task.isCompleted ? "default" : "pointer",
+              }}
+            >
+              {task.isCompleted ? (
+                <CheckCircle sx={{ color: "success.main" }} />
+              ) : (
+                <Cancel sx={{ color: "error.main" }} />
+              )}
+            </IconButton>
           </Box>
 
           <Typography
