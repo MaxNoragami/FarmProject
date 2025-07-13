@@ -8,6 +8,7 @@ interface CageListRequest {
     name?: string;
     offspringType?: number;
     isOccupied?: boolean;
+    isSacrificable?: boolean;
   };
   logicalOperator?: number;
   sort?: string;
@@ -41,6 +42,12 @@ export class CageService {
       if (typeof request.filters.isOccupied === "boolean") {
         params.append("IsOccupied", request.filters.isOccupied.toString());
       }
+      if (request.filters.isSacrificable !== undefined) {
+        params.append(
+          "IsSacrificable",
+          request.filters.isSacrificable.toString()
+        );
+      }
     }
 
     if (request.sort) params.append("sort", request.sort);
@@ -49,6 +56,14 @@ export class CageService {
       `${this.BASE_PATH}?${params.toString()}`
     );
 
+    return response.data;
+  }
+
+  static async sacrificeOffspring(cageId: number, count: number): Promise<any> {
+    const response = await apiClient.put(
+      `${this.BASE_PATH}/${cageId}/sacrifice`,
+      { count }
+    );
     return response.data;
   }
 }

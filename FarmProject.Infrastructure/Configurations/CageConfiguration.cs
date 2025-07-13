@@ -27,5 +27,12 @@ public class CageConfiguration : IEntityTypeConfiguration<Cage>
             .HasForeignKey("BreedingRabbitId")
             .IsRequired(false)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Property(c => c.BirthDate)
+            .IsRequired(false);
+
+        builder.Property(c => c.IsSacrificable)
+            .IsRequired()
+            .HasDefaultValue(false);
     }
 }

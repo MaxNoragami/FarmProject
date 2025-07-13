@@ -6,6 +6,7 @@ export interface CageListFilters {
   name?: string;
   offspringType?: number;
   isOccupied?: boolean;
+  isSacrificable?: boolean;
   logicalOperator?: number;
   sort?: string;
 }
@@ -27,6 +28,8 @@ export class CageService {
       params.append("OffspringType", request.offspringType.toString());
     if (typeof request.isOccupied === "boolean")
       params.append("IsOccupied", request.isOccupied.toString());
+    if (typeof request.isSacrificable === "boolean")
+      params.append("IsSacrificable", request.isSacrificable.toString());
     if (request.sort) params.append("sort", request.sort);
 
     const response = await apiClient.get<PaginatedResponse<ApiCageDto>>(

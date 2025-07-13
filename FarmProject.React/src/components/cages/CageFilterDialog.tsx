@@ -12,6 +12,8 @@ import {
   IconButton,
   Checkbox,
   FormControlLabel,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { Close, Clear } from "@mui/icons-material";
 import * as React from "react";
@@ -24,15 +26,18 @@ interface CageFilterDialogProps {
     name: string;
     offspringType: string;
     isOccupied: boolean | null;
+    isSacrificable: boolean | null;
   };
   onTempFiltersChange: (filters: {
     name: string;
     offspringType: string;
     isOccupied: boolean | null;
+    isSacrificable: boolean | null;
   }) => void;
   onClearName: () => void;
   onClearOffspringType: () => void;
   onClearOccupied: () => void;
+  onClearSacrificable: () => void;
   logicalOperator: "AND" | "OR";
   onLogicalOperatorChange: (operator: "AND" | "OR") => void;
   onApply: (params: {
@@ -40,6 +45,7 @@ interface CageFilterDialogProps {
       name: string;
       offspringType: string;
       isOccupied: boolean | null;
+      isSacrificable: boolean | null;
     };
     sortBy: string;
     sortOrder: "asc" | "desc";
@@ -61,9 +67,14 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
   sortOrder,
   sortableColumns = [],
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [name, setName] = React.useState("");
   const [offspringType, setOffspringType] = React.useState("");
   const [isOccupied, setIsOccupied] = React.useState<boolean | null>(null);
+  const [isSacrificable, setIsSacrificable] = React.useState<boolean | null>(
+    null
+  );
   const [localSortBy, setLocalSortBy] = React.useState("");
   const [localSortOrder, setLocalSortOrder] = React.useState<"asc" | "desc">(
     "asc"
@@ -77,6 +88,7 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
       setName(tempFilters.name);
       setOffspringType(tempFilters.offspringType);
       setIsOccupied(tempFilters.isOccupied);
+      setIsSacrificable(tempFilters.isSacrificable);
       setLocalSortBy(sortBy || "");
       setLocalSortOrder(sortOrder || "asc");
       setLocalLogicalOperator(logicalOperator);
@@ -85,7 +97,7 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
 
   const handleApply = () => {
     onApply({
-      filters: { name, offspringType, isOccupied },
+      filters: { name, offspringType, isOccupied, isSacrificable },
       sortBy: localSortBy,
       sortOrder: localSortOrder,
     });
@@ -100,6 +112,41 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
       setIsOccupied(null);
     }
   };
+
+  const handleIsSacrificableChange = () => {
+    if (isSacrificable === null) {
+      setIsSacrificable(true);
+    } else if (isSacrificable === true) {
+      setIsSacrificable(false);
+    } else {
+      setIsSacrificable(null);
+    }
+  };
+
+  const hasChanges = React.useMemo(() => {
+    const filtersChanged =
+      name !== tempFilters.name ||
+      offspringType !== tempFilters.offspringType ||
+      isOccupied !== tempFilters.isOccupied ||
+      isSacrificable !== tempFilters.isSacrificable;
+    const sortChanged =
+      localSortBy !== (sortBy || "") || localSortOrder !== (sortOrder || "asc");
+    const operatorChanged = localLogicalOperator !== logicalOperator;
+
+    return filtersChanged || sortChanged || operatorChanged;
+  }, [
+    name,
+    offspringType,
+    isOccupied,
+    isSacrificable,
+    localSortBy,
+    localSortOrder,
+    localLogicalOperator,
+    tempFilters,
+    sortBy,
+    sortOrder,
+    logicalOperator,
+  ]);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -193,28 +240,76 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
             </>
           )}
 
+          {/* Checkbox container - responsive layout */}
           <Box
             sx={{
               display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
+              flexDirection: isMobile ? "column" : "row",
+              gap: isMobile ? 0 : 4,
             }}
           >
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={isOccupied === true}
-                  indeterminate={isOccupied === null}
-                  onChange={handleIsOccupiedChange}
-                />
-              }
-              label="Is Occupied?"
-            />
-            {isOccupied !== null && (
-              <IconButton onClick={() => setIsOccupied(null)} size="small">
-                <Clear />
-              </IconButton>
-            )}
+            {/* IsOccupied checkbox */}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={isOccupied === true}
+                    indeterminate={isOccupied === null}
+                    onChange={handleIsOccupiedChange}
+                    size={isMobile ? "small" : "medium"}
+                  />
+                }
+                label="Is Occupied?"
+                sx={{
+                  "& .MuiFormControlLabel-label": {
+                    fontSize: "inherit",
+                  },
+                }}
+              />
+              {isOccupied !== null && (
+                <IconButton onClick={() => setIsOccupied(null)} size="small">
+                  <Clear />
+                </IconButton>
+              )}
+            </Box>
+
+            {/* IsSacrificable checkbox */}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={isSacrificable === true}
+                    indeterminate={isSacrificable === null}
+                    onChange={handleIsSacrificableChange}
+                    size={isMobile ? "small" : "medium"}
+                  />
+                }
+                label="Is Sacrificable?"
+                sx={{
+                  "& .MuiFormControlLabel-label": {
+                    fontSize: "inherit",
+                  },
+                }}
+              />
+              {isSacrificable !== null && (
+                <IconButton
+                  onClick={() => setIsSacrificable(null)}
+                  size="small"
+                >
+                  <Clear />
+                </IconButton>
+              )}
+            </Box>
           </Box>
 
           <Box
@@ -239,7 +334,11 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
               </Select>
             </FormControl>
 
-            <Button onClick={handleApply} variant="contained">
+            <Button
+              onClick={handleApply}
+              variant="contained"
+              disabled={!hasChanges}
+            >
               Apply
             </Button>
           </Box>

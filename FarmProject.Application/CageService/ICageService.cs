@@ -11,9 +11,7 @@ public interface ICageService
     public Task<Result<Cage>> CreateCage(string name);
     public Task<Result<PaginatedResult<Cage>>> GetPaginatedCages(PaginatedRequest<CageFilterDto> request);
     public Task<Result<Cage>> GetCageById(int cageId);
-    public Task<Result<Cage>> AddOffspringsToCage (int cageId, int count);
-    public Task<Result<Cage>> RemoveOffspringsFromCage(int cageId, int count);
     public Task<Result<Cage>> UpdateOffspringType(int cageId, OffspringType offspringType);
     public Task<Result<Cage>> MoveBreedingRabbitToCage(int breedingRabbitId, int destinationCageId);
-    
+    public Task<Result<Cage>> SacrificeOffspring(int cageId, int count);
 }

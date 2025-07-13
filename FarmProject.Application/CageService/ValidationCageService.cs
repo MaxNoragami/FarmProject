@@ -16,9 +16,6 @@ public class ValidationCageService(
     private readonly ICageService _inner = inner;
     private readonly ValidationHelper _validationHelper = validationHelper;
 
-    public Task<Result<Cage>> AddOffspringsToCage(int cageId, int count)
-        => _inner.AddOffspringsToCage(cageId, count);
-
     public Task<Result<Cage>> CreateCage(string name)
         => _validationHelper.ValidateAndExecute(
                 new CreateCageParam(name),
@@ -35,8 +32,10 @@ public class ValidationCageService(
     public Task<Result<Cage>> MoveBreedingRabbitToCage(int breedingRabbitId, int destinationCageId)
         => _inner.MoveBreedingRabbitToCage(breedingRabbitId, destinationCageId);
 
-    public Task<Result<Cage>> RemoveOffspringsFromCage(int cageId, int count)
-        => _inner.RemoveOffspringsFromCage(cageId, count);
+    public Task<Result<Cage>> SacrificeOffspring(int cageId, int count)
+        => _validationHelper.ValidateAndExecute(
+                new SacrificeOffspringParam(cageId, count),
+                () => _inner.SacrificeOffspring(cageId, count));
 
     public Task<Result<Cage>> UpdateOffspringType(int cageId, OffspringType offspringType)
         => _validationHelper.ValidateAndExecute(
@@ -46,3 +45,4 @@ public class ValidationCageService(
 
 public record CreateCageParam(string Name);
 public record UpdateOffspringTypeParam(int CageId, OffspringType OffspringType);
+public record SacrificeOffspringParam(int CageId, int Count);

@@ -47,12 +47,12 @@ const TasksPage = () => {
   const [filters, setFilters] = React.useState<{
     taskType?: string;
     isCompleted?: boolean;
-  }>({});
+  }>({ isCompleted: false });
 
   const [tempFilters, setTempFilters] = React.useState<{
     taskType: string;
     isCompleted: boolean | null;
-  }>({ taskType: "", isCompleted: null });
+  }>({ taskType: "", isCompleted: false });
   const [tempSortBy, setTempSortBy] = React.useState("taskId");
   const [tempSortOrder, setTempSortOrder] = React.useState<"asc" | "desc">(
     "asc"
@@ -212,7 +212,7 @@ const TasksPage = () => {
     setTempFilters({
       taskType: filters.taskType || "",
       isCompleted:
-        filters.isCompleted !== undefined ? filters.isCompleted : null,
+        filters.isCompleted !== undefined ? filters.isCompleted : false,
     });
     setTempSortBy(String(sortBy));
     setTempSortOrder(sortOrder);

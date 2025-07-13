@@ -14,7 +14,7 @@ public static class CageErrors
         "Cage.NegativeOffspringNum", "Cannot add or remove negative num of offsprings");
 
     public static readonly Error OverOffspringNum = new(
-        "Cage.OverOffspringNum", "Cannot remove more offsprings than available");
+        "Cage.OverOffspringNum", "Cannot remove or sacrifice more offsprings than available");
 
     public static readonly Error NotFound = new(
         "Cage.NotFound", "Cage not found");
@@ -33,4 +33,10 @@ public static class CageErrors
 
     public static readonly Error InvalidSeparation = new(
         "Cage.OffspringSeparationFailure", "Separation of offsprings is not possible with the set parameters");
+
+    public static readonly Error InvalidSacrificeCount = new(
+        "Cage.InvalidSacrificeCount", "Cannot sacrifice zero or negative num of offsprings");
+
+    public static readonly Error NotSacrificable = new(
+        "Cage.NotSacrificable", "Offsprings are not ready to be sacrificed");
 }

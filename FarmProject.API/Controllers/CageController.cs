@@ -86,4 +86,17 @@ public class CageController(ICageService cageService) : AppBaseController
         else
             return HandleError<ViewCageDto>(result.Error);
     }
+
+    [HttpPut("{id}/sacrifice")]
+    public async Task<ActionResult<ViewCageDto>> SacrificeOffspring(
+        int id,
+        SacrificeOffspringDto sacrificeOffspringDto)
+    {
+        var result = await _cageService.SacrificeOffspring(id, sacrificeOffspringDto.Count);
+
+        if (result.IsSuccess)
+            return Ok(result.Value.ToViewCageDto());
+        else
+            return HandleError<ViewCageDto>(result.Error);
+    }
 }

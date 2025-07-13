@@ -10,6 +10,8 @@ public class Cage(string name) : Entity
     public BreedingRabbit? BreedingRabbit { get; private set; }
     public int OffspringCount { get; private set; } = 0;
     public OffspringType OffspringType { get; set; } = OffspringType.None;
+    public DateTime? BirthDate { get; private set; }
+    public bool IsSacrificable { get; set; } = false;
 
     public Result AssignBreedingRabbit(BreedingRabbit breedingRabbit)
     {
@@ -60,6 +62,51 @@ public class Cage(string name) : Entity
             return Result.Failure(CageErrors.OverOffspringNum);
 
         OffspringCount -= count;
+        return Result.Success();
+    }
+
+    public void RecordBirthDate(DateTime birthDate)
+    {
+        BirthDate = birthDate;
+        IsSacrificable = false;
+    }
+
+    public void ResetBirthDate()
+    {
+        if (OffspringCount <= 0)
+        {
+            BirthDate = null;
+            IsSacrificable = false;
+        }
+    }
+
+    public void UpdateSacrificableStatus(int sacrificableAgeInDays)
+    {
+        if (OffspringCount > 0 && BirthDate.HasValue)
+        {
+            var ageInDays = (DateTime.UtcNow - BirthDate.Value).TotalDays;
+            IsSacrificable = ageInDays >= sacrificableAgeInDays;
+        }
+    }
+
+    public Result SacrificeOffspring(int count)
+    {
+        if (count <= 0)
+            return Result.Failure(CageErrors.InvalidSacrificeCount);
+        if (count > OffspringCount)
+            return Result.Failure(CageErrors.OverOffspringNum);
+        if (!IsSacrificable)
+            return Result.Failure(CageErrors.NotSacrificable);
+
+        OffspringCount -= count;
+
+        if (OffspringCount == 0)
+        {
+            BirthDate = null;
+            OffspringType = OffspringType.None;
+            IsSacrificable = false;
+        }
+
         return Result.Success();
     }
 }
