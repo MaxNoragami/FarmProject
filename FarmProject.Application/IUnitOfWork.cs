@@ -1,5 +1,6 @@
 ﻿using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Application.CageService;
+using FarmProject.Application.CustomerService;
 using FarmProject.Application.FarmTaskService;
 using FarmProject.Application.PairingService;
 
@@ -11,6 +12,7 @@ public interface IUnitOfWork
     public IPairingRepository PairingRepository { get; }
     public IFarmTaskRepository FarmTaskRepository { get; }
     public ICageRepository CageRepository { get; }
+    public ICustomerRepository CustomerRepository { get; }
 
     public Task SaveAsync();
     public Task BeginTransactionAsync();
