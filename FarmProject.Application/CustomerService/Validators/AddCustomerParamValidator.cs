@@ -51,27 +51,38 @@ public class AddCustomerParamValidator : AbstractValidator<AddCustomerParam>
             .WithMessage("Email must not be longer than 64 characters")
             .WithErrorCode(ValidationErrors.Codes.InvalidInput)
 
+            .EmailAddress()
+            .WithMessage("Email format is invalid")
+            .WithErrorCode(ValidationErrors.Codes.InvalidInput)
+
             .MustAsync(BeUniqueEmail)
             .WithMessage("Customer email must be unique")
             .WithErrorCode(ValidationErrors.Codes.DuplicateEmail);
 
         RuleFor(x => x.PhoneNum)
             .NotEmpty()
-            .WithMessage("Phone Number cannot be empty")
+            .WithMessage("Phone number cannot be empty")
             .WithErrorCode(ValidationErrors.Codes.InvalidInput)
 
             .MinimumLength(3)
-            .WithMessage("Phone Number must not be shorter than 3 digits")
+            .WithMessage("Phone number must not be shorter than 3 digits")
             .WithErrorCode(ValidationErrors.Codes.InvalidInput)
 
             .MaximumLength(16)
-            .WithMessage("Phone Number must not be longer than 16 characters")
+            .WithMessage("Phone number must not be longer than 16 characters")
+            .WithErrorCode(ValidationErrors.Codes.InvalidInput)
+
+            .Matches(@"^\+?[\d\s\-\(\)]*$")
+            .WithMessage("Phone number format is invalid")
             .WithErrorCode(ValidationErrors.Codes.InvalidInput)
 
             .MustAsync(BeUniquePhoneNum)
             .WithMessage("Customer phone number must be unique")
             .WithErrorCode(ValidationErrors.Codes.DuplicatePhoneNum);
     }
+
+    private async Task<bool> BeUniqueEmail(string email, CancellationToken cancellationToken)
+        => !await _repository.IsEmailUsedAsync(email, cancellationToken);
 
     private async Task<bool> BeUniquePhoneNum(string phoneNum, CancellationToken cancellationToken)
         => !await _repository.IsPhoneNumUsedAsync(phoneNum, cancellationToken);

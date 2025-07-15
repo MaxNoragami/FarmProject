@@ -172,12 +172,14 @@ public class BreedingRabbitControllerTests
         var breedingRabbitRepository = new BreedingRabbitRepository(dbContext);
         var farmTaskRepository = new FarmTaskRepository(dbContext);
         var pairingRepository = new PairingRepository(dbContext);
+        var customerRepository = new CustomerRepository(dbContext);
         var unitOfWork = new UnitOfWork(
             dbContext,
             breedingRabbitRepository,
         pairingRepository,
             farmTaskRepository,
-            cageRepository
+            cageRepository,
+            customerRepository
         );
 
         var services = new ServiceCollection();

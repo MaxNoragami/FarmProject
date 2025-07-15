@@ -45,6 +45,8 @@ public static class ErrorMapper
             || error.Code.Equals(PairErrors.InvalidOutcome.Code, StringComparison.OrdinalIgnoreCase)
             || error.Code.Equals(ValidationErrors.Codes.ValidationFailed, StringComparison.OrdinalIgnoreCase)
             || error.Code.Equals(ValidationErrors.Codes.DuplicateName, StringComparison.OrdinalIgnoreCase)
+            || error.Code.Equals(ValidationErrors.Codes.DuplicateEmail, StringComparison.OrdinalIgnoreCase)
+            || error.Code.Equals(ValidationErrors.Codes.DuplicatePhoneNum, StringComparison.OrdinalIgnoreCase)
             || error.Code.Equals(ValidationErrors.Codes.InvalidInput, StringComparison.OrdinalIgnoreCase)
             || error.Code.Equals(IdentityErrors.InvalidCredentials.Code, StringComparison.OrdinalIgnoreCase)
             || error.Code.Equals(IdentityErrors.UserAlreadyExists.Code, StringComparison.OrdinalIgnoreCase)

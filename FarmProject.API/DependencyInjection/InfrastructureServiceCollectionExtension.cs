@@ -1,6 +1,7 @@
 using FarmProject.Application;
 using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Application.CageService;
+using FarmProject.Application.CustomerService;
 using FarmProject.Application.FarmTaskService;
 using FarmProject.Application.PairingService;
 using FarmProject.Infrastructure;
@@ -38,7 +39,9 @@ public static class InfrastructureServiceCollectionExtension
         services.AddScoped<IBreedingRabbitRepository, BreedingRabbitRepository>()
             .AddScoped<IPairingRepository, PairingRepository>()
             .AddScoped<IFarmTaskRepository, FarmTaskRepository>()
-            .AddScoped<ICageRepository, CageRepository>();
+            .AddScoped<ICageRepository, CageRepository>()
+            .AddScoped<ICustomerRepository, CustomerRepository>();
+
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
