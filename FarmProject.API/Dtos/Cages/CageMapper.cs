@@ -11,6 +11,7 @@ public static class CageMapper
                 Name = cage.Name,
                 BreedingRabbitId = cage.BreedingRabbit?.Id,
                 OffspringCount = cage.OffspringCount,
+                ReservedOffspringCount = cage.ReservedOffspringCount,
                 OffspringType = cage.OffspringType,
                 BirthDate = cage.BirthDate,
                 IsSacrificable = cage.IsSacrificable

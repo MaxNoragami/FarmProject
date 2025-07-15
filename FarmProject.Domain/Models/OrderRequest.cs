@@ -1,18 +1,15 @@
 ﻿using FarmProject.Domain.Constants;
 
 namespace FarmProject.Domain.Models;
-
-public class Sacrification(
-        int orderRequestId,
+public class OrderRequest(
+        int orderId,
         int cageId,
         OffspringType type,
-        int amount,
-        DateTime birthDate) 
+        int amount) 
     : Entity
 {
-    public int OrderRequestId { get; private set; } = orderRequestId;
+    public int OrderId { get; private set; } = orderId;
     public OffspringType Type { get; private set; } = type;
     public int Amount { get; private set; } = amount;
     public int CageId { get; private set; } = cageId;
-    public DateTime BirthDate { get; private set; } = birthDate;
 }

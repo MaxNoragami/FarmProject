@@ -85,6 +85,11 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("ReservedOffspringCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.HasKey("Id");
 
                     b.HasIndex("BreedingRabbitId");
@@ -180,6 +185,34 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                     b.ToTable("Orders");
                 });
 
+            modelBuilder.Entity("FarmProject.Domain.Models.OrderRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CageId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderRequests");
+                });
+
             modelBuilder.Entity("FarmProject.Domain.Models.Pair", b =>
                 {
                     b.Property<int>("Id")
@@ -227,10 +260,10 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                     b.Property<DateTime>("BirthDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("BreedingRabbitId")
+                    b.Property<int>("CageId")
                         .HasColumnType("int");
 
-                    b.Property<int>("OrderId")
+                    b.Property<int>("OrderRequestId")
                         .HasColumnType("int");
 
                     b.Property<string>("Type")
@@ -238,8 +271,6 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
 
                     b.ToTable("Sacrifications");
                 });
@@ -263,6 +294,15 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FarmProject.Domain.Models.OrderRequest", b =>
+                {
+                    b.HasOne("FarmProject.Domain.Models.Order", null)
+                        .WithMany("OrderRequests")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FarmProject.Domain.Models.Pair", b =>
                 {
                     b.HasOne("FarmProject.Domain.Models.BreedingRabbit", "FemaleRabbit")
@@ -274,15 +314,6 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                     b.Navigation("FemaleRabbit");
                 });
 
-            modelBuilder.Entity("FarmProject.Domain.Models.Sacrification", b =>
-                {
-                    b.HasOne("FarmProject.Domain.Models.Order", null)
-                        .WithMany("Sacrifications")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("FarmProject.Domain.Models.Customer", b =>
                 {
                     b.Navigation("Orders");
@@ -290,7 +321,7 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
 
             modelBuilder.Entity("FarmProject.Domain.Models.Order", b =>
                 {
-                    b.Navigation("Sacrifications");
+                    b.Navigation("OrderRequests");
                 });
 #pragma warning restore 612, 618
         }

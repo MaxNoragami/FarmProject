@@ -13,10 +13,10 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(o => o.OrderDate)
             .IsRequired();
 
-        builder.Property<int>("CustomerId")
+        builder.Property(o => o.CustomerId)
             .IsRequired();
 
-        builder.HasMany(o => o.Sacrifications)
+        builder.HasMany(o => o.OrderRequests)
             .WithOne()
             .HasForeignKey("OrderId")
             .OnDelete(DeleteBehavior.Cascade);

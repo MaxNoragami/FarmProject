@@ -7,5 +7,5 @@ public class Order(
 {
     public int CustomerId { get; private set; } = customerId;
     public DateTime OrderDate { get; private set; } = orderDate;
-    public List<Sacrification> Sacrifications { get; private set; } = new();
+    public List<OrderRequest> OrderRequests { get; private set; } = new();
 }

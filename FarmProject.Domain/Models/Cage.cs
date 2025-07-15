@@ -9,6 +9,7 @@ public class Cage(string name) : Entity
     public string Name { get; private set; } = name;
     public BreedingRabbit? BreedingRabbit { get; private set; }
     public int OffspringCount { get; private set; } = 0;
+    public int ReservedOffspringCount { get; private set; } = 0;
     public OffspringType OffspringType { get; set; } = OffspringType.None;
     public DateTime? BirthDate { get; private set; }
     public bool IsSacrificable { get; set; } = false;

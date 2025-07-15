@@ -10,10 +10,10 @@ public class SacrificationConfiguration : IEntityTypeConfiguration<Sacrification
     {
         builder.HasKey(s => s.Id);
 
-        builder.Property<int>("OrderId")
+        builder.Property(s => s.OrderRequestId)
             .IsRequired();
 
-        builder.Property(s => s.BreedingRabbitId)
+        builder.Property(s => s.CageId)
             .IsRequired();
 
         builder.Property(s => s.Type)

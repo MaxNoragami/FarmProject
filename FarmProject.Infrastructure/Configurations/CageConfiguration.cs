@@ -22,6 +22,10 @@ public class CageConfiguration : IEntityTypeConfiguration<Cage>
             .IsRequired()
             .HasDefaultValue(0);
 
+        builder.Property(c => c.ReservedOffspringCount)
+            .IsRequired()
+            .HasDefaultValue(0);
+
         builder.HasOne(c => c.BreedingRabbit)
             .WithMany()
             .HasForeignKey("BreedingRabbitId")

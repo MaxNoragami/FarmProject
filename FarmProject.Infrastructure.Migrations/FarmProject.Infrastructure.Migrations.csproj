@@ -18,4 +18,8 @@
     <ProjectReference Include="..\FarmProject.Infrastructure\FarmProject.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\Domain\" />
+  </ItemGroup>
+
 </Project>
