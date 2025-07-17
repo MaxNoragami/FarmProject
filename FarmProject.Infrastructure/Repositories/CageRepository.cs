@@ -21,7 +21,7 @@ public class CageRepository(FarmDbContext context) : ICageRepository
 
     public async Task<List<Cage>> FindAsync(ISpecification<Cage> specification)
         => await _context.Cages
-            .Include(C => C.BreedingRabbit)
+            .Include(c => c.BreedingRabbit)
             .Where(specification.ToExpression())
             .ToListAsync();
 

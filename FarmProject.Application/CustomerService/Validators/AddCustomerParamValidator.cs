@@ -1,5 +1,4 @@
-﻿using FarmProject.Application.CageService;
-using FarmProject.Domain.Errors;
+﻿using FarmProject.Domain.Errors;
 using FluentValidation;
 
 namespace FarmProject.Application.CustomerService.Validators;

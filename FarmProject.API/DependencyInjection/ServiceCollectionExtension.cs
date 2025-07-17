@@ -12,6 +12,8 @@ using FarmProject.Application.CustomerService;
 using FarmProject.Application.CustomerService.Validators;
 using FarmProject.Application.Events;
 using FarmProject.Application.FarmTaskService;
+using FarmProject.Application.OrderService;
+using FarmProject.Application.OrderService.Validators;
 using FarmProject.Application.PairingService;
 using FarmProject.Application.PairingService.Validators;
 using FarmProject.Domain.Events;
@@ -41,6 +43,7 @@ public static class ServiceCollectionExtension
         services.AddScoped<BirthDomainService>();
         services.AddScoped<BirthService>();
         services.AddScoped<CustomerService>();
+        services.AddScoped<OrderService>();
 
         services.AddScoped<IBreedingRabbitService>(provider =>
         {
@@ -108,6 +111,17 @@ public static class ServiceCollectionExtension
             return new LoggingCustomerService(validatedService, loggingHelper);
         });
 
+        services.AddScoped<IOrderService>(provider =>
+        {
+            var baseService = provider.GetRequiredService<OrderService>();
+
+            var validationHelper = provider.GetRequiredService<ValidationHelper>();
+            var validatedService = new ValidationOrderService(baseService, validationHelper);
+
+            var loggingHelper = provider.GetRequiredService<LoggingHelper>();
+            return new LoggingOrderService(validatedService, loggingHelper);
+        });
+
         return services;
     }
 
@@ -123,11 +137,14 @@ public static class ServiceCollectionExtension
 
         services.AddScoped<IValidator<AddCustomerParam>, AddCustomerParamValidator>();
 
+        services.AddScoped<IValidator<CreateOrderParam>, CreateOrderParamValidator>();
+
         services.AddScoped<IValidator<PaginatedRequestParam<BreedingRabbitFilterDto>>, PaginatedRequestParamValidator<BreedingRabbitFilterDto>>();
         services.AddScoped<IValidator<PaginatedRequestParam<CageFilterDto>>, PaginatedRequestParamValidator<CageFilterDto>>();
         services.AddScoped<IValidator<PaginatedRequestParam<FarmTaskFilterDto>>, PaginatedRequestParamValidator<FarmTaskFilterDto>>();
         services.AddScoped<IValidator<PaginatedRequestParam<PairFilterDto>>, PaginatedRequestParamValidator<PairFilterDto>>();
         services.AddScoped<IValidator<PaginatedRequestParam<CustomerFilterDto>>, PaginatedRequestParamValidator<CustomerFilterDto>>();
+        services.AddScoped<IValidator<PaginatedRequestParam<OrderFilterDto>>, PaginatedRequestParamValidator<OrderFilterDto>>();
 
         services.AddScoped<IValidator<RecordBirthParam>, RecordBirthParamValidator>();
         services.AddScoped<IValidator<SeparateOffspringParam>, SeparateOffspringParamValidator>();

@@ -12,4 +12,6 @@ public class OrderRequest(
     public OffspringType Type { get; private set; } = type;
     public int Amount { get; private set; } = amount;
     public int CageId { get; private set; } = cageId;
+    public OrderRequestStatus OrderRequestStatus { get; private set; } 
+        = OrderRequestStatus.Waiting;
 }

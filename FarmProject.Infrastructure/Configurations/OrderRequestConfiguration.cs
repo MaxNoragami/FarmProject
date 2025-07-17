@@ -22,5 +22,9 @@ public class OrderRequestConfiguration : IEntityTypeConfiguration<OrderRequest>
 
         builder.Property(or => or.CageId)
             .IsRequired();
+
+        builder.Property(or => or.OrderRequestStatus)
+            .IsRequired()
+            .HasConversion<string>();
     }
 }

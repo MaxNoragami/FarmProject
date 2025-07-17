@@ -3,6 +3,7 @@ using FarmProject.Application.BreedingRabbitsService;
 using FarmProject.Application.CageService;
 using FarmProject.Application.CustomerService;
 using FarmProject.Application.FarmTaskService;
+using FarmProject.Application.OrderService;
 using FarmProject.Application.PairingService;
 
 namespace FarmProject.Infrastructure;
@@ -12,7 +13,8 @@ public class UnitOfWork(FarmDbContext context,
                         IPairingRepository pairingRepository,
                         IFarmTaskRepository farmTaskRepository,
                         ICageRepository cageRepository,
-                        ICustomerRepository customerRepository
+                        ICustomerRepository customerRepository,
+                        IOrderRepository orderRepository
                 ) : IUnitOfWork
 {
     private readonly FarmDbContext _context = context;
@@ -25,6 +27,7 @@ public class UnitOfWork(FarmDbContext context,
 
     public ICageRepository CageRepository => cageRepository;
     public ICustomerRepository CustomerRepository => customerRepository;
+    public IOrderRepository OrderRepository => orderRepository;
 
     public async Task BeginTransactionAsync()
         => await _context.Database.BeginTransactionAsync();

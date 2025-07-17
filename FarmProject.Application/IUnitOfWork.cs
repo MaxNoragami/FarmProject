@@ -2,6 +2,7 @@
 using FarmProject.Application.CageService;
 using FarmProject.Application.CustomerService;
 using FarmProject.Application.FarmTaskService;
+using FarmProject.Application.OrderService;
 using FarmProject.Application.PairingService;
 
 namespace FarmProject.Application;
@@ -13,6 +14,7 @@ public interface IUnitOfWork
     public IFarmTaskRepository FarmTaskRepository { get; }
     public ICageRepository CageRepository { get; }
     public ICustomerRepository CustomerRepository { get; }
+    public IOrderRepository OrderRepository { get; }
 
     public Task SaveAsync();
     public Task BeginTransactionAsync();

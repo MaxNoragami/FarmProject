@@ -28,6 +28,7 @@ public class CustomerRepository(
 
     public async Task<Customer?> GetByIdAsync(int customerId)
         => await _context.Customers
+            .Include(c => c.Orders)
             .FirstOrDefaultAsync(c => c.Id == customerId);
 
     public async Task<PaginatedResult<Customer>> GetPaginatedAsync(PaginatedRequest<CustomerFilterDto> request)
@@ -60,6 +61,13 @@ public class CustomerRepository(
         return result;
     }
 
+    public async Task<Customer> UpdateAsync(Customer customer)
+    {
+        _context.Customers.Update(customer);
+        await _context.SaveChangesAsync();
+        return customer;
+    }
+
     public async Task<bool> IsEmailUsedAsync(string email, CancellationToken cancellationToken = default)
         => await _context.Customers
             .AnyAsync(c => c.Email == email, cancellationToken);
@@ -67,11 +75,4 @@ public class CustomerRepository(
     public async Task<bool> IsPhoneNumUsedAsync(string phoneNum, CancellationToken cancellationToken = default)
         => await _context.Customers
             .AnyAsync(c => c.PhoneNum == phoneNum, cancellationToken);
-
-    public async Task<Customer> UpdateAsync(Customer customer)
-    {
-        _context.Customers.Update(customer);
-        await _context.SaveChangesAsync();
-        return customer;
-    }
 }

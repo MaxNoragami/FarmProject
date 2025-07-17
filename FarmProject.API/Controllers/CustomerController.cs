@@ -1,14 +1,12 @@
 ﻿using FarmProject.API.Attributes;
-using FarmProject.Application.Common.Models.Dtos;
-using FarmProject.Application.Common.Models;
-using FarmProject.Application.CustomerService;
-using FarmProject.Application.IdentityService;
-using Microsoft.AspNetCore.Mvc;
 using FarmProject.API.Dtos;
 using FarmProject.API.Dtos.Customers;
 using FarmProject.Application.Common;
-using FarmProject.API.Dtos.Cages;
-using FarmProject.Domain.Models;
+using FarmProject.Application.Common.Models;
+using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.CustomerService;
+using FarmProject.Application.IdentityService;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FarmProject.API.Controllers;
 
@@ -21,7 +19,7 @@ public class CustomerController(
     private readonly ICustomerService _customerService = customerService;
 
     [HttpGet]
-    public async Task<ActionResult<PaginatedResult<ViewCustomerDto>>> GetPaginatedCustomers(
+    public async Task<ActionResult<PaginatedResult<ViewCustomersDto>>> GetPaginatedCustomers(
     [FromQuery] int pageIndex = 1,
     [FromQuery] int pageSize = 10,
     [FromQuery] string sort = "",
@@ -45,29 +43,29 @@ public class CustomerController(
         return result.Match(
             onSuccess: paginatedResult =>
             {
-                var viewCustomerDtos = paginatedResult.Items.Select(c => c.ToViewCustomerDto()).ToList();
+                var viewCustomerDtos = paginatedResult.Items.Select(c => c.ToViewCustomersDto()).ToList();
 
                 var paginatedDtos = paginatedResult.ToPaginatedResult(viewCustomerDtos);
 
                 return Ok(paginatedDtos);
             },
-            onFailure: error => HandleError<PaginatedResult<ViewCustomerDto>>(error)
+            onFailure: error => HandleError<PaginatedResult<ViewCustomersDto>>(error)
         );
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ViewCustomerDto>> GetCustomer(int id)
+    public async Task<ActionResult<ViewSingleCustomerDto>> GetCustomer(int id)
     {
         var result = await _customerService.GetCustomerById(id);
 
         if (result.IsSuccess)
-            return Ok(result.Value.ToViewCustomerDto());
+            return Ok(result.Value.ToViewSingleCustomerDto());
         else
-            return HandleError<ViewCustomerDto>(result.Error);
+            return HandleError<ViewSingleCustomerDto>(result.Error);
     }
 
     [HttpPost]
-    public async Task<ActionResult<ViewCustomerDto>> CreateCustomer(CreateCustomerDto createCustomerDto)
+    public async Task<ActionResult<ViewSingleCustomerDto>> CreateCustomer(CreateCustomerDto createCustomerDto)
     {
         var result = await _customerService.AddCustomer(
             createCustomerDto.FirstName,
@@ -77,10 +75,10 @@ public class CustomerController(
 
         if (result.IsSuccess)
         {
-            var createdCustomer = result.Value.ToViewCustomerDto();
+            var createdCustomer = result.Value.ToViewSingleCustomerDto();
             return CreatedAtAction(nameof(GetCustomer), new { id = createdCustomer.Id }, createdCustomer);
         }
         else
-            return HandleError<ViewCustomerDto>(result.Error);
+            return HandleError<ViewSingleCustomerDto>(result.Error);
     }
 }

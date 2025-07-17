@@ -1,11 +1,9 @@
-﻿using FarmProject.Application.CageService;
-using FarmProject.Application.Common;
+﻿using FarmProject.Application.Common;
 using FarmProject.Application.Common.Models;
 using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Application.Common.Validators;
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Models;
-using System.Xml.Linq;
 
 namespace FarmProject.Application.CustomerService;
 
