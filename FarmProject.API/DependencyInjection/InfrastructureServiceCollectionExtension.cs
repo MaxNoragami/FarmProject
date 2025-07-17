@@ -5,6 +5,7 @@ using FarmProject.Application.CustomerService;
 using FarmProject.Application.FarmTaskService;
 using FarmProject.Application.OrderService;
 using FarmProject.Application.PairingService;
+using FarmProject.Application.SacrificationService;
 using FarmProject.Infrastructure;
 using FarmProject.Infrastructure.Authentication;
 using FarmProject.Infrastructure.Repositories;
@@ -43,7 +44,8 @@ public static class InfrastructureServiceCollectionExtension
             .AddScoped<ICageRepository, CageRepository>()
             .AddScoped<ICustomerRepository, CustomerRepository>()
             .AddScoped<IOrderRepository, OrderRepository>()
-            .AddScoped<IOrderRequestRepository, OrderRequestRepository>();
+            .AddScoped<IOrderRequestRepository, OrderRequestRepository>()
+            .AddScoped<ISacrificationRepository, SacrificationRepository>();
 
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();

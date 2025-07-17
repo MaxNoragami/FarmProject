@@ -13,10 +13,7 @@ public class CustomerService(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<Result<Customer>> AddCustomer(
-        string firstName, 
-        string lastName, 
-        string email, 
-        string phoneNum)
+        string firstName, string lastName, string email, string phoneNum)
     {
         var createdCustomer = await _unitOfWork.CustomerRepository
             .AddAsync(

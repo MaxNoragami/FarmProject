@@ -16,14 +16,11 @@ public class ValidationCustomerService(
     private readonly ValidationHelper _validationHelper = validationHelper;
 
     public Task<Result<Customer>> AddCustomer(
-        string firstName, 
-        string lastName, 
-        string email, 
-        string phoneNum
+        string firstName, string lastName, string email, string phoneNum
     )
         => _validationHelper.ValidateAndExecute(
-                new AddCustomerParam(firstName, lastName, email, phoneNum),
-                () => _inner.AddCustomer(firstName, lastName, email, phoneNum));
+            new AddCustomerParam(firstName, lastName, email, phoneNum),
+            () => _inner.AddCustomer(firstName, lastName, email, phoneNum));
 
     public Task<Result<Customer>> GetCustomerById(int customerId)
         => _inner.GetCustomerById(customerId);
@@ -32,13 +29,9 @@ public class ValidationCustomerService(
         PaginatedRequest<CustomerFilterDto> request
     )
         => _validationHelper.ValidateAndExecute(
-                new PaginatedRequestParam<CustomerFilterDto>(request),
-                () => _inner.GetPaginatedCustomers(request));
+            new PaginatedRequestParam<CustomerFilterDto>(request),
+            () => _inner.GetPaginatedCustomers(request));
 }
 
 public record AddCustomerParam(
-        string FirstName,
-        string LastName,
-        string Email,
-        string PhoneNum
-    );
+        string FirstName, string LastName, string Email, string PhoneNum);

@@ -25,8 +25,8 @@ public class ValidationFarmTaskService(
         PaginatedRequest<FarmTaskFilterDto> request
     )
         => _validationHelper.ValidateAndExecute(
-                new PaginatedRequestParam<FarmTaskFilterDto>(request),
-                () => _inner.GetPaginatedFarmTasks(request));
+            new PaginatedRequestParam<FarmTaskFilterDto>(request),
+            () => _inner.GetPaginatedFarmTasks(request));
 
     public Task<Result<FarmTask>> MarkFarmTaskAsCompleted(
         int taskId, 

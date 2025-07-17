@@ -3,16 +3,17 @@
 namespace FarmProject.Domain.Models;
 
 public class Sacrification(
-        int orderRequestId,
-        int cageId,
-        OffspringType type,
+        Cage cage,
         int amount,
-        DateTime birthDate) 
+        DateTime birthDate,
+        SacrificationReason sacrificationReason,
+        int? orderRequestId = null) 
     : Entity
 {
-    public int OrderRequestId { get; private set; } = orderRequestId;
-    public OffspringType Type { get; private set; } = type;
+    public int? OrderRequestId { get; private set; } = orderRequestId;
+    public SacrificationReason SacrificationReason { get; private set; } = sacrificationReason;
+    public Cage Cage { get; private set; } = cage;
+    public OffspringType OffspringType { get; private set; } = cage.OffspringType;
     public int Amount { get; private set; } = amount;
-    public int CageId { get; private set; } = cageId;
     public DateTime BirthDate { get; private set; } = birthDate;
 }

@@ -13,13 +13,13 @@ public class ValidationUserService(
 
     public Task<Result<AuthenticationResult>> LoginUserAsync(LoginUserRequest request)
         => _validationHelper.ValidateAndExecute(
-                new LoginUserParam(request),
-                () => _inner.LoginUserAsync(request));
+            new LoginUserParam(request),
+            () => _inner.LoginUserAsync(request));
 
     public Task<Result<AuthenticationResult>> RegisterUserAsync(RegisterUserRequest request)
         => _validationHelper.ValidateAndExecute(
-                new RegisterUserParam(request),
-                () => _inner.RegisterUserAsync(request));
+            new RegisterUserParam(request),
+            () => _inner.RegisterUserAsync(request));
 }
 
 public record LoginUserParam(LoginUserRequest Request);

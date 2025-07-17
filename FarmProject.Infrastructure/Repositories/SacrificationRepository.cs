@@ -1,46 +1,46 @@
 ﻿using FarmProject.Application.Common.Models;
 using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Application.Common.Models.SortConfigs;
-using FarmProject.Application.OrderService;
+using FarmProject.Application.SacrificationService;
 using FarmProject.Domain.Models;
 using FarmProject.Domain.Specifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace FarmProject.Infrastructure.Repositories;
 
-public class OrderRequestRepository(
+public class SacrificationRepository(
         FarmDbContext context) 
-    : IOrderRequestRepository
+    : ISacrificationRepository
 {
     private readonly FarmDbContext _context = context;
 
-    public async Task<OrderRequest> AddAsync(OrderRequest orderRequest)
+    public async Task<Sacrification> AddAsync(Sacrification sacrification)
     {
-        _context.Add(orderRequest);
+        _context.Add(sacrification);
         await _context.SaveChangesAsync();
-        return orderRequest;
+        return sacrification;
     }
 
-    public async Task<List<OrderRequest>> FindAsync(ISpecification<OrderRequest> specification)
-        => await _context.OrderRequests
+    public async Task<List<Sacrification>> FindAsync(ISpecification<Sacrification> specification)
+        => await _context.Sacrifications
             .Where(specification.ToExpression())
             .ToListAsync();
 
-    public async Task<OrderRequest?> GetByIdAsync(int orderRequestId)
-        => await _context.OrderRequests
-            .FirstOrDefaultAsync(or => or.Id == orderRequestId);
+    public async Task<Sacrification?> GetByIdAsync(int sacrificationId)
+        => await _context.Sacrifications
+            .FirstOrDefaultAsync(s => s.Id == sacrificationId);
 
-    public async Task<PaginatedResult<OrderRequest>> GetPaginatedAsync(PaginatedRequest<OrderRequestFilterDto> request)
+    public async Task<PaginatedResult<Sacrification>> GetPaginatedAsync(PaginatedRequest<SacrificationFilterDto> request)
     {
-        var query = _context.OrderRequests
+        var query = _context.Sacrifications
             .AsQueryable();
 
         if (request.Filter != null)
             query = query.ApplyFilter(request.Filter);
 
-        var sortOrders = request.Sort?.ToSortOrders(OrderRequestSortingFields.AllowedSortFields)
+        var sortOrders = request.Sort?.ToSortOrders(SacrificationSortingFields.AllowedSortFields)
             ?? new List<SortOrder> { new SortOrder { PropertyName = "Id", Direction = SortDirection.Ascending } };
-        query = query.ApplySorting(sortOrders, OrderRequestSortingFields.PropertyPaths);
+        query = query.ApplySorting(sortOrders, SacrificationSortingFields.PropertyPaths);
 
         var totalCount = await query.CountAsync();
         var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
@@ -50,7 +50,7 @@ public class OrderRequestRepository(
             .Take(request.PageSize)
             .ToListAsync();
 
-        var result = new PaginatedResult<OrderRequest>(
+        var result = new PaginatedResult<Sacrification>(
             request.PageIndex,
             request.PageSize,
             totalPages,
@@ -60,10 +60,10 @@ public class OrderRequestRepository(
         return result;
     }
 
-    public async Task<OrderRequest> UpdateAsync(OrderRequest orderRequest)
+    public async Task<Sacrification> UpdateAsync(Sacrification sacrification)
     {
-        _context.OrderRequests.Update(orderRequest);
+        _context.Sacrifications.Update(sacrification);
         await _context.SaveChangesAsync();
-        return orderRequest;
+        return sacrification;
     }
 }

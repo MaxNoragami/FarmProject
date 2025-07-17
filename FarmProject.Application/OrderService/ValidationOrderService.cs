@@ -17,16 +17,16 @@ public class ValidationOrderService(
 
     public Task<Result<Order>> CreateOrder(int customerId, List<OrderRequest> orderRequests)
         => _validationHelper.ValidateAndExecute(
-                new CreateOrderParam(customerId, orderRequests),
-                () => _inner.CreateOrder(customerId, orderRequests));
+            new CreateOrderParam(customerId, orderRequests),
+            () => _inner.CreateOrder(customerId, orderRequests));
 
     public Task<Result<Order>> GetOrderById(int orderId)
         => _inner.GetOrderById(orderId);
 
     public Task<Result<PaginatedResult<Order>>> GetPaginatedOrders(PaginatedRequest<OrderFilterDto> request)
         => _validationHelper.ValidateAndExecute(
-                new PaginatedRequestParam<OrderFilterDto>(request),
-                () => _inner.GetPaginatedOrders(request));
+            new PaginatedRequestParam<OrderFilterDto>(request),
+            () => _inner.GetPaginatedOrders(request));
 }
 
 public record CreateOrderParam(int CustomerId, List<OrderRequest> OrderRequests);

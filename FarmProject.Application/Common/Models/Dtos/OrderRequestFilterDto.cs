@@ -7,7 +7,7 @@ namespace FarmProject.Application.Common.Models.Dtos;
 public class OrderRequestFilterDto : BaseEntityFilter<OrderRequest>
 {
     public int? CageId { get; set; }
-    public OffspringType? Type { get; set; }
+    public OffspringType? OffspringType { get; set; }
     public OrderRequestStatus? OrderRequestStatus { get; set; }
 
     public override IEnumerable<Expression<Func<OrderRequest, bool>>> GetExpressions()
@@ -16,11 +16,11 @@ public class OrderRequestFilterDto : BaseEntityFilter<OrderRequest>
 
         if (CageId.HasValue)
             expressions.Add(
-                or => or.CageId == CageId.Value);
+                or => or.Cage.Id == CageId.Value);
 
-        if (Type.HasValue)
+        if (OffspringType.HasValue)
             expressions.Add(
-                or => or.Type == Type.Value);
+                or => or.OffspringType == OffspringType.Value);
 
         if (OrderRequestStatus.HasValue)
             expressions.Add(

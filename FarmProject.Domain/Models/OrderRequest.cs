@@ -3,15 +3,14 @@
 namespace FarmProject.Domain.Models;
 public class OrderRequest(
         int orderId,
-        int cageId,
-        OffspringType type,
+        Cage cage,
         int amount) 
     : Entity
 {
     public int OrderId { get; private set; } = orderId;
-    public OffspringType Type { get; private set; } = type;
+    public OffspringType OffspringType { get; private set; } = cage.OffspringType;
     public int Amount { get; private set; } = amount;
-    public int CageId { get; private set; } = cageId;
+    public Cage Cage { get; private set; } = cage;
     public OrderRequestStatus OrderRequestStatus { get; private set; } 
         = OrderRequestStatus.Waiting;
 }

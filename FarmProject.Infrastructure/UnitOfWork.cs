@@ -5,6 +5,7 @@ using FarmProject.Application.CustomerService;
 using FarmProject.Application.FarmTaskService;
 using FarmProject.Application.OrderService;
 using FarmProject.Application.PairingService;
+using FarmProject.Application.SacrificationService;
 
 namespace FarmProject.Infrastructure;
 
@@ -15,21 +16,20 @@ public class UnitOfWork(FarmDbContext context,
                         ICageRepository cageRepository,
                         ICustomerRepository customerRepository,
                         IOrderRepository orderRepository,
-                        IOrderRequestRepository orderRequestRepository
+                        IOrderRequestRepository orderRequestRepository,
+                        ISacrificationRepository sacrificationRepository
                 ) : IUnitOfWork
 {
     private readonly FarmDbContext _context = context;
 
     public IBreedingRabbitRepository BreedingRabbitRepository => breedingRabbitRepository;
-
     public IPairingRepository PairingRepository => pairingRepository;
-
     public IFarmTaskRepository FarmTaskRepository => farmTaskRepository;
-
     public ICageRepository CageRepository => cageRepository;
     public ICustomerRepository CustomerRepository => customerRepository;
     public IOrderRepository OrderRepository => orderRepository;
     public IOrderRequestRepository OrderRequestRepository => orderRequestRepository;
+    public ISacrificationRepository SacrificationRepository => sacrificationRepository;
 
     public async Task BeginTransactionAsync()
         => await _context.Database.BeginTransactionAsync();

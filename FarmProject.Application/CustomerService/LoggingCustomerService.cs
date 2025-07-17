@@ -15,10 +15,7 @@ public class LoggingCustomerService(
     private readonly LoggingHelper _loggingHelper = loggingHelper;
 
     public async Task<Result<Customer>> AddCustomer(
-        string firstName, 
-        string lastName, 
-        string email, 
-        string phoneNum
+        string firstName, string lastName, string email, string phoneNum
     )
         => await _loggingHelper.LogOperation(
                 LoggingUtilities.FormatMethodCall(
