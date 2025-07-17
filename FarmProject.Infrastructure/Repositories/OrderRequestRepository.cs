@@ -5,43 +5,43 @@ using FarmProject.Application.OrderService;
 using FarmProject.Domain.Models;
 using FarmProject.Domain.Specifications;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace FarmProject.Infrastructure.Repositories;
 
-public class OrderRepository(
+public class OrderRequestRepository(
         FarmDbContext context) 
-    : IOrderRepository
+    : IOrderRequestRepository
 {
     private readonly FarmDbContext _context = context;
 
-    public async Task<Order> AddAsync(Order order)
+    public async Task<OrderRequest> AddAsync(OrderRequest orderRequest)
     {
-        _context.Add(order);
+        _context.Add(orderRequest);
         await _context.SaveChangesAsync();
-        return order;
+        return orderRequest;
     }
 
-    public async Task<List<Order>> FindAsync(ISpecification<Order> specification)
-        => await _context.Orders
+    public async Task<List<OrderRequest>> FindAsync(ISpecification<OrderRequest> specification)
+        => await _context.OrderRequests
             .Where(specification.ToExpression())
             .ToListAsync();
 
-    public async Task<Order?> GetByIdAsync(int orderId)
-        => await _context.Orders
-            .Include(o => o.OrderRequests)
-            .FirstOrDefaultAsync(o => o.Id == orderId);
+    public async Task<OrderRequest?> GetByIdAsync(int orderRequestId)
+        => await _context.OrderRequests
+            .FirstOrDefaultAsync(or => or.Id == orderRequestId);
 
-    public async Task<PaginatedResult<Order>> GetPaginatedAsync(PaginatedRequest<OrderFilterDto> request)
+    public async Task<PaginatedResult<OrderRequest>> GetPaginatedAsync(PaginatedRequest<OrderRequestFilterDto> request)
     {
-        var query = _context.Orders
+        var query = _context.OrderRequests
             .AsQueryable();
 
         if (request.Filter != null)
             query = query.ApplyFilter(request.Filter);
 
-        var sortOrders = request.Sort?.ToSortOrders(OrderSortingFields.AllowedSortFields)
+        var sortOrders = request.Sort?.ToSortOrders(OrderRequestSortingFields.AllowedSortFields)
             ?? new List<SortOrder> { new SortOrder { PropertyName = "Id", Direction = SortDirection.Ascending } };
-        query = query.ApplySorting(sortOrders, OrderSortingFields.PropertyPaths);
+        query = query.ApplySorting(sortOrders, OrderRequestSortingFields.PropertyPaths);
 
         var totalCount = await query.CountAsync();
         var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
@@ -51,7 +51,7 @@ public class OrderRepository(
             .Take(request.PageSize)
             .ToListAsync();
 
-        var result = new PaginatedResult<Order>(
+        var result = new PaginatedResult<OrderRequest>(
             request.PageIndex,
             request.PageSize,
             totalPages,
@@ -61,10 +61,10 @@ public class OrderRepository(
         return result;
     }
 
-    public async Task<Order> UpdateAsync(Order order)
+    public async Task<OrderRequest> UpdateAsync(OrderRequest orderRequest)
     {
-        _context.Orders.Update(order);
+        _context.OrderRequests.Update(orderRequest);
         await _context.SaveChangesAsync();
-        return order;
+        return orderRequest;
     }
 }

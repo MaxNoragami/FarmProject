@@ -1,15 +1,15 @@
 ﻿namespace FarmProject.Application.Common.Models.SortConfigs;
 
-public class OrderSortingFields
+public class OrderRequestSortingFields
 {
     public const string Id = "id";
-    public const string OrderDate = "orderDate";
+    public const string Amount = "amount";
 
     public static readonly Dictionary<string, string> PropertyPaths =
         new(StringComparer.OrdinalIgnoreCase)
         {
             [Id] = "Id",
-            [OrderDate] = "OrderDate"
+            [Amount] = "Amount"
         };
 
     public static HashSet<string> AllowedSortFields =>

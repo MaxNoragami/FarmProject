@@ -42,7 +42,8 @@ public static class InfrastructureServiceCollectionExtension
             .AddScoped<IFarmTaskRepository, FarmTaskRepository>()
             .AddScoped<ICageRepository, CageRepository>()
             .AddScoped<ICustomerRepository, CustomerRepository>()
-            .AddScoped<IOrderRepository, OrderRepository>();
+            .AddScoped<IOrderRepository, OrderRepository>()
+            .AddScoped<IOrderRequestRepository, OrderRequestRepository>();
 
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -14,7 +14,8 @@ public class UnitOfWork(FarmDbContext context,
                         IFarmTaskRepository farmTaskRepository,
                         ICageRepository cageRepository,
                         ICustomerRepository customerRepository,
-                        IOrderRepository orderRepository
+                        IOrderRepository orderRepository,
+                        IOrderRequestRepository orderRequestRepository
                 ) : IUnitOfWork
 {
     private readonly FarmDbContext _context = context;
@@ -28,6 +29,7 @@ public class UnitOfWork(FarmDbContext context,
     public ICageRepository CageRepository => cageRepository;
     public ICustomerRepository CustomerRepository => customerRepository;
     public IOrderRepository OrderRepository => orderRepository;
+    public IOrderRequestRepository OrderRequestRepository => orderRequestRepository;
 
     public async Task BeginTransactionAsync()
         => await _context.Database.BeginTransactionAsync();

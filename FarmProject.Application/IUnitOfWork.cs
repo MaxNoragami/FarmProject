@@ -15,6 +15,7 @@ public interface IUnitOfWork
     public ICageRepository CageRepository { get; }
     public ICustomerRepository CustomerRepository { get; }
     public IOrderRepository OrderRepository { get; }
+    public IOrderRequestRepository OrderRequestRepository { get; }
 
     public Task SaveAsync();
     public Task BeginTransactionAsync();
