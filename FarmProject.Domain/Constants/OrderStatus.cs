@@ -2,9 +2,7 @@
 
 public enum OrderStatus
 {
-    Waiting,
     Processing,
     Completed,
-    Failed,
-    Cancelled
+    Failed
 }

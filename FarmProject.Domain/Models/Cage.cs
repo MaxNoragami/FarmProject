@@ -66,6 +66,17 @@ public class Cage(string name) : Entity
         return Result.Success();
     }
 
+    public Result RemoveReservedOffspring(int count)
+    {
+        if (count < 0)
+            return Result.Failure(CageErrors.NegativeOffspringNum);
+        if (count > OffspringCount)
+            return Result.Failure(CageErrors.OverOffspringNum);
+
+        ReservedOffspringCount -= count;
+        return Result.Success();
+    }
+
     public void RecordBirthDate(DateTime birthDate)
     {
         BirthDate = birthDate;

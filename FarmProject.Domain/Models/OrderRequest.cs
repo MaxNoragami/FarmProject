@@ -1,4 +1,6 @@
-﻿using FarmProject.Domain.Constants;
+﻿using FarmProject.Domain.Common;
+using FarmProject.Domain.Constants;
+using FarmProject.Domain.Errors;
 
 namespace FarmProject.Domain.Models;
 public class OrderRequest(
@@ -13,4 +15,19 @@ public class OrderRequest(
     public Cage Cage { get; private set; } = cage;
     public OrderRequestStatus OrderRequestStatus { get; private set; } 
         = OrderRequestStatus.Waiting;
+
+    public Result ProcessSacrifice(int sacrificeAmount)
+    {
+        if (sacrificeAmount > Amount || sacrificeAmount <= 0)
+            return Result.Failure(OrderRequestErrors.InvalidAmount);
+
+        var result = Cage.RemoveReservedOffspring(sacrificeAmount);
+        if (result.IsFailure)
+            return Result.Failure(result.Error);
+
+        if (Cage.ReservedOffspringCount == 0)
+            OrderRequestStatus = OrderRequestStatus.Completed;
+
+        return Result.Success();
+    }
 }

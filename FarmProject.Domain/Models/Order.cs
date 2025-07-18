@@ -8,7 +8,7 @@ public class Order(
     : Entity
 {
     public int CustomerId { get; private set; } = customerId;
-    public OrderStatus OrderStatus { get; private set; } = OrderStatus.Waiting;
+    public OrderStatus OrderStatus { get; private set; } = OrderStatus.Processing;
     public DateTime OrderDate { get; private set; } = orderDate;
     public List<OrderRequest> OrderRequests { get; private set; } = new();
 }
