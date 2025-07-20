@@ -3,7 +3,7 @@ using FarmProject.Application.Common.Models;
 using FarmProject.Domain.Models;
 using FarmProject.Domain.Specifications;
 
-namespace FarmProject.Application.OrderService;
+namespace FarmProject.Application.OrderRequestService;
 
 public interface IOrderRequestRepository
 {

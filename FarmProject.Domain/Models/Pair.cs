@@ -13,6 +13,8 @@ public class Pair : Entity
     public DateTime? EndDate { get; private set; }
     public PairingStatus PairingStatus { get; set; }
 
+    private Pair() { }
+
     public Pair(int maleRabbitId, BreedingRabbit femaleRabbit, DateTime startDate)
     {
         MaleRabbitId = maleRabbitId;
@@ -21,8 +23,6 @@ public class Pair : Entity
         EndDate = null;
         PairingStatus = PairingStatus.Active;
     }
-
-    private Pair() { }
 
     public Result CreateNestPrepTask()
     {

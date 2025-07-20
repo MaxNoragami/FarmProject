@@ -14,6 +14,8 @@ public class Sacrification : Entity
     public int Amount { get; private set; }
     public DateTime BirthDate { get; private set; }
 
+    private Sacrification() { }
+
     private Sacrification(
         Cage cage,
         int amount,
@@ -50,7 +52,7 @@ public class Sacrification : Entity
             {
                 CageId = cage.Id,
                 Amount = amount,
-                OrderRequestId = orderRequest?.Id
+                OrderRequestId = orderRequest.Id
             });
 
         return Result.Success(createdSacrification);

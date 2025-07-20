@@ -3,18 +3,24 @@ using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
 
 namespace FarmProject.Domain.Models;
-public class OrderRequest(
-        int orderId,
-        Cage cage,
-        int amount) 
-    : Entity
+public class OrderRequest : Entity
 {
-    public int OrderId { get; private set; } = orderId;
-    public OffspringType OffspringType { get; private set; } = cage.OffspringType;
-    public int Amount { get; private set; } = amount;
-    public Cage Cage { get; private set; } = cage;
-    public OrderRequestStatus OrderRequestStatus { get; private set; } 
-        = OrderRequestStatus.Waiting;
+    public int OrderId { get; private set; }
+    public OffspringType OffspringType { get; private set; }
+    public int Amount { get; private set; }
+    public Cage Cage { get; private set; }
+    public OrderRequestStatus OrderRequestStatus { get; private set; }
+
+    private OrderRequest() { }
+
+    public OrderRequest(int orderId, Cage cage, int amount)
+    {
+        OrderId = orderId;
+        Cage = cage;
+        OffspringType = cage.OffspringType;
+        Amount = amount;
+        OrderRequestStatus = OrderRequestStatus.Waiting;
+    }
 
     public Result ProcessSacrifice(int sacrificeAmount)
     {
@@ -28,6 +34,12 @@ public class OrderRequest(
         if (Cage.ReservedOffspringCount == 0)
             OrderRequestStatus = OrderRequestStatus.Completed;
 
+        return Result.Success();
+    }
+
+    public Result UpdateOrderRequestStatus(OrderRequestStatus newOrderRequestStatus)
+    {
+        OrderRequestStatus = newOrderRequestStatus;
         return Result.Success();
     }
 }

@@ -12,11 +12,14 @@ using FarmProject.Application.CustomerService;
 using FarmProject.Application.CustomerService.Validators;
 using FarmProject.Application.Events;
 using FarmProject.Application.FarmTaskService;
+using FarmProject.Application.OrderRequestService;
+using FarmProject.Application.OrderRequestService.Validators;
 using FarmProject.Application.OrderService;
 using FarmProject.Application.OrderService.Validators;
 using FarmProject.Application.PairingService;
 using FarmProject.Application.PairingService.Validators;
 using FarmProject.Application.SacrificationService;
+using FarmProject.Application.SacrificationService.Validators;
 using FarmProject.Domain.Events;
 using FarmProject.Domain.Services;
 using FluentValidation;
@@ -45,6 +48,7 @@ public static class ServiceCollectionExtension
         services.AddScoped<BirthService>();
         services.AddScoped<CustomerService>();
         services.AddScoped<OrderService>();
+        services.AddScoped<OrderRequestService>();
         services.AddScoped<SacrificationService>();
 
         services.AddScoped<IBreedingRabbitService>(provider =>
@@ -124,6 +128,17 @@ public static class ServiceCollectionExtension
             return new LoggingOrderService(validatedService, loggingHelper);
         });
 
+        services.AddScoped<IOrderRequestService>(provider =>
+        {
+            var baseService = provider.GetRequiredService<OrderRequestService>();
+
+            var validationHelper = provider.GetRequiredService<ValidationHelper>();
+            var validatedService = new ValidationOrderRequestService(baseService, validationHelper);
+
+            var loggingHelper = provider.GetRequiredService<LoggingHelper>();
+            return new LoggingOrderRequestService(validatedService, loggingHelper);
+        });
+
         services.AddScoped<ISacrificationService>(provider =>
         {
             var baseService = provider.GetRequiredService<SacrificationService>();
@@ -145,6 +160,7 @@ public static class ServiceCollectionExtension
 
         services.AddScoped<IValidator<CreateCageParam>, CreateCageParamValidator>();
         services.AddScoped<IValidator<UpdateOffspringTypeParam>, UpdateOffspringTypeParamValidator>();
+        services.AddScoped<IValidator<ReduceOffspringsForSacrificationParam>, ReduceOffspringsForSacrificationParamValidator>();
 
         services.AddScoped<IValidator<UpdatePairingStatusParam>, UpdatePairingStatusParamValidator>();
 
@@ -152,12 +168,18 @@ public static class ServiceCollectionExtension
 
         services.AddScoped<IValidator<CreateOrderParam>, CreateOrderParamValidator>();
 
+        services.AddScoped<IValidator<CreateOrderRequestParam>, CreateOrderRequestParamValidator>();
+        services.AddScoped<IValidator<UpdateOrderRequestStatusParam>, UpdateOrderRequestStatusParamValidator>();
+
+        services.AddScoped<IValidator<SacrificeOffspringParam>, SacrificeOffspringParamValidator>();
+
         services.AddScoped<IValidator<PaginatedRequestParam<BreedingRabbitFilterDto>>, PaginatedRequestParamValidator<BreedingRabbitFilterDto>>();
         services.AddScoped<IValidator<PaginatedRequestParam<CageFilterDto>>, PaginatedRequestParamValidator<CageFilterDto>>();
         services.AddScoped<IValidator<PaginatedRequestParam<FarmTaskFilterDto>>, PaginatedRequestParamValidator<FarmTaskFilterDto>>();
         services.AddScoped<IValidator<PaginatedRequestParam<PairFilterDto>>, PaginatedRequestParamValidator<PairFilterDto>>();
         services.AddScoped<IValidator<PaginatedRequestParam<CustomerFilterDto>>, PaginatedRequestParamValidator<CustomerFilterDto>>();
         services.AddScoped<IValidator<PaginatedRequestParam<OrderFilterDto>>, PaginatedRequestParamValidator<OrderFilterDto>>();
+        services.AddScoped<IValidator<PaginatedRequestParam<OrderRequestFilterDto>>, PaginatedRequestParamValidator<OrderRequestFilterDto>>();
         services.AddScoped<IValidator<PaginatedRequestParam<SacrificationFilterDto>>, PaginatedRequestParamValidator<SacrificationFilterDto>>();
 
         services.AddScoped<IValidator<RecordBirthParam>, RecordBirthParamValidator>();
@@ -173,6 +195,7 @@ public static class ServiceCollectionExtension
         services.AddScoped<IEventConsumer<NestPrepEvent>, NestPrepEventConsumer>();
         services.AddScoped<IEventConsumer<BirthEvent>, BirthEventConsumer>();
         services.AddScoped<IEventConsumer<OffspringSeparationEvent>, OffspringSeparationEventConsumer>();
+        services.AddScoped<IEventConsumer<SacrificationCreatedEvent>, SacrificationCreatedEventConsumer>();
         services.AddScoped<DomainEventDispatcher>();
 
         return services;

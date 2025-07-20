@@ -15,7 +15,7 @@ public class ValidationOrderService(
     private readonly IOrderService _inner = inner;
     private readonly ValidationHelper _validationHelper = validationHelper;
 
-    public Task<Result<Order>> CreateOrder(int customerId, List<OrderRequest> orderRequests)
+    public Task<Result<Order>> CreateOrder(int customerId, List<CreateOrderRequest> orderRequests)
         => _validationHelper.ValidateAndExecute(
             new CreateOrderParam(customerId, orderRequests),
             () => _inner.CreateOrder(customerId, orderRequests));
@@ -26,7 +26,7 @@ public class ValidationOrderService(
     public Task<Result<PaginatedResult<Order>>> GetPaginatedOrders(PaginatedRequest<OrderFilterDto> request)
         => _validationHelper.ValidateAndExecute(
             new PaginatedRequestParam<OrderFilterDto>(request),
-            () => _inner.GetPaginatedOrders(request));
+                () => _inner.GetPaginatedOrders(request));
 }
 
-public record CreateOrderParam(int CustomerId, List<OrderRequest> OrderRequests);
+public record CreateOrderParam(int CustomerId, List<CreateOrderRequest> OrderRequests);

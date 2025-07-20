@@ -1,4 +1,5 @@
-﻿using FarmProject.Domain.Models;
+﻿using FarmProject.API.Dtos.Orders;
+using FarmProject.Domain.Models;
 
 namespace FarmProject.API.Dtos.Customers;
 
@@ -9,5 +10,5 @@ public class ViewSingleCustomerDto
     public string LastName { get; set; }
     public string Email { get; set; }
     public string PhoneNum { get; set; }
-    public List<Order> Orders { get; set; } = new();
+    public List<ViewOrdersDto> Orders { get; set; } = new();
 }

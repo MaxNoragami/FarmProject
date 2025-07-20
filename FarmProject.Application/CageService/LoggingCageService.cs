@@ -43,15 +43,15 @@ public class LoggingCageService(
                 async () =>
                     await _cageService.MoveBreedingRabbitToCage(breedingRabbitId, destinationCageId));
 
-    public async Task<Result<Cage>> SacrificeOffspring(int cageId, int count)
+    public async Task<Result<Cage>> ReduceOffspringsForSacrification(int cageId, int count)
         => await _loggingHelper.LogOperation(
                 LoggingUtilities.FormatMethodCall(
-                    nameof(SacrificeOffspring),
+                    nameof(ReduceOffspringsForSacrification),
                     (nameof(cageId), cageId),
                     (nameof(count), count)
                 ),
                 async () =>
-                    await _cageService.SacrificeOffspring(cageId, count));
+                    await _cageService.ReduceOffspringsForSacrification(cageId, count));
 
     public async Task<Result<Cage>> UpdateOffspringType(int cageId, OffspringType offspringType)
         => await _loggingHelper.LogOperation(

@@ -11,12 +11,18 @@ public class SacrificationConfiguration : IEntityTypeConfiguration<Sacrification
         builder.HasKey(s => s.Id);
 
         builder.Property(s => s.OrderRequestId)
+            .IsRequired(false);
+
+        builder.Property(s => s.SacrificationReason)
+            .IsRequired()
+            .HasConversion<string>();
+
+        builder.HasOne(or => or.Cage)
+            .WithMany()
+            .HasForeignKey("CageId")
             .IsRequired();
 
-        builder.Property(s => s.CageId)
-            .IsRequired();
-
-        builder.Property(s => s.Type)
+        builder.Property(s => s.OffspringType)
             .IsRequired()
             .HasConversion<string>();
 

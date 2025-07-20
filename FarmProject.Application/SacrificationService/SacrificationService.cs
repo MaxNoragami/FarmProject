@@ -22,7 +22,7 @@ public class SacrificationService(
     public async Task<Result<Sacrification>> SacrificeOffspring(
         int cageId, int amount, SacrificationReason sacrificationReason, int? orderRequestId)
     {
-        var cageResult = await _cageService.SacrificeOffspring(cageId, amount);
+        var cageResult = await _cageService.ReduceOffspringsForSacrification(cageId, amount);
         if (cageResult.IsFailure)
             return Result.Failure<Sacrification>(cageResult.Error);
 

@@ -14,7 +14,7 @@ public class LoggingOrderService(
     private readonly IOrderService _orderService = orderService;
     private readonly LoggingHelper _loggingHelper = loggingHelper;
 
-    public async Task<Result<Order>> CreateOrder(int customerId, List<OrderRequest> orderRequests)
+    public async Task<Result<Order>> CreateOrder(int customerId, List<CreateOrderRequest> orderRequests)
         => await _loggingHelper.LogOperation(
                 LoggingUtilities.FormatMethodCall(
                     nameof(CreateOrder),

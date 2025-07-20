@@ -14,10 +14,10 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .IsRequired()
             .HasConversion<string>();
 
-        builder.Property(o => o.OrderDate)
+        builder.Property(o => o.CustomerId)
             .IsRequired();
 
-        builder.Property(o => o.CustomerId)
+        builder.Property(o => o.OrderDate)
             .IsRequired();
 
         builder.HasMany(o => o.OrderRequests)

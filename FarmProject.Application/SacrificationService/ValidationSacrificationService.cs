@@ -2,6 +2,7 @@
 using FarmProject.Application.Common.Models;
 using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Application.Common.Validators;
+using FarmProject.Application.OrderRequestService;
 using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Models;
@@ -17,18 +18,23 @@ public class ValidationSacrificationService(
     private readonly ValidationHelper _validationHelper = validationHelper;
 
     public Task<Result<Sacrification>> SacrificeOffspring(
-        int cageId, int amount, SacrificationReason sacrificationReason, int? orderRequestId)
-    {
-        throw new NotImplementedException();
-    }
+        int cageId, int amount, SacrificationReason sacrificationReason, int? orderRequestId
+    )
+        => _validationHelper.ValidateAndExecute(
+            new SacrificeOffspringParam(cageId, amount, sacrificationReason, orderRequestId),
+                () => _inner.SacrificeOffspring(
+                    cageId, amount, sacrificationReason, orderRequestId));
 
     public Task<Result<PaginatedResult<Sacrification>>> GetPaginatedSacrifications(
         PaginatedRequest<SacrificationFilterDto> request
     )
         => _validationHelper.ValidateAndExecute(
             new PaginatedRequestParam<SacrificationFilterDto>(request),
-            () => _inner.GetPaginatedSacrifications(request));
+                () => _inner.GetPaginatedSacrifications(request));
 
     public Task<Result<Sacrification>> GetSacrificationById(int sacrificationId)
         => _inner.GetSacrificationById(sacrificationId);
 }
+
+public record SacrificeOffspringParam(
+    int CageId, int Amount, SacrificationReason SacrificationReason, int? OrderRequestId);

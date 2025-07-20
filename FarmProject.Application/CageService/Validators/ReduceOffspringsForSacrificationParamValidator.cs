@@ -3,9 +3,10 @@ using FluentValidation;
 
 namespace FarmProject.Application.CageService.Validators;
 
-public class SacrificeOffspringParamValidator : AbstractValidator<SacrificeOffspringParam>
+public class ReduceOffspringsForSacrificationParamValidator 
+    : AbstractValidator<ReduceOffspringsForSacrificationParam>
 {
-    public SacrificeOffspringParamValidator()
+    public ReduceOffspringsForSacrificationParamValidator()
     {
         RuleFor(x => x.CageId)
             .GreaterThan(0)

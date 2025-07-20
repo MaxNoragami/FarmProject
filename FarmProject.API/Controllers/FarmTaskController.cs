@@ -18,11 +18,11 @@ public class FarmTaskController(IFarmTaskService farmTaskService) : AppBaseContr
 
     [HttpGet]
     public async Task<ActionResult<PaginatedResult<ViewFarmTaskDto>>> GetPaginatedFarmTasks(
-    [FromQuery] int pageIndex = 1,
-    [FromQuery] int pageSize = 10,
-    [FromQuery] string sort = "",
-    [FromQuery] SortDirection defaultDirection = SortDirection.Ascending,
-    [FromQuery] FarmTaskFilterDto? filter = null)
+        [FromQuery] int pageIndex = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string sort = "",
+        [FromQuery] SortDirection defaultDirection = SortDirection.Ascending,
+        [FromQuery] FarmTaskFilterDto? filter = null)
     {
         var request = new PaginatedRequest<FarmTaskFilterDto>
         {

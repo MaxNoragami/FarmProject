@@ -66,12 +66,23 @@ public class Cage(string name) : Entity
         return Result.Success();
     }
 
+    public Result ReserveOffspring(int count)
+    {
+        if (count <= 0)
+            return Result.Failure(CageErrors.InvalidReservationCount);
+        if (count > (OffspringCount - ReservedOffspringCount))
+            return Result.Failure(CageErrors.InsufficientOffspring);
+
+        ReservedOffspringCount += count;
+        return Result.Success();
+    }
+
     public Result RemoveReservedOffspring(int count)
     {
-        if (count < 0)
-            return Result.Failure(CageErrors.NegativeOffspringNum);
+        if (count <= 0)
+            return Result.Failure(CageErrors.InvalidReservationCount);
         if (count > OffspringCount)
-            return Result.Failure(CageErrors.OverOffspringNum);
+            return Result.Failure(CageErrors.ExceedsReservedAmount);
 
         ReservedOffspringCount -= count;
         return Result.Success();
@@ -101,7 +112,7 @@ public class Cage(string name) : Entity
         }
     }
 
-    public Result SacrificeOffspring(int count)
+    public Result ReduceOffspringsForSacrification(int count)
     {
         if (count <= 0)
             return Result.Failure(CageErrors.InvalidSacrificeCount);

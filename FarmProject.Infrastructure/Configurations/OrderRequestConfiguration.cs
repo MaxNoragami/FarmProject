@@ -13,18 +13,25 @@ public class OrderRequestConfiguration : IEntityTypeConfiguration<OrderRequest>
         builder.Property(or => or.OrderId)
             .IsRequired();
 
-        builder.Property(or => or.Type)
+        builder.Property(or => or.OffspringType)
             .IsRequired()
             .HasConversion<string>();
 
         builder.Property(or => or.Amount)
             .IsRequired();
 
-        builder.Property(or => or.CageId)
+        builder.HasOne(or => or.Cage)
+            .WithMany()
+            .HasForeignKey("CageId")
             .IsRequired();
 
         builder.Property(or => or.OrderRequestStatus)
             .IsRequired()
             .HasConversion<string>();
+
+        builder.HasOne<Order>()
+            .WithMany(o => o.OrderRequests)
+            .HasForeignKey(or => or.OrderId)
+            .IsRequired();
     }
 }

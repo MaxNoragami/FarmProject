@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
 {
     /// <inheritdoc />
-    public partial class AddReservedOffspringCountColumn : Migration
+    public partial class FixDbSetConfigs : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -58,23 +58,6 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_FarmTasks", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Sacrifications",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderRequestId = table.Column<int>(type: "int", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Amount = table.Column<int>(type: "int", nullable: false),
-                    CageId = table.Column<int>(type: "int", nullable: false),
-                    BirthDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Sacrifications", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -132,6 +115,7 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CustomerId = table.Column<int>(type: "int", nullable: false),
+                    OrderStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -146,19 +130,50 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                 });
 
             migrationBuilder.CreateTable(
+                name: "Sacrifications",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderRequestId = table.Column<int>(type: "int", nullable: true),
+                    SacrificationReason = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CageId = table.Column<int>(type: "int", nullable: false),
+                    OffspringType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Amount = table.Column<int>(type: "int", nullable: false),
+                    BirthDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Sacrifications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Sacrifications_Cages_CageId",
+                        column: x => x.CageId,
+                        principalTable: "Cages",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OrderRequests",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OrderId = table.Column<int>(type: "int", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OffspringType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Amount = table.Column<int>(type: "int", nullable: false),
-                    CageId = table.Column<int>(type: "int", nullable: false)
+                    CageId = table.Column<int>(type: "int", nullable: false),
+                    OrderRequestStatus = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_OrderRequests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OrderRequests_Cages_CageId",
+                        column: x => x.CageId,
+                        principalTable: "Cages",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_OrderRequests_Orders_OrderId",
                         column: x => x.OrderId,
@@ -179,6 +194,11 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                 column: "BreedingRabbitId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_OrderRequests_CageId",
+                table: "OrderRequests",
+                column: "CageId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderRequests_OrderId",
                 table: "OrderRequests",
                 column: "OrderId");
@@ -192,14 +212,16 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                 name: "IX_Pairs_FemaleRabbitId",
                 table: "Pairs",
                 column: "FemaleRabbitId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Sacrifications_CageId",
+                table: "Sacrifications",
+                column: "CageId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Cages");
-
             migrationBuilder.DropTable(
                 name: "FarmTasks");
 
@@ -216,10 +238,13 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                 name: "Orders");
 
             migrationBuilder.DropTable(
-                name: "BreedingRabbits");
+                name: "Cages");
 
             migrationBuilder.DropTable(
                 name: "Customers");
+
+            migrationBuilder.DropTable(
+                name: "BreedingRabbits");
         }
     }
 }

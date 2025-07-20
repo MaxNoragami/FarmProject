@@ -30,11 +30,11 @@ public class BreedingRabbitController(
 
     [HttpGet]
     public async Task<ActionResult<PaginatedResult<ViewBreedingRabbitDto>>> GetPaginatedBreedingRabbits(
-    [FromQuery] int pageIndex = 1,
-    [FromQuery] int pageSize = 10,
-    [FromQuery] string sort = "",
-    [FromQuery] SortDirection defaultDirection = SortDirection.Ascending,
-    [FromQuery] BreedingRabbitFilterDto? filter = null)
+        [FromQuery] int pageIndex = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string sort = "",
+        [FromQuery] SortDirection defaultDirection = SortDirection.Ascending,
+        [FromQuery] BreedingRabbitFilterDto? filter = null)
     {
         var request = new PaginatedRequest<BreedingRabbitFilterDto>
         {

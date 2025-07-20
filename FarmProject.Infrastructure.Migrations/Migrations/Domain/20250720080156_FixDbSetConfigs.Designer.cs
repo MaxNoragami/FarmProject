@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
 {
     [DbContext(typeof(FarmDbContext))]
-    [Migration("20250715163037_AddReservedOffspringCountColumn")]
-    partial class AddReservedOffspringCountColumn
+    [Migration("20250720080156_FixDbSetConfigs")]
+    partial class FixDbSetConfigs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -181,6 +181,10 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("OrderStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
@@ -202,14 +206,20 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                     b.Property<int>("CageId")
                         .HasColumnType("int");
 
+                    b.Property<string>("OffspringType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Type")
+                    b.Property<string>("OrderRequestStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CageId");
 
                     b.HasIndex("OrderId");
 
@@ -266,14 +276,20 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                     b.Property<int>("CageId")
                         .HasColumnType("int");
 
-                    b.Property<int>("OrderRequestId")
+                    b.Property<string>("OffspringType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("OrderRequestId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Type")
+                    b.Property<string>("SacrificationReason")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CageId");
 
                     b.ToTable("Sacrifications");
                 });
@@ -299,11 +315,19 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
 
             modelBuilder.Entity("FarmProject.Domain.Models.OrderRequest", b =>
                 {
+                    b.HasOne("FarmProject.Domain.Models.Cage", "Cage")
+                        .WithMany()
+                        .HasForeignKey("CageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("FarmProject.Domain.Models.Order", null)
                         .WithMany("OrderRequests")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Cage");
                 });
 
             modelBuilder.Entity("FarmProject.Domain.Models.Pair", b =>
@@ -315,6 +339,17 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                         .IsRequired();
 
                     b.Navigation("FemaleRabbit");
+                });
+
+            modelBuilder.Entity("FarmProject.Domain.Models.Sacrification", b =>
+                {
+                    b.HasOne("FarmProject.Domain.Models.Cage", "Cage")
+                        .WithMany()
+                        .HasForeignKey("CageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cage");
                 });
 
             modelBuilder.Entity("FarmProject.Domain.Models.Customer", b =>

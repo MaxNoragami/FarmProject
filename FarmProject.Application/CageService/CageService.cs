@@ -88,7 +88,7 @@ public class CageService(
         return Result.Success(cages);
     }
 
-    public async Task<Result<Cage>> SacrificeOffspring(int cageId, int count)
+    public async Task<Result<Cage>> ReduceOffspringsForSacrification(int cageId, int count)
     {
         var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
         if (cage == null)
@@ -96,7 +96,7 @@ public class CageService(
 
         cage.UpdateSacrificableStatus(_sacrificableAgeInDays);
 
-        var sacrificeResult = cage.SacrificeOffspring(count);
+        var sacrificeResult = cage.ReduceOffspringsForSacrification(count);
         if (sacrificeResult.IsFailure)
             return Result.Failure<Cage>(sacrificeResult.Error);
 

@@ -166,13 +166,19 @@ public class PairControllerTests
         var farmTaskRepository = new FarmTaskRepository(dbContext);
         var pairingRepository = new PairingRepository(dbContext);
         var customerRepository = new CustomerRepository(dbContext);
+        var orderRepository = new OrderRepository(dbContext);
+        var orderRequestRepository = new OrderRequestRepository(dbContext);
+        var sacrificationRepository = new SacrificationRepository(dbContext);
         var unitOfWork = new UnitOfWork(
             dbContext,
             breedingRabbitRepository,
             pairingRepository,
             farmTaskRepository,
             cageRepository,
-            customerRepository
+            customerRepository,
+            orderRepository,
+            orderRequestRepository,
+            sacrificationRepository
         );
 
         var services = new ServiceCollection();

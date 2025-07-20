@@ -20,11 +20,11 @@ public class OrderController(
 
     [HttpGet]
     public async Task<ActionResult<PaginatedResult<ViewOrdersDto>>> GetPaginatedOrders(
-    [FromQuery] int pageIndex = 1,
-    [FromQuery] int pageSize = 10,
-    [FromQuery] string sort = "",
-    [FromQuery] SortDirection defaultDirection = SortDirection.Ascending,
-    [FromQuery] OrderFilterDto? filter = null)
+        [FromQuery] int pageIndex = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string sort = "",
+        [FromQuery] SortDirection defaultDirection = SortDirection.Ascending,
+        [FromQuery] OrderFilterDto? filter = null)
     {
         var request = new PaginatedRequest<OrderFilterDto>
         {

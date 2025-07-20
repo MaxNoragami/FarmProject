@@ -1,7 +1,7 @@
 ﻿using FarmProject.Application.Common.Models;
 using FarmProject.Application.Common.Models.Dtos;
 using FarmProject.Application.Common.Models.SortConfigs;
-using FarmProject.Application.OrderService;
+using FarmProject.Application.OrderRequestService;
 using FarmProject.Domain.Models;
 using FarmProject.Domain.Specifications;
 using Microsoft.EntityFrameworkCore;
