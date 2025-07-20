@@ -64,6 +64,10 @@ public class Sacrification : Entity
         SacrificationReason reason,
         OrderRequest? orderRequest)
     {
+
+        if (!cage.IsSacrificable)
+            return Result.Failure(CageErrors.NotSacrificable);
+
         if (reason == SacrificationReason.Order)
         {
             if (orderRequest == null)
@@ -75,15 +79,20 @@ public class Sacrification : Entity
         if (orderRequest != null)
             return Result.Failure(SacrificationErrors.OrderRequestNotAllowed);
 
+        var availableOffspring = cage.OffspringCount - cage.ReservedOffspringCount;
+        if (amount > availableOffspring)
+            return Result.Failure(SacrificationErrors.InsufficientAvailableOffspring);
+
         return Result.Success();
     }
 
     private static Result ValidateOrderRequest(Cage cage, int amount, OrderRequest orderRequest)
     {
-        if (orderRequest.Cage.Id != cage.Id)
+        if (orderRequest.Cage == null || orderRequest.Cage.Id != cage.Id)
             return Result.Failure(SacrificationErrors.CageMismatch);
 
-        if (amount > orderRequest.Amount)
+        var remainingAmount = orderRequest.Amount - orderRequest.SacrificedAmount;
+        if (amount > remainingAmount)
             return Result.Failure(SacrificationErrors.ExceedsOrderAmount);
 
         return Result.Success();

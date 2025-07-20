@@ -20,6 +20,9 @@ public class OrderRequestConfiguration : IEntityTypeConfiguration<OrderRequest>
         builder.Property(or => or.Amount)
             .IsRequired();
 
+        builder.Property(or => or.SacrificedAmount)
+            .IsRequired();
+
         builder.HasOne(or => or.Cage)
             .WithMany()
             .HasForeignKey("CageId")

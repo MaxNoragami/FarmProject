@@ -11,24 +11,22 @@ namespace FarmProject.Application.SacrificationService;
 
 public class SacrificationService(
         IUnitOfWork unitOfWork,
-        ICageService cageService,
         DomainEventDispatcher domainEventDispatcher) 
     : ISacrificationService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly ICageService _cageService = cageService;
     private readonly DomainEventDispatcher _domainEventDispatcher = domainEventDispatcher;
 
     public async Task<Result<Sacrification>> SacrificeOffspring(
         int cageId, int amount, SacrificationReason sacrificationReason, int? orderRequestId)
     {
-        var cageResult = await _cageService.ReduceOffspringsForSacrification(cageId, amount);
-        if (cageResult.IsFailure)
-            return Result.Failure<Sacrification>(cageResult.Error);
+        var cage = await _unitOfWork.CageRepository.GetByIdAsync(cageId);
+        if (cage == null)
+            return Result.Failure<Sacrification>(CageErrors.NotFound);
 
-        var cage = cageResult.Value;
+        cage.UpdateSacrificableStatus();
+
         OrderRequest? orderRequest = null;
-
         if (orderRequestId.HasValue)
         {
             orderRequest = await _unitOfWork.OrderRequestRepository.GetByIdAsync(orderRequestId.Value);
@@ -39,11 +37,22 @@ public class SacrificationService(
         var createResult = Sacrification.Create(cage, amount, sacrificationReason, orderRequest);
         if (createResult.IsFailure)
             return Result.Failure<Sacrification>(createResult.Error);
-        
-        if (createResult.Value.SacrificationReason == SacrificationReason.Order)
-            await _domainEventDispatcher.DispatchEventsAsync(cage.DomainEvents);
 
-        return Result.Success(createResult.Value);
+        // Now reduce offspring (this should work since Create validated it)
+        var reduceResult = cage.ReduceOffspringsForSacrification(amount);
+        if (reduceResult.IsFailure)
+            return Result.Failure<Sacrification>(reduceResult.Error);
+
+        // Save changes
+        await _unitOfWork.CageRepository.UpdateAsync(cage);
+
+        var sacrification = createResult.Value;
+        var createdSacrification = await _unitOfWork.SacrificationRepository.AddAsync(sacrification);
+
+        if (sacrification.SacrificationReason == SacrificationReason.Order)
+            await _domainEventDispatcher.DispatchEventsAsync(sacrification.DomainEvents);
+
+        return Result.Success(createdSacrification);
     }
 
     public async Task<Result<Sacrification>> GetSacrificationById(int sacrificationId)

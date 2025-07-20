@@ -11,6 +11,7 @@ public static class OrderRequestMapper
                 OrderId = orderRequest.OrderId,
                 OffspringType = orderRequest.OffspringType,
                 Amount = orderRequest.Amount,
+                SacrificedAmount = orderRequest.SacrificedAmount,
                 CageId = orderRequest.Cage.Id,
                 OrderRequestStatus = orderRequest.OrderRequestStatus
             };

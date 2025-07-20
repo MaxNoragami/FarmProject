@@ -74,7 +74,7 @@ public class OrderController(
         if (result.IsSuccess)
         {
             var createdOrder = result.Value.ToViewSingleOrderDto();
-            return CreatedAtAction(nameof(createdOrder), new { id = createdOrder.Id }, createdOrder);
+            return CreatedAtAction(nameof(GetOrder), new { id = createdOrder.Id }, createdOrder);
         }
         else
             return HandleError<ViewSingleOrderDto>(result.Error);

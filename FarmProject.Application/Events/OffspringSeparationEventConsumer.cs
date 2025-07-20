@@ -16,7 +16,7 @@ public class OffspringSeparationEventConsumer(
     {
         try
         {
-            var separationDate = domainEvent.CreatedOn.AddDays(26);
+            var separationDate = domainEvent.CreatedOn.AddDays(DomainRules.OffspringSeparationInDays);
 
             var separateOffspringsTask = new FarmTask(
                 farmTaskType: FarmTaskType.OffspringSeparation,

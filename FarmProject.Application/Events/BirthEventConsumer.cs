@@ -21,8 +21,8 @@ public class BirthEventConsumer(
 
             var birthDate = domainEvent.BirthDate;
 
-            var kitsWeaningDate = birthDate.AddDays(30);
-            var removeNestDate = birthDate.AddDays(30);
+            var kitsWeaningDate = birthDate.AddDays(DomainRules.KitsWeaningInDays);
+            var removeNestDate = birthDate.AddDays(DomainRules.RemoveNestInDays);
 
             var kitsWeaningTask = new FarmTask(
                 farmTaskType: FarmTaskType.Weaning,

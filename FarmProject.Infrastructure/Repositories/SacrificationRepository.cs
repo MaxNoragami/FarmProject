@@ -33,6 +33,7 @@ public class SacrificationRepository(
     public async Task<PaginatedResult<Sacrification>> GetPaginatedAsync(PaginatedRequest<SacrificationFilterDto> request)
     {
         var query = _context.Sacrifications
+            .Include(s => s.Cage)
             .AsQueryable();
 
         if (request.Filter != null)

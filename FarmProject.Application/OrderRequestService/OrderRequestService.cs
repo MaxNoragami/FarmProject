@@ -19,8 +19,13 @@ public class OrderRequestService(
         if (cage == null)
             return Result.Failure<OrderRequest>(CageErrors.NotFound);
 
+        cage.UpdateSacrificableStatus();
+
         if (cage.OffspringCount <= 0)
             return Result.Failure<OrderRequest>(CageErrors.NoOffspring);
+
+        if (!cage.IsSacrificable)
+            return Result.Failure<OrderRequest>(CageErrors.NotSacrificable);
 
         var availableOffspring = cage.OffspringCount - cage.ReservedOffspringCount;
         if (amount > availableOffspring)

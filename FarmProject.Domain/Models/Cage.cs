@@ -81,7 +81,7 @@ public class Cage(string name) : Entity
     {
         if (count <= 0)
             return Result.Failure(CageErrors.InvalidReservationCount);
-        if (count > OffspringCount)
+        if (count > ReservedOffspringCount)
             return Result.Failure(CageErrors.ExceedsReservedAmount);
 
         ReservedOffspringCount -= count;
@@ -103,12 +103,12 @@ public class Cage(string name) : Entity
         }
     }
 
-    public void UpdateSacrificableStatus(int sacrificableAgeInDays)
+    public void UpdateSacrificableStatus()
     {
         if (OffspringCount > 0 && BirthDate.HasValue)
         {
             var ageInDays = (DateTime.UtcNow - BirthDate.Value).TotalDays;
-            IsSacrificable = ageInDays >= sacrificableAgeInDays;
+            IsSacrificable = ageInDays >= DomainRules.OffspringSacrificableAgeInDays;
         }
     }
 

@@ -8,12 +8,10 @@ using FarmProject.Domain.Models;
 namespace FarmProject.Application.CageService;
 
 public class CageService(
-        IUnitOfWork unitOfWork,
-        int sacrificableAgeInDays) 
+        IUnitOfWork unitOfWork) 
     : ICageService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly int _sacrificableAgeInDays = sacrificableAgeInDays;
 
     public async Task<Result<Cage>> CreateCage(string name)
     {
@@ -27,7 +25,7 @@ public class CageService(
         if (cage == null)
             return Result.Failure<Cage>(CageErrors.NotFound);
 
-        cage.UpdateSacrificableStatus(_sacrificableAgeInDays);
+        cage.UpdateSacrificableStatus();
 
         return Result.Success(cage);
     }
@@ -83,7 +81,7 @@ public class CageService(
         var cages = await _unitOfWork.CageRepository.GetPaginatedAsync(request);
 
         foreach (var cage in cages.Items)
-            cage.UpdateSacrificableStatus(_sacrificableAgeInDays);
+            cage.UpdateSacrificableStatus();
 
         return Result.Success(cages);
     }
@@ -94,7 +92,7 @@ public class CageService(
         if (cage == null)
             return Result.Failure<Cage>(CageErrors.NotFound);
 
-        cage.UpdateSacrificableStatus(_sacrificableAgeInDays);
+        cage.UpdateSacrificableStatus();
 
         var sacrificeResult = cage.ReduceOffspringsForSacrification(count);
         if (sacrificeResult.IsFailure)

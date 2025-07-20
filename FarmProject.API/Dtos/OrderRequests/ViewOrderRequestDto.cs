@@ -8,6 +8,7 @@ public class ViewOrderRequestDto
     public int OrderId { get; set; }
     public OffspringType OffspringType { get; set; }
     public int Amount { get; set; }
+    public int SacrificedAmount { get; set; }
     public int CageId { get; set; }
     public OrderRequestStatus OrderRequestStatus { get; set; }
 }

@@ -32,15 +32,7 @@ public static class ServiceCollectionExtension
     {
         services.AddScoped<ValidationHelper>();
 
-        services.AddScoped<CageService>(provider =>
-        {
-            var unitOfWork = provider.GetRequiredService<IUnitOfWork>();
-            var configuration = provider.GetRequiredService<IConfiguration>();
-            var sacrificableAgeInDays = configuration.GetSection("FarmSettings")
-                .GetValue<int>("OffspringSacrificableAgeInDays");
-            return new CageService(unitOfWork, sacrificableAgeInDays);
-        });
-
+        services.AddScoped<CageService>();
         services.AddScoped<BreedingRabbitService>();
         services.AddScoped<FarmTaskService>();
         services.AddScoped<PairingService>();
@@ -160,7 +152,6 @@ public static class ServiceCollectionExtension
 
         services.AddScoped<IValidator<CreateCageParam>, CreateCageParamValidator>();
         services.AddScoped<IValidator<UpdateOffspringTypeParam>, UpdateOffspringTypeParamValidator>();
-        services.AddScoped<IValidator<ReduceOffspringsForSacrificationParam>, ReduceOffspringsForSacrificationParamValidator>();
 
         services.AddScoped<IValidator<UpdatePairingStatusParam>, UpdatePairingStatusParamValidator>();
 

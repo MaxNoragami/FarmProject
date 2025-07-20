@@ -28,11 +28,13 @@ public class OrderRequestRepository(
 
     public async Task<OrderRequest?> GetByIdAsync(int orderRequestId)
         => await _context.OrderRequests
+            .Include(or => or.Cage)
             .FirstOrDefaultAsync(or => or.Id == orderRequestId);
 
     public async Task<PaginatedResult<OrderRequest>> GetPaginatedAsync(PaginatedRequest<OrderRequestFilterDto> request)
     {
         var query = _context.OrderRequests
+            .Include(s => s.Cage)
             .AsQueryable();
 
         if (request.Filter != null)

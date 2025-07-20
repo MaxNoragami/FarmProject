@@ -21,4 +21,8 @@ public class SacrificationErrors
 
     public static readonly Error OrderRequestNotAllowed = new(
         "Sacrification.OrderRequestNotAllowed", "Order request provided for non-order sacrification");
+
+    public static readonly Error InsufficientAvailableOffspring = new(
+        "Sacrification.InsufficientAvailableOffsprings", 
+            "Insufficient available offsprings for sacrification, as some of them are reserved");
 }
