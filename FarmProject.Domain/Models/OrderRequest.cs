@@ -10,6 +10,7 @@ public class OrderRequest : Entity
     public int Amount { get; private set; }
     public int SacrificedAmount { get; private set; }
     public Cage Cage { get; private set; }
+    public int CageId { get; private set; }
     public OrderRequestStatus OrderRequestStatus { get; private set; }
 
     private OrderRequest() { }

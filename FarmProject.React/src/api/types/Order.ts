@@ -8,27 +8,28 @@ export interface OrderRequest {
   orderRequestStatus: number;
 }
 
-// Replace enum with a const object and type
-export const OrderRequestStatus = {
-  Waiting: 0,
-  Completed: 1,
-  Failed: 2,
-} as const;
+export interface OrderDetails {
+  id: number;
+  customerId: number;
+  orderStatus: number;
+  orderDate: string;
+  orderRequests: OrderRequest[];
+}
 
-export type OrderRequestStatusType =
-  (typeof OrderRequestStatus)[keyof typeof OrderRequestStatus];
+export enum OrderRequestStatus {
+  Waiting = 0,
+  Completed = 1,
+  Failed = 2,
+}
 
-export const orderRequestStatusLabels: Record<OrderRequestStatusType, string> =
-  {
-    [OrderRequestStatus.Waiting]: "Waiting",
-    [OrderRequestStatus.Completed]: "Completed",
-    [OrderRequestStatus.Failed]: "Failed",
-  };
+export const orderRequestStatusLabels: Record<OrderRequestStatus, string> = {
+  [OrderRequestStatus.Waiting]: "Waiting",
+  [OrderRequestStatus.Completed]: "Completed",
+  [OrderRequestStatus.Failed]: "Failed",
+};
 
 export const getOrderRequestStatusLabel = (status: number): string => {
-  return (
-    orderRequestStatusLabels[status as OrderRequestStatusType] || "Unknown"
-  );
+  return orderRequestStatusLabels[status as OrderRequestStatus] || "Unknown";
 };
 
 export const getOrderRequestStatusColor = (

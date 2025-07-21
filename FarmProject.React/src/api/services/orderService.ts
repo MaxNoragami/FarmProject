@@ -1,5 +1,6 @@
 import { apiClient } from "../config";
 import type { OrderResponse } from "../../types/Order";
+import type { OrderDetails } from "../types/Order";
 
 export interface OrderFilters {
   customerId?: number;
@@ -51,6 +52,11 @@ export const OrderService = {
     orderRequests: Array<{ cageId: number; amount: number }>;
   }) => {
     const response = await apiClient.post("/orders", data);
+    return response.data;
+  },
+
+  getOrderById: async (orderId: number): Promise<OrderDetails> => {
+    const response = await apiClient.get<OrderDetails>(`/orders/${orderId}`);
     return response.data;
   },
 };

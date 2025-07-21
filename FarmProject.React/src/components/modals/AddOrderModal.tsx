@@ -29,6 +29,16 @@ import { type OrderRequestItem } from "../../schemas/orderSchemas";
 import AddOrderRequestModal from "./AddOrderRequestModal";
 import CustomerSelectionModal from "./CustomerSelectionModal";
 
+const offspringTypeLabels: Record<number, string> = {
+  0: "None",
+  1: "Mixed",
+  2: "Male",
+  3: "Female",
+};
+function getOffspringTypeLabel(type: number): string {
+  return offspringTypeLabels[type] ?? "Unknown";
+}
+
 interface AddOrderModalProps {
   open: boolean;
   onClose: () => void;
@@ -99,7 +109,7 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({
 
   return (
     <>
-      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+      <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
         <DialogTitle
           sx={{
             display: "flex",
@@ -214,35 +224,74 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({
                   border: 1,
                   borderColor: "divider",
                   borderRadius: 1,
-                  height: 150,
+                  height: 180,
                   overflow: "auto",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 2,
+                  backgroundColor: "grey.50",
+                  py: 2,
                 }}
               >
-                <List>
-                  {orderRequests.map((request, index) => (
-                    <React.Fragment key={index}>
-                      <ListItem>
-                        <ListItemText
-                          primary={`${
-                            request.cageName || `Cage ${request.cageId}`
-                          }`}
-                          secondary={`Amount: ${request.amount}`}
-                        />
-                        <ListItemSecondaryAction>
-                          <IconButton
-                            edge="end"
-                            onClick={() => handleRemoveOrderRequest(index)}
-                            color="error"
-                            size="small"
-                          >
-                            <Delete />
-                          </IconButton>
-                        </ListItemSecondaryAction>
-                      </ListItem>
-                      {index < orderRequests.length - 1 && <Divider />}
-                    </React.Fragment>
-                  ))}
-                </List>
+                {orderRequests.map((request, index) => (
+                  <Card
+                    key={index}
+                    sx={{
+                      minWidth: 220,
+                      maxWidth: 260,
+                      mx: "auto",
+                      boxShadow: 1,
+                      border: 1,
+                      borderColor: "divider",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      position: "relative",
+                    }}
+                  >
+                    <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
+                      <Box sx={{ textAlign: "center" }}>
+                        <Typography
+                          variant="subtitle2"
+                          color="text.secondary"
+                          sx={{ mb: 0.5 }}
+                        >
+                          Id: {index + 1}
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          fontWeight="bold"
+                          sx={{ mb: 0.5 }}
+                        >
+                          {request.cageName || `Cage ${request.cageId}`}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ mb: 0.5 }}
+                        >
+                          Offspring Type:{" "}
+                          {getOffspringTypeLabel(request.offspringType ?? 0)}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Amount: {request.amount}
+                        </Typography>
+                      </Box>
+                      <IconButton
+                        edge="end"
+                        onClick={() => handleRemoveOrderRequest(index)}
+                        color="error"
+                        size="small"
+                        sx={{ position: "absolute", top: 8, right: 8 }}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </CardContent>
+                  </Card>
+                ))}
               </Box>
             )}
           </Box>

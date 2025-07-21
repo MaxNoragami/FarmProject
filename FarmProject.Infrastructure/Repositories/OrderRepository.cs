@@ -29,6 +29,7 @@ public class OrderRepository(
     public async Task<Order?> GetByIdAsync(int orderId)
         => await _context.Orders
             .Include(o => o.OrderRequests)
+                .ThenInclude(or => or.Cage)
             .FirstOrDefaultAsync(o => o.Id == orderId);
 
     public async Task<PaginatedResult<Order>> GetPaginatedAsync(PaginatedRequest<OrderFilterDto> request)

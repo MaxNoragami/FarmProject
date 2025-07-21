@@ -25,7 +25,7 @@ public class OrderRequestConfiguration : IEntityTypeConfiguration<OrderRequest>
 
         builder.HasOne(or => or.Cage)
             .WithMany()
-            .HasForeignKey("CageId")
+            .HasForeignKey(or => or.CageId)
             .IsRequired();
 
         builder.Property(or => or.OrderRequestStatus)

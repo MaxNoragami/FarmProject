@@ -20,6 +20,7 @@ import OrderFilterDialog from "../components/orders/OrderFilterDialog";
 import { useOrderData } from "../hooks/useOrderData";
 import { getOrderStatusLabel } from "../types/OrderStatus";
 import AddOrderModal from "../components/modals/AddOrderModal";
+import OrderDetailsModal from "../components/modals/OrderDetailsModal";
 import { OrderService } from "../api/services/orderService";
 
 const OrdersPage = () => {
@@ -47,6 +48,12 @@ const OrdersPage = () => {
 
   const [addModalOpen, setAddModalOpen] = React.useState(false);
   const [addOrderError, setAddOrderError] = React.useState<string | null>(null);
+
+  const [orderDetailsModalOpen, setOrderDetailsModalOpen] =
+    React.useState(false);
+  const [selectedOrderId, setSelectedOrderId] = React.useState<number | null>(
+    null
+  );
 
   const apiFilters = React.useMemo(() => {
     const converted: any = {};
@@ -310,6 +317,16 @@ const OrdersPage = () => {
     }
   };
 
+  const handleOpenOrderDetailsModal = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setOrderDetailsModalOpen(true);
+  };
+
+  const handleCloseOrderDetailsModal = () => {
+    setOrderDetailsModalOpen(false);
+    setSelectedOrderId(null);
+  };
+
   return (
     <>
       <Helmet>
@@ -379,7 +396,10 @@ const OrdersPage = () => {
                   ? mobileSkeleton
                   : orders.map((order) => (
                       <Grid size={{ xs: 12, sm: 6 }} key={order.id}>
-                        <OrderCard order={order} />
+                        <OrderCard
+                          order={order}
+                          onClick={() => handleOpenOrderDetailsModal(order.id)}
+                        />
                       </Grid>
                     ))}
               </Grid>
@@ -460,7 +480,10 @@ const OrdersPage = () => {
                         size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
                         key={order.id}
                       >
-                        <OrderCard order={order} />
+                        <OrderCard
+                          order={order}
+                          onClick={() => handleOpenOrderDetailsModal(order.id)}
+                        />
                       </Grid>
                     ))}
               </Grid>
@@ -515,6 +538,12 @@ const OrdersPage = () => {
         onClose={handleCloseAddModal}
         onSubmit={handleAddOrder}
         error={addOrderError}
+      />
+
+      <OrderDetailsModal
+        open={orderDetailsModalOpen}
+        onClose={handleCloseOrderDetailsModal}
+        orderId={selectedOrderId}
       />
     </>
   );

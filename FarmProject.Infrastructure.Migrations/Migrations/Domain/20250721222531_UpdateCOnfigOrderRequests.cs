@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
 {
     /// <inheritdoc />
-    public partial class FixDbSetConfigs : Migration
+    public partial class UpdateCOnfigOrderRequests : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -162,6 +162,7 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                     OrderId = table.Column<int>(type: "int", nullable: false),
                     OffspringType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Amount = table.Column<int>(type: "int", nullable: false),
+                    SacrificedAmount = table.Column<int>(type: "int", nullable: false),
                     CageId = table.Column<int>(type: "int", nullable: false),
                     OrderRequestStatus = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },

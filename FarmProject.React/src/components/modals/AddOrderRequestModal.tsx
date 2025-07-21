@@ -181,7 +181,6 @@ const AddOrderRequestModal: React.FC<AddOrderRequestModalProps> = ({
           <Typography variant="body1" sx={{ mb: 1 }}>
             Select a Cage
           </Typography>
-
           {loading ? (
             <Typography>Loading cages...</Typography>
           ) : (
@@ -208,9 +207,10 @@ const AddOrderRequestModal: React.FC<AddOrderRequestModalProps> = ({
                 <>
                   <Box
                     sx={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1fr",
-                      gap: 1.5,
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 2,
+                      justifyContent: "center",
                       mb: 2,
                     }}
                   >
@@ -222,6 +222,7 @@ const AddOrderRequestModal: React.FC<AddOrderRequestModalProps> = ({
                         <Card
                           key={cage.id}
                           sx={{
+                            width: 200,
                             cursor: isSelectable ? "pointer" : "not-allowed",
                             border: selectedCageId === cage.id ? 2 : 1,
                             borderColor:
@@ -278,7 +279,6 @@ const AddOrderRequestModal: React.FC<AddOrderRequestModalProps> = ({
                       );
                     })}
                   </Box>
-
                   {totalPages > 1 && (
                     <Box
                       sx={{

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
 {
     [DbContext(typeof(FarmDbContext))]
-    [Migration("20250720080156_FixDbSetConfigs")]
-    partial class FixDbSetConfigs
+    [Migration("20250721222531_UpdateCOnfigOrderRequests")]
+    partial class UpdateCOnfigOrderRequests
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -216,6 +216,9 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                     b.Property<string>("OrderRequestStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SacrificedAmount")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
