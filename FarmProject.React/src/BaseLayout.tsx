@@ -13,7 +13,13 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { Assignment, Bento, CrueltyFree, Favorite } from "@mui/icons-material";
+import {
+  Assignment,
+  Bento,
+  CrueltyFree,
+  Favorite,
+  PeopleAlt,
+} from "@mui/icons-material";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import UserAvatar from "./components/common/UserAvatar";
 
@@ -58,6 +64,8 @@ const BaseLayout = () => {
         return 2;
       case "/pairs":
         return 3;
+      case "/customers":
+        return 4;
       default:
         return 1;
     }
@@ -67,7 +75,7 @@ const BaseLayout = () => {
     event: React.SyntheticEvent,
     newValue: number
   ) => {
-    const paths = ["/tasks", "/rabbits", "/cages", "/pairs"];
+    const paths = ["/tasks", "/rabbits", "/cages", "/pairs", "/customers"];
     navigate(paths[newValue]);
   };
 
@@ -128,12 +136,12 @@ const BaseLayout = () => {
           <BottomNavigationAction label="Rabbits" icon={<CrueltyFree />} />
           <BottomNavigationAction label="Cages" icon={<Bento />} />
           <BottomNavigationAction label="Pairs" icon={<Favorite />} />
+          <BottomNavigationAction label="Customers" icon={<PeopleAlt />} />
         </BottomNavigation>
       </Box>
     );
   }
 
-  
   return (
     <Box sx={{ display: "flex", height: "100vh", width: "100vw" }}>
       <CssBaseline />
@@ -261,6 +269,35 @@ const BaseLayout = () => {
                 }}
               >
                 <Favorite />
+              </ListItemIcon>
+            </ListItemButton>
+          </ListItem>
+
+          {/* Customers */}
+          <ListItem key={"customers"} disablePadding sx={{ display: "block" }}>
+            <ListItemButton
+              sx={{
+                minHeight: 48,
+                px: 1,
+                justifyContent: "center",
+                backgroundColor:
+                  location.pathname === "/customers"
+                    ? "rgba(0, 0, 0, 0.04)"
+                    : "transparent",
+              }}
+              onClick={() => handleNavigation("/customers")}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  justifyContent: "center",
+                  color:
+                    location.pathname === "/customers"
+                      ? "primary.main"
+                      : "grey.600",
+                }}
+              >
+                <PeopleAlt />
               </ListItemIcon>
             </ListItemButton>
           </ListItem>
