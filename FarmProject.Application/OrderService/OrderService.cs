@@ -42,9 +42,6 @@ public class OrderService(
             createdOrderRequests.Add(orderRequestResult.Value);
         }
 
-        //createdOrder.OrderRequests.AddRange(createdOrderRequests);
-        //await _unitOfWork.OrderRepository.UpdateAsync(createdOrder);
-
         return Result.Success(createdOrder);
     }
 
