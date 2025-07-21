@@ -19,6 +19,7 @@ import {
   CrueltyFree,
   Favorite,
   PeopleAlt,
+  Payments,
 } from "@mui/icons-material";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import UserAvatar from "./components/common/UserAvatar";
@@ -66,6 +67,8 @@ const BaseLayout = () => {
         return 3;
       case "/customers":
         return 4;
+      case "/orders":
+        return 5;
       default:
         return 1;
     }
@@ -75,7 +78,14 @@ const BaseLayout = () => {
     event: React.SyntheticEvent,
     newValue: number
   ) => {
-    const paths = ["/tasks", "/rabbits", "/cages", "/pairs", "/customers"];
+    const paths = [
+      "/tasks",
+      "/rabbits",
+      "/cages",
+      "/pairs",
+      "/customers",
+      "/orders",
+    ];
     navigate(paths[newValue]);
   };
 
@@ -137,6 +147,7 @@ const BaseLayout = () => {
           <BottomNavigationAction label="Cages" icon={<Bento />} />
           <BottomNavigationAction label="Pairs" icon={<Favorite />} />
           <BottomNavigationAction label="Customers" icon={<PeopleAlt />} />
+          <BottomNavigationAction label="Orders" icon={<Payments />} />
         </BottomNavigation>
       </Box>
     );
@@ -298,6 +309,35 @@ const BaseLayout = () => {
                 }}
               >
                 <PeopleAlt />
+              </ListItemIcon>
+            </ListItemButton>
+          </ListItem>
+
+          {/* Orders */}
+          <ListItem key={"orders"} disablePadding sx={{ display: "block" }}>
+            <ListItemButton
+              sx={{
+                minHeight: 48,
+                px: 1,
+                justifyContent: "center",
+                backgroundColor:
+                  location.pathname === "/orders"
+                    ? "rgba(0, 0, 0, 0.04)"
+                    : "transparent",
+              }}
+              onClick={() => handleNavigation("/orders")}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  justifyContent: "center",
+                  color:
+                    location.pathname === "/orders"
+                      ? "primary.main"
+                      : "grey.600",
+                }}
+              >
+                <Payments />
               </ListItemIcon>
             </ListItemButton>
           </ListItem>

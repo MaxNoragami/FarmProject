@@ -376,7 +376,7 @@ const RabbitsPage = () => {
                             }}
                           >
                             <Box>
-                              <Skeleton variant="text" width={60} height={16} />
+                              <Skeleton variant="text" width={70} height={16} />
                               <Skeleton variant="text" width={40} height={20} />
                             </Box>
                             <Box>

@@ -295,6 +295,9 @@ const CustomersPage = () => {
     );
   };
 
+  const hasFilters =
+    filters.firstName || filters.lastName || filters.email || filters.phoneNum;
+
   return (
     <>
       <Helmet>
@@ -382,7 +385,7 @@ const CustomersPage = () => {
                               mb: 2,
                             }}
                           >
-                            <Skeleton variant="text" width={120} height={32} />
+                            <Skeleton variant="text" width={150} height={32} />
                           </Box>
 
                           <Box
@@ -393,12 +396,24 @@ const CustomersPage = () => {
                             }}
                           >
                             <Box>
-                              <Skeleton variant="text" width={60} height={16} />
+                              <Skeleton variant="text" width={20} height={16} />
                               <Skeleton variant="text" width={40} height={20} />
                             </Box>
                             <Box>
-                              <Skeleton variant="text" width={60} height={16} />
-                              <Skeleton variant="text" width={40} height={20} />
+                              <Skeleton variant="text" width={40} height={16} />
+                              <Skeleton
+                                variant="text"
+                                width={120}
+                                height={20}
+                              />
+                            </Box>
+                            <Box>
+                              <Skeleton variant="text" width={40} height={16} />
+                              <Skeleton
+                                variant="text"
+                                width={100}
+                                height={20}
+                              />
                             </Box>
                           </Box>
                         </Paper>
@@ -483,7 +498,9 @@ const CustomersPage = () => {
                 overflow: "hidden",
                 display: "flex",
                 flexDirection: "column",
-                height: "calc(100vh - 240px)",
+                height: hasFilters
+                  ? "calc(100vh - 280px)"
+                  : "calc(100vh - 240px)",
               }}
             >
               {/* Scrollable Table */}

@@ -20,6 +20,7 @@ import RegisterPage from "./pages/RegisterPage";
 import { UserProvider, useUser } from "./contexts/UserContext";
 import LoginPage from "./pages/LoginPage";
 import LandingPage from "./pages/LandingPage";
+import OrdersPage from "./pages/OrdersPage";
 
 // PrivateRoute component
 function PrivateRoute() {
@@ -52,6 +53,7 @@ createRoot(document.getElementById("root")!).render(
                 <Route path="cages" element={<CagesPage />} />
                 <Route path="pairs" element={<PairsPage />} />
                 <Route path="customers" element={<CustomersPage />} />
+                <Route path="orders" element={<OrdersPage />} />
               </Route>
             </Route>
           </Routes>

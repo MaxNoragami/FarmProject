@@ -385,6 +385,13 @@ const TasksPage = () => {
                             />
                           </Box>
 
+                          <Skeleton
+                            variant="text"
+                            width="100%"
+                            height={40}
+                            sx={{ mb: 2 }}
+                          />
+
                           <Box
                             sx={{
                               display: "grid",
@@ -393,12 +400,12 @@ const TasksPage = () => {
                             }}
                           >
                             <Box>
-                              <Skeleton variant="text" width={60} height={16} />
-                              <Skeleton variant="text" width={40} height={20} />
+                              <Skeleton variant="text" width={70} height={16} />
+                              <Skeleton variant="text" width={90} height={20} />
                             </Box>
                             <Box>
-                              <Skeleton variant="text" width={60} height={16} />
-                              <Skeleton variant="text" width={40} height={20} />
+                              <Skeleton variant="text" width={50} height={16} />
+                              <Skeleton variant="text" width={80} height={20} />
                             </Box>
                           </Box>
                         </Paper>
@@ -546,6 +553,13 @@ const TasksPage = () => {
                             />
                           </Box>
 
+                          <Skeleton
+                            variant="text"
+                            width="100%"
+                            height={40}
+                            sx={{ mb: 2 }}
+                          />
+
                           <Box
                             sx={{
                               display: "grid",
@@ -554,12 +568,12 @@ const TasksPage = () => {
                             }}
                           >
                             <Box>
-                              <Skeleton variant="text" width={60} height={16} />
-                              <Skeleton variant="text" width={40} height={20} />
+                              <Skeleton variant="text" width={70} height={16} />
+                              <Skeleton variant="text" width={90} height={20} />
                             </Box>
                             <Box>
-                              <Skeleton variant="text" width={60} height={16} />
-                              <Skeleton variant="text" width={40} height={20} />
+                              <Skeleton variant="text" width={50} height={16} />
+                              <Skeleton variant="text" width={80} height={20} />
                             </Box>
                           </Box>
                         </Paper>

@@ -1,18 +1,20 @@
 export enum OrderStatus {
-  Pending = 0,
-  Processing = 1,
-  Shipped = 2,
-  Delivered = 3,
-  Cancelled = 4,
+  Processing = 0,
+  Completed = 1,
+  Failed = 2,
 }
 
 export const orderStatusLabels: Record<OrderStatus, string> = {
-  [OrderStatus.Pending]: "Pending",
   [OrderStatus.Processing]: "Processing",
-  [OrderStatus.Shipped]: "Shipped",
-  [OrderStatus.Delivered]: "Delivered",
-  [OrderStatus.Cancelled]: "Cancelled",
+  [OrderStatus.Completed]: "Completed",
+  [OrderStatus.Failed]: "Failed",
 };
+
+export const orderStatusOptions = [
+  { value: "0", label: "Processing" },
+  { value: "1", label: "Completed" },
+  { value: "2", label: "Failed" },
+];
 
 export const getOrderStatusLabel = (status: number): string => {
   return orderStatusLabels[status as OrderStatus] || "Unknown";
@@ -29,15 +31,11 @@ export const getOrderStatusColor = (
   | "success"
   | "warning" => {
   switch (status) {
-    case OrderStatus.Pending:
-      return "warning";
     case OrderStatus.Processing:
       return "info";
-    case OrderStatus.Shipped:
-      return "primary";
-    case OrderStatus.Delivered:
+    case OrderStatus.Completed:
       return "success";
-    case OrderStatus.Cancelled:
+    case OrderStatus.Failed:
       return "error";
     default:
       return "default";

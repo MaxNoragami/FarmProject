@@ -20,3 +20,13 @@ export const mapCustomerToData = (customer: Customer): CustomerData => ({
 
 export const mapCustomersToData = (customers: Customer[]): CustomerData[] =>
   customers.map(mapCustomerToData);
+
+export const mapApiCustomersToUI = (customers: Customer[]): CustomerData[] => {
+  return customers.map((customer) => ({
+    id: customer.id,
+    firstName: customer.firstName,
+    lastName: customer.lastName,
+    email: customer.email,
+    phoneNum: customer.phoneNum,
+  }));
+};

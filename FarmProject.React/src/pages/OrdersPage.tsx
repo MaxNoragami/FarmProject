@@ -3,107 +3,76 @@ import {
   Box,
   Button,
   Divider,
-  Chip,
   useMediaQuery,
   useTheme,
+  TablePagination,
+  Chip,
   Grid,
   Paper,
-  TablePagination,
   Skeleton,
 } from "@mui/material";
-import { Add, FilterList } from "@mui/icons-material";
+import { FilterList, Add } from "@mui/icons-material";
 import * as React from "react";
 import { Helmet } from "react-helmet-async";
-import { usePairData } from "../hooks/usePairData";
-import {
-  pairingStatusOptions,
-  pairingStatusStringToEnum,
-  getPairingStatusColor,
-} from "../types/PairingStatus";
-import PairCard from "../components/pairs/PairCard";
+import OrderCard from "../components/orders/OrderCard";
 import ErrorAlert from "../components/common/ErrorAlert";
-import PairFilterDialog from "../components/pairs/PairFilterDialog";
-import AddPairModal from "../components/modals/AddPairModal";
-import UpdatePairStatusModal from "../components/modals/UpdatePairStatusModal";
-import { PairService } from "../api/services/pairService";
-import type {
-  AddPairFormFields,
-  UpdatePairStatusFormFields,
-} from "../schemas/pairSchemas";
-import type { PairData } from "../utils/pairMappers";
+import OrderFilterDialog from "../components/orders/OrderFilterDialog";
+import { useOrderData } from "../hooks/useOrderData";
+import { getOrderStatusLabel } from "../types/OrderStatus";
+import AddOrderModal from "../components/modals/AddOrderModal";
+import { OrderService } from "../api/services/orderService";
 
-const PairsPage = () => {
+const OrdersPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-  const [addModalOpen, setAddModalOpen] = React.useState(false);
-  const [addPairError, setAddPairError] = React.useState<string | null>(null);
-  const [updateModalOpen, setUpdateModalOpen] = React.useState(false);
-  const [updatePairError, setUpdatePairError] = React.useState<string | null>(
-    null
-  );
-  const [selectedPair, setSelectedPair] = React.useState<PairData | null>(null);
 
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(12);
 
   const [filterDialogOpen, setFilterDialogOpen] = React.useState(false);
   const [filters, setFilters] = React.useState<{
-    status?: string;
-    femaleRabbitId?: string;
-    maleRabbitId?: string;
+    customerId?: string;
+    orderStatus?: string;
+    orderDate?: string;
   }>({});
-  const [logicalOperator, setLogicalOperator] = React.useState<"AND" | "OR">(
-    "AND"
-  );
 
   const [tempFilters, setTempFilters] = React.useState<{
-    status: string;
-    femaleRabbitId: string;
-    maleRabbitId: string;
-  }>({ status: "", femaleRabbitId: "", maleRabbitId: "" });
-  const [tempLogicalOperator, setTempLogicalOperator] = React.useState<
-    "AND" | "OR"
-  >("AND");
+    customerId: string;
+    orderStatus: string;
+    orderDate: string;
+  }>({ customerId: "", orderStatus: "", orderDate: "" });
 
-  const [sortBy, setSortBy] = React.useState<string>("pairId");
-  const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
+  const [sortBy, setSortBy] = React.useState<string>("id");
+  const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("desc");
+
+  const [addModalOpen, setAddModalOpen] = React.useState(false);
+  const [addOrderError, setAddOrderError] = React.useState<string | null>(null);
 
   const apiFilters = React.useMemo(() => {
     const converted: any = {};
-    if (
-      filters.status &&
-      pairingStatusStringToEnum[filters.status] !== undefined
-    ) {
-      converted.pairingStatus = pairingStatusStringToEnum[filters.status];
+    if (filters.customerId && !isNaN(Number(filters.customerId))) {
+      converted.customerId = Number(filters.customerId);
     }
-    if (filters.femaleRabbitId && !isNaN(Number(filters.femaleRabbitId))) {
-      converted.femaleRabbitId = Number(filters.femaleRabbitId);
+    if (filters.orderStatus && !isNaN(Number(filters.orderStatus))) {
+      converted.orderStatus = Number(filters.orderStatus);
     }
-    if (filters.maleRabbitId && !isNaN(Number(filters.maleRabbitId))) {
-      converted.maleRabbitId = Number(filters.maleRabbitId);
+    if (filters.orderDate) {
+      converted.orderDate = filters.orderDate;
     }
     return converted;
   }, [filters]);
 
   const getApiSortField = (uiSortField: string) => {
-    const sortFieldMap: Record<string, string> = {
-      pairId: "id",
-      maleRabbitId: "maleRabbitId",
-      startDate: "startDate",
-      endDate: "endDate",
-    };
-    return sortFieldMap[uiSortField] || uiSortField;
+    return uiSortField;
   };
 
-  const { pairs, loading, error, totalCount, refetch, updatePairStatus } =
-    usePairData({
-      pageIndex: page,
-      pageSize: rowsPerPage,
-      filters: apiFilters,
-      logicalOperator: logicalOperator === "AND" ? 0 : 1,
-      sort: sortBy ? `${getApiSortField(sortBy)}:${sortOrder}` : undefined,
-    });
+  const { orders, loading, error, totalCount, refetch } = useOrderData({
+    pageIndex: page,
+    pageSize: rowsPerPage,
+    filters: apiFilters,
+    logicalOperator: 0,
+    sort: sortBy ? `${getApiSortField(sortBy)}:${sortOrder}` : undefined,
+  });
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -116,69 +85,12 @@ const PairsPage = () => {
     setPage(0);
   };
 
-  const handleOpenAddModal = () => {
-    setAddPairError(null);
-    setAddModalOpen(true);
-  };
-
-  const handleCloseAddModal = () => {
-    setAddModalOpen(false);
-    setAddPairError(null);
-  };
-
-  const handleAddPair = async (data: AddPairFormFields) => {
-    setAddPairError(null);
-    try {
-      await PairService.addPair(data.femaleRabbitId, data.maleRabbitId);
-      setAddModalOpen(false);
-      await refetch();
-    } catch (err: any) {
-      setAddPairError(
-        err?.response?.data?.message ||
-          err?.message ||
-          "An unexpected error occurred while creating the pair."
-      );
-      throw err;
-    }
-  };
-
-  const handlePairClick = (pair: PairData) => {
-    setSelectedPair(pair);
-    setUpdatePairError(null);
-    setUpdateModalOpen(true);
-  };
-
-  const handleCloseUpdateModal = () => {
-    setUpdateModalOpen(false);
-    setUpdatePairError(null);
-    setSelectedPair(null);
-  };
-
-  const handleUpdatePairStatus = async (data: UpdatePairStatusFormFields) => {
-    if (!selectedPair) return;
-
-    setUpdatePairError(null);
-    try {
-      await updatePairStatus(selectedPair.id, data.pairingStatus);
-      setUpdateModalOpen(false);
-      setSelectedPair(null);
-    } catch (err: any) {
-      setUpdatePairError(
-        err?.response?.data?.message ||
-          err?.message ||
-          "An unexpected error occurred while updating the pair status."
-      );
-      throw err;
-    }
-  };
-
   const handleOpenFilterDialog = () => {
     setTempFilters({
-      status: filters.status || "",
-      femaleRabbitId: filters.femaleRabbitId || "",
-      maleRabbitId: filters.maleRabbitId || "",
+      customerId: filters.customerId || "",
+      orderStatus: filters.orderStatus || "",
+      orderDate: filters.orderDate || "",
     });
-    setTempLogicalOperator(logicalOperator);
     setFilterDialogOpen(true);
   };
 
@@ -186,47 +98,48 @@ const PairsPage = () => {
     filters: modalFilters,
     sortBy: modalSortBy,
     sortOrder: modalSortOrder,
-    logicalOperator: modalLogicalOperator,
   }: {
-    filters: { status: string; femaleRabbitId: string; maleRabbitId: string };
+    filters: {
+      customerId: string;
+      orderStatus: string;
+      orderDate: string;
+    };
     sortBy: string;
     sortOrder: "asc" | "desc";
-    logicalOperator: "AND" | "OR";
   }) => {
     const newFilters: any = {};
-    if (modalFilters.status && modalFilters.status !== "")
-      newFilters.status = modalFilters.status;
-    if (modalFilters.femaleRabbitId.trim())
-      newFilters.femaleRabbitId = modalFilters.femaleRabbitId.trim();
-    if (modalFilters.maleRabbitId.trim())
-      newFilters.maleRabbitId = modalFilters.maleRabbitId.trim();
+    if (modalFilters.customerId.trim())
+      newFilters.customerId = modalFilters.customerId.trim();
+    if (modalFilters.orderStatus.trim())
+      newFilters.orderStatus = modalFilters.orderStatus.trim();
+    if (modalFilters.orderDate.trim())
+      newFilters.orderDate = modalFilters.orderDate.trim();
 
     setFilters(newFilters);
-    setSortBy(modalSortBy || "pairId");
-    setSortOrder(modalSortOrder || "asc");
-    setLogicalOperator(modalLogicalOperator);
+    setSortBy(modalSortBy || "id");
+    setSortOrder(modalSortOrder || "desc");
     setPage(0);
     setFilterDialogOpen(false);
   };
 
-  const handleClearStatusFilter = () => {
-    setFilters((prev) => ({ ...prev, status: undefined }));
+  const handleClearCustomerIdFilter = () => {
+    setFilters((prev) => ({ ...prev, customerId: undefined }));
     setPage(0);
   };
 
-  const handleClearFemaleRabbitIdFilter = () => {
-    setFilters((prev) => ({ ...prev, femaleRabbitId: undefined }));
+  const handleClearOrderStatusFilter = () => {
+    setFilters((prev) => ({ ...prev, orderStatus: undefined }));
     setPage(0);
   };
 
-  const handleClearMaleRabbitIdFilter = () => {
-    setFilters((prev) => ({ ...prev, maleRabbitId: undefined }));
+  const handleClearOrderDateFilter = () => {
+    setFilters((prev) => ({ ...prev, orderDate: undefined }));
     setPage(0);
   };
 
   const FilterChips = () => {
     const hasFilters =
-      filters.status || filters.femaleRabbitId || filters.maleRabbitId;
+      filters.customerId || filters.orderStatus || filters.orderDate;
 
     if (!hasFilters) return null;
 
@@ -241,13 +154,13 @@ const PairsPage = () => {
         }}
       >
         <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-          Filters ({logicalOperator}):
+          Filters:
         </Typography>
 
-        {filters.status && (
+        {filters.customerId && (
           <Chip
-            label={`STATUS is "${filters.status}"`}
-            onDelete={handleClearStatusFilter}
+            label={`CUSTOMER ID is "${filters.customerId}"`}
+            onDelete={handleClearCustomerIdFilter}
             size="small"
             variant="filled"
             sx={{
@@ -264,10 +177,12 @@ const PairsPage = () => {
           />
         )}
 
-        {filters.femaleRabbitId && (
+        {filters.orderStatus && (
           <Chip
-            label={`FEMALE RABBIT ID is "${filters.femaleRabbitId}"`}
-            onDelete={handleClearFemaleRabbitIdFilter}
+            label={`STATUS is "${getOrderStatusLabel(
+              Number(filters.orderStatus)
+            )}"`}
+            onDelete={handleClearOrderStatusFilter}
             size="small"
             variant="filled"
             sx={{
@@ -284,10 +199,10 @@ const PairsPage = () => {
           />
         )}
 
-        {filters.maleRabbitId && (
+        {filters.orderDate && (
           <Chip
-            label={`MALE RABBIT ID is "${filters.maleRabbitId}"`}
-            onDelete={handleClearMaleRabbitIdFilter}
+            label={`ORDER DATE is "${filters.orderDate}"`}
+            onDelete={handleClearOrderDateFilter}
             size="small"
             variant="filled"
             sx={{
@@ -307,6 +222,9 @@ const PairsPage = () => {
     );
   };
 
+  const hasFilters =
+    filters.customerId || filters.orderStatus || filters.orderDate;
+
   const skeletonCards = Array.from(new Array(rowsPerPage)).map((_, index) => (
     <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={`skeleton-${index}`}>
       <Paper sx={{ p: 2, height: "100%" }}>
@@ -318,18 +236,17 @@ const PairsPage = () => {
             mb: 2,
           }}
         >
-          <Skeleton variant="text" width={100} height={32} />
+          <Skeleton variant="text" width={120} height={32} />
           <Skeleton variant="rounded" width={80} height={24} />
         </Box>
-
         <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
           <Box>
             <Skeleton variant="text" width={80} height={16} />
             <Skeleton variant="text" width={40} height={20} />
           </Box>
           <Box>
-            <Skeleton variant="text" width={70} height={16} />
-            <Skeleton variant="text" width={50} height={20} />
+            <Skeleton variant="text" width={80} height={16} />
+            <Skeleton variant="text" width={100} height={20} />
           </Box>
         </Box>
       </Paper>
@@ -347,32 +264,61 @@ const PairsPage = () => {
             mb: 2,
           }}
         >
-          <Skeleton variant="text" width={100} height={32} />
+          <Skeleton variant="text" width={120} height={32} />
           <Skeleton variant="rounded" width={80} height={24} />
         </Box>
-
         <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
           <Box>
             <Skeleton variant="text" width={80} height={16} />
             <Skeleton variant="text" width={40} height={20} />
           </Box>
           <Box>
-            <Skeleton variant="text" width={70} height={16} />
-            <Skeleton variant="text" width={50} height={20} />
+            <Skeleton variant="text" width={80} height={16} />
+            <Skeleton variant="text" width={100} height={20} />
           </Box>
         </Box>
       </Paper>
     </Grid>
   ));
 
+  const handleOpenAddModal = () => {
+    setAddOrderError(null);
+    setAddModalOpen(true);
+  };
+
+  const handleCloseAddModal = () => {
+    setAddModalOpen(false);
+    setAddOrderError(null);
+  };
+
+  const handleAddOrder = async (data: {
+    customerId: number;
+    orderRequests: Array<{ cageId: number; amount: number }>;
+  }) => {
+    setAddOrderError(null);
+    try {
+      await OrderService.addOrder(data);
+      setAddModalOpen(false);
+      await refetch();
+    } catch (err: any) {
+      setAddOrderError(
+        err?.response?.data?.message ||
+          err?.message ||
+          "An unexpected error occurred while creating the order."
+      );
+      throw err;
+    }
+  };
+
   return (
     <>
       <Helmet>
-        <title>Breeding Pairs - Farm Project</title>
+        <title>Orders Management - Farm Project</title>
       </Helmet>
 
       {isMobile ? (
         <>
+          {/* Mobile layout */}
           <Box
             sx={{
               position: "sticky",
@@ -400,8 +346,7 @@ const PairsPage = () => {
                   mb: 2,
                 }}
               >
-                <Typography variant="h5">Breeding Pairs</Typography>
-
+                <Typography variant="h5">Orders</Typography>
                 <Box sx={{ display: "flex", gap: 1 }}>
                   <Button
                     variant="outlined"
@@ -421,42 +366,27 @@ const PairsPage = () => {
                   </Button>
                 </Box>
               </Box>
-
               <FilterChips />
               <Divider />
             </Box>
           </Box>
 
-          <Box
-            sx={{
-              flex: 1,
-              overflow: "auto",
-              px: 2,
-            }}
-          >
+          <Box sx={{ flex: 1, overflow: "auto", px: 2 }}>
             <Box sx={{ py: 2 }}>
               {error && <ErrorAlert message={error} onRetry={refetch} />}
-
               <Grid container rowSpacing={2} columnSpacing={{ xs: 1, sm: 2 }}>
                 {loading
                   ? mobileSkeleton
-                  : pairs.map((pair) => (
-                      <Grid size={{ xs: 12, sm: 6 }} key={pair.id}>
-                        <PairCard pair={pair} onPairClick={handlePairClick} />
+                  : orders.map((order) => (
+                      <Grid size={{ xs: 12, sm: 6 }} key={order.id}>
+                        <OrderCard order={order} />
                       </Grid>
                     ))}
               </Grid>
             </Box>
           </Box>
 
-          <Box
-            sx={{
-              flexShrink: 0,
-              px: 2,
-              pb: 1,
-              backgroundColor: "#f5f5f5",
-            }}
-          >
+          <Box sx={{ flexShrink: 0, px: 2, pb: 1, backgroundColor: "#f5f5f5" }}>
             <Paper sx={{ borderRadius: 1 }}>
               <TablePagination
                 rowsPerPageOptions={[12, 24, 48]}
@@ -473,6 +403,7 @@ const PairsPage = () => {
         </>
       ) : (
         <>
+          {/* Desktop layout */}
           <Box
             sx={{
               display: "flex",
@@ -481,8 +412,7 @@ const PairsPage = () => {
               mb: 2,
             }}
           >
-            <Typography variant="h5">Breeding Pairs</Typography>
-
+            <Typography variant="h5">Orders</Typography>
             <Box sx={{ display: "flex", gap: 1 }}>
               <Button
                 variant="outlined"
@@ -512,16 +442,12 @@ const PairsPage = () => {
               overflow: "hidden",
               display: "flex",
               flexDirection: "column",
-              height: "calc(100vh - 240px)",
+              height: hasFilters
+                ? "calc(100vh - 280px)"
+                : "calc(100vh - 240px)",
             }}
           >
-            <Box
-              sx={{
-                flex: 1,
-                overflow: "auto",
-                p: 2,
-              }}
-            >
+            <Box sx={{ flex: 1, overflow: "auto", p: 2 }}>
               <Grid
                 container
                 rowSpacing={2}
@@ -529,12 +455,12 @@ const PairsPage = () => {
               >
                 {loading
                   ? skeletonCards
-                  : pairs.map((pair) => (
+                  : orders.map((order) => (
                       <Grid
                         size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
-                        key={pair.id}
+                        key={order.id}
                       >
-                        <PairCard pair={pair} onPairClick={handlePairClick} />
+                        <OrderCard order={order} />
                       </Grid>
                     ))}
               </Grid>
@@ -559,47 +485,39 @@ const PairsPage = () => {
         </>
       )}
 
-      <PairFilterDialog
+      <OrderFilterDialog
         open={filterDialogOpen}
         onClose={() => setFilterDialogOpen(false)}
         tempFilters={tempFilters}
         onTempFiltersChange={setTempFilters}
-        onClearStatus={() => setTempFilters((f) => ({ ...f, status: "" }))}
-        onClearFemaleRabbitId={() =>
-          setTempFilters((f) => ({ ...f, femaleRabbitId: "" }))
+        onClearCustomerId={() =>
+          setTempFilters((f) => ({ ...f, customerId: "" }))
         }
-        onClearMaleRabbitId={() =>
-          setTempFilters((f) => ({ ...f, maleRabbitId: "" }))
+        onClearOrderStatus={() =>
+          setTempFilters((f) => ({ ...f, orderStatus: "" }))
         }
-        logicalOperator={tempLogicalOperator}
-        onLogicalOperatorChange={setTempLogicalOperator}
+        onClearOrderDate={() =>
+          setTempFilters((f) => ({ ...f, orderDate: "" }))
+        }
         onApply={handleApplyFilters}
         sortBy={sortBy}
         sortOrder={sortOrder}
+        currentFilters={filters}
         sortableColumns={[
-          { id: "pairId", label: "Pair ID" },
-          { id: "maleRabbitId", label: "Male Rabbit ID" },
-          { id: "startDate", label: "Start Date" },
-          { id: "endDate", label: "End Date" },
+          { id: "id", label: "Order ID" },
+          { id: "customerId", label: "Customer ID" },
+          { id: "orderDate", label: "Order Date" },
         ]}
       />
 
-      <AddPairModal
+      <AddOrderModal
         open={addModalOpen}
         onClose={handleCloseAddModal}
-        onSubmit={handleAddPair}
-        error={addPairError}
-      />
-
-      <UpdatePairStatusModal
-        open={updateModalOpen}
-        onClose={handleCloseUpdateModal}
-        onSubmit={handleUpdatePairStatus}
-        pair={selectedPair}
-        error={updatePairError}
+        onSubmit={handleAddOrder}
+        error={addOrderError}
       />
     </>
   );
 };
 
-export default PairsPage;
+export default OrdersPage;
