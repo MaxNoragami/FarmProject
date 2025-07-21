@@ -24,10 +24,21 @@ public class OrderService(
         if (orderRequests == null || !orderRequests.Any())
             return Result.Failure<Order>(OrderErrors.EmptyOrderRequests);
 
+        foreach (var orderRequestData in orderRequests)
+        {
+            var cage = await _unitOfWork.CageRepository.GetByIdAsync(orderRequestData.CageId);
+            if (cage == null)
+                return Result.Failure<Order>(CageErrors.NotFound);
+
+            cage.UpdateSacrificableStatus();
+
+            var validationResult = OrderRequest.ValidateOrderRequestCreation(cage, orderRequestData.Amount);
+            if (validationResult.IsFailure)
+                return Result.Failure<Order>(validationResult.Error);
+        }
+
         var order = new Order(customerId, DateTime.UtcNow);
         var createdOrder = await _unitOfWork.OrderRepository.AddAsync(order);
-
-        var createdOrderRequests = new List<OrderRequest>();
 
         foreach (var orderRequestData in orderRequests)
         {
@@ -38,8 +49,6 @@ public class OrderService(
 
             if (orderRequestResult.IsFailure)
                 return Result.Failure<Order>(orderRequestResult.Error);
-
-            createdOrderRequests.Add(orderRequestResult.Value);
         }
 
         return Result.Success(createdOrder);

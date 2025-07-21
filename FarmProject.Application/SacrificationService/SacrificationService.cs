@@ -38,12 +38,10 @@ public class SacrificationService(
         if (createResult.IsFailure)
             return Result.Failure<Sacrification>(createResult.Error);
 
-        // Now reduce offspring (this should work since Create validated it)
         var reduceResult = cage.ReduceOffspringsForSacrification(amount);
         if (reduceResult.IsFailure)
             return Result.Failure<Sacrification>(reduceResult.Error);
 
-        // Save changes
         await _unitOfWork.CageRepository.UpdateAsync(cage);
 
         var sacrification = createResult.Value;

@@ -46,4 +46,19 @@ public class OrderRequest : Entity
         OrderRequestStatus = newOrderRequestStatus;
         return Result.Success();
     }
+
+    public static Result ValidateOrderRequestCreation(Cage cage, int amount)
+    {
+        if (cage.OffspringCount <= 0)
+            return Result.Failure(CageErrors.NoOffspring);
+
+        if (!cage.IsSacrificable)
+            return Result.Failure(CageErrors.NotSacrificable);
+
+        var availableOffspring = cage.OffspringCount - cage.ReservedOffspringCount;
+        if (amount > availableOffspring)
+            return Result.Failure(CageErrors.InsufficientOffspring);
+
+        return Result.Success();
+    }
 }

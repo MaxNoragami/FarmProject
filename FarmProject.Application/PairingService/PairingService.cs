@@ -20,7 +20,6 @@ public class PairingService(IUnitOfWork unitOfWork,
 
     public async Task<Result<Pair>> CreatePair(int breedingRabbitId, int maleRabbitId)
     {
-        // Get the breeding rabbits
         var breedingRabbitResult = await _breedingRabbitService.GetBreedingRabbitById(breedingRabbitId);
 
         if (breedingRabbitResult.IsFailure)
@@ -28,13 +27,11 @@ public class PairingService(IUnitOfWork unitOfWork,
 
         var breedingRabbit = breedingRabbitResult.Value;
 
-        // Breed the breeding rabbits
         var breedResult = breedingRabbit.Breed(maleRabbitId, DateTime.Now);
 
         if (breedResult.IsFailure)
             return Result.Failure<Pair>(breedResult.Error);
 
-        // Update the breeding rabbit
         await _unitOfWork.BreedingRabbitRepository.UpdateAsync(breedingRabbit);
 
         await _domainEventDispatcher.DispatchEventsAsync(breedingRabbit.DomainEvents);
@@ -67,22 +64,18 @@ public class PairingService(IUnitOfWork unitOfWork,
 
     public async Task<Result<Pair>> UpdatePairingStatus(int pairId, PairingStatus pairingStatus)
     {
-        // Get the Pair
         var requestPair = await _unitOfWork.PairingRepository.GetByIdAsync(pairId);
 
         if (requestPair == null)
             return Result.Failure<Pair>(PairErrors.NotFound);
 
-        // Create nest prep FarmTask & Record pairing outcome
         if (pairingStatus == PairingStatus.Successful)
         {
-            // Update PairingStatus of the Pair
             var recordPairResult = requestPair.RecordSuccessfulImpregnation(DateTime.Now);
 
             if (recordPairResult.IsFailure)
                 return Result.Failure<Pair>(recordPairResult.Error);
 
-            // Create the FarmTask instance
             var createNestPrepTaskResult = requestPair.CreateNestPrepTask();
 
             if (createNestPrepTaskResult.IsFailure)
@@ -90,7 +83,6 @@ public class PairingService(IUnitOfWork unitOfWork,
         }
         else if (pairingStatus == PairingStatus.Failed)
         {
-            // Update PairingStatus of the Pair
             var recordPairResult = requestPair.RecordFailedImpregnation(DateTime.Now);
 
             if (recordPairResult.IsFailure)
@@ -99,12 +91,10 @@ public class PairingService(IUnitOfWork unitOfWork,
         else
             return Result.Failure<Pair>(PairErrors.InvalidOutcome);
 
-        // Update breeding rabbits references
         await _unitOfWork.BreedingRabbitRepository.UpdateAsync(requestPair.FemaleRabbit!);
 
         await _domainEventDispatcher.DispatchEventsAsync(requestPair.DomainEvents);
 
-        // Update the pair
         var updatedPair = await _unitOfWork.PairingRepository.UpdateAsync(requestPair);
         return Result.Success(updatedPair);
     }

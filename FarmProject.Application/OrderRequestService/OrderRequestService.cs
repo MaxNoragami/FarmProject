@@ -21,15 +21,9 @@ public class OrderRequestService(
 
         cage.UpdateSacrificableStatus();
 
-        if (cage.OffspringCount <= 0)
-            return Result.Failure<OrderRequest>(CageErrors.NoOffspring);
-
-        if (!cage.IsSacrificable)
-            return Result.Failure<OrderRequest>(CageErrors.NotSacrificable);
-
-        var availableOffspring = cage.OffspringCount - cage.ReservedOffspringCount;
-        if (amount > availableOffspring)
-            return Result.Failure<OrderRequest>(CageErrors.InsufficientOffspring);
+        var validationResult = OrderRequest.ValidateOrderRequestCreation(cage, amount);
+        if (validationResult.IsFailure)
+            return Result.Failure<OrderRequest>(validationResult.Error);
 
         var reserveResult = cage.ReserveOffspring(amount);
         if (reserveResult.IsFailure)
