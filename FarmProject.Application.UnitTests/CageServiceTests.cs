@@ -17,7 +17,7 @@ public class CageServiceTests
     {
         var mockCageRepo = new MockCageRepository();
         var mockUnitOfWork = new MockUnitOfWork(cageRepository: mockCageRepo);
-        var cageService = new CageService.CageService(mockUnitOfWork, _sacrificableAgeInDays);
+        var cageService = new CageService.CageService(mockUnitOfWork);
         var cageName = "Test Cage";
 
         var result = await cageService.CreateCage(cageName);
@@ -36,7 +36,7 @@ public class CageServiceTests
         await mockCageRepo.AddAsync(new Cage("Cage 3"));
 
         var mockUnitOfWork = new MockUnitOfWork(cageRepository: mockCageRepo);
-        var cageService = new CageService.CageService(mockUnitOfWork, _sacrificableAgeInDays);
+        var cageService = new CageService.CageService(mockUnitOfWork);
 
         var paginatedRequest = new PaginatedRequest<CageFilterDto>
         {
@@ -55,7 +55,7 @@ public class CageServiceTests
     {
         var mockCageRepo = new MockCageRepository();
         var mockUnitOfWork = new MockUnitOfWork(cageRepository: mockCageRepo);
-        var cageService = new CageService.CageService(mockUnitOfWork, _sacrificableAgeInDays);
+        var cageService = new CageService.CageService(mockUnitOfWork);
 
         var paginatedRequest = new PaginatedRequest<CageFilterDto>
         {
@@ -76,7 +76,7 @@ public class CageServiceTests
         var cage = await mockCageRepo.AddAsync(new Cage("Test Cage"));
 
         var mockUnitOfWork = new MockUnitOfWork(cageRepository: mockCageRepo);
-        var cageService = new CageService.CageService(mockUnitOfWork, _sacrificableAgeInDays);
+        var cageService = new CageService.CageService(mockUnitOfWork);
 
         var result = await cageService.GetCageById(cage.Id);
 
@@ -90,7 +90,7 @@ public class CageServiceTests
     {
         var mockCageRepo = new MockCageRepository();
         var mockUnitOfWork = new MockUnitOfWork(cageRepository: mockCageRepo);
-        var cageService = new CageService.CageService(mockUnitOfWork, _sacrificableAgeInDays);
+        var cageService = new CageService.CageService(mockUnitOfWork);
 
         var result = await cageService.GetCageById(999);
 
@@ -113,7 +113,7 @@ public class CageServiceTests
         cage4.AddOffspring(5);
 
         var mockUnitOfWork = new MockUnitOfWork(cageRepository: mockCageRepo);
-        var cageService = new CageService.CageService(mockUnitOfWork, _sacrificableAgeInDays);
+        var cageService = new CageService.CageService(mockUnitOfWork);
 
         var paginatedRequest = new PaginatedRequest<CageFilterDto>
         {
@@ -146,7 +146,7 @@ public class CageServiceTests
         cage2.AddOffspring(3);
 
         var mockUnitOfWork = new MockUnitOfWork(cageRepository: mockCageRepo);
-        var cageService = new CageService.CageService(mockUnitOfWork, _sacrificableAgeInDays);
+        var cageService = new CageService.CageService(mockUnitOfWork);
 
         var paginatedRequest = new PaginatedRequest<CageFilterDto>
         {
@@ -171,7 +171,7 @@ public class CageServiceTests
         var cage = await mockCageRepo.AddAsync(new Cage("Test Cage"));
 
         var mockUnitOfWork = new MockUnitOfWork(cageRepository: mockCageRepo);
-        var cageService = new CageService.CageService(mockUnitOfWork, _sacrificableAgeInDays);
+        var cageService = new CageService.CageService(mockUnitOfWork);
 
         var result = await cageService.UpdateOffspringType(cage.Id, OffspringType.Female);
 
@@ -184,7 +184,7 @@ public class CageServiceTests
     {
         var mockCageRepo = new MockCageRepository();
         var mockUnitOfWork = new MockUnitOfWork(cageRepository: mockCageRepo);
-        var cageService = new CageService.CageService(mockUnitOfWork, _sacrificableAgeInDays);
+        var cageService = new CageService.CageService(mockUnitOfWork);
 
         var result = await cageService.UpdateOffspringType(999, OffspringType.Male);
 
@@ -209,7 +209,7 @@ public class CageServiceTests
         var mockUnitOfWork = new MockUnitOfWork(
             cageRepository: mockCageRepo,
             breedingRabbitRepository: mockRabbitRepo);
-        var cageService = new CageService.CageService(mockUnitOfWork, _sacrificableAgeInDays);
+        var cageService = new CageService.CageService(mockUnitOfWork);
 
         var result = await cageService.MoveBreedingRabbitToCage(rabbit.Id, destinationCage.Id);
 
@@ -237,7 +237,7 @@ public class CageServiceTests
         var mockUnitOfWork = new MockUnitOfWork(
             cageRepository: mockCageRepo,
             breedingRabbitRepository: mockRabbitRepo);
-        var cageService = new CageService.CageService(mockUnitOfWork, _sacrificableAgeInDays);
+        var cageService = new CageService.CageService(mockUnitOfWork);
 
         var result = await cageService.MoveBreedingRabbitToCage(rabbit.Id, destinationCage.Id);
 

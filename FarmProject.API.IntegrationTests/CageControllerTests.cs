@@ -185,7 +185,7 @@ public class CageControllerTests
             sacrificationRepository
         );
 
-        var cageService = new CageService(unitOfWork, 60);
+        var cageService = new CageService(unitOfWork);
         var controller = new CageController(cageService);
 
         return (controller, factory);

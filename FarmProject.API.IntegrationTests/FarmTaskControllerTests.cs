@@ -48,7 +48,7 @@ public class FarmTaskControllerTests
             returnedPairDto.PairingStatus.Should().Be(PairingStatus.Successful);
 
             var endDate = returnedPairDto.EndDate!.Value;
-            var expectedDueDate = endDate.AddMonths(1).AddDays(-3).Date;
+            var expectedDueDate = endDate.AddDays(DomainRules.NestPrepInDays).AddDays(-3).Date;
 
             var filter = new FarmTaskFilterDto { DueOn = expectedDueDate.ToString("yyyy-MM-dd")};
             var farmTaskResult = await farmTaskController.GetPaginatedFarmTasks(filter: filter);
@@ -85,7 +85,7 @@ public class FarmTaskControllerTests
             returnedPairDto.PairingStatus.Should().Be(PairingStatus.Successful);
 
             var endDate = returnedPairDto.EndDate!.Value;
-            var expectedDueDate = endDate.AddMonths(1).AddDays(-3).Date;
+            var expectedDueDate = endDate.AddDays(DomainRules.NestPrepInDays).AddDays(-3).Date;
 
             var farmTaskResult = await farmTaskController.MarkTaskCompleted(1, null);
             var okFarmTaskResult = Assert.IsType<OkObjectResult>(farmTaskResult.Result);
