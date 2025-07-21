@@ -19,6 +19,7 @@ import CustomerCard from "../components/customers/CustomerCard";
 import ErrorAlert from "../components/common/ErrorAlert";
 import CustomerFilterDialog from "../components/customers/CustomerFilterDialog";
 import AddCustomerModal from "../components/modals/AddCustomerModal";
+import CustomerDetailsModal from "../components/modals/CustomerDetailsModal";
 import { useCustomerData } from "../hooks/useCustomerData";
 import { CustomerService } from "../api/services/customerService";
 import { type CustomerData } from "../utils/customerMappers";
@@ -53,6 +54,12 @@ const CustomersPage = () => {
 
   const [sortBy, setSortBy] = React.useState<string>("id");
   const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
+
+  const [customerDetailsModalOpen, setCustomerDetailsModalOpen] =
+    React.useState(false);
+  const [selectedCustomerId, setSelectedCustomerId] = React.useState<
+    number | null
+  >(null);
 
   const apiFilters = React.useMemo(() => {
     const converted: any = {};
@@ -170,6 +177,16 @@ const CustomersPage = () => {
       );
       throw err;
     }
+  };
+
+  const handleCustomerClick = (customerId: number) => {
+    setSelectedCustomerId(customerId);
+    setCustomerDetailsModalOpen(true);
+  };
+
+  const handleCloseCustomerDetailsModal = () => {
+    setCustomerDetailsModalOpen(false);
+    setSelectedCustomerId(null);
   };
 
   const FilterChips = () => {
@@ -389,7 +406,10 @@ const CustomersPage = () => {
                     ))
                   : customers.map((customer) => (
                       <Grid size={{ xs: 12, sm: 6 }} key={customer.id}>
-                        <CustomerCard customer={customer} />
+                        <CustomerCard
+                          customer={customer}
+                          onCustomerClick={handleCustomerClick}
+                        />
                       </Grid>
                     ))}
               </Grid>
@@ -487,6 +507,7 @@ const CustomersPage = () => {
                     }
                     setPage(0);
                   }}
+                  onCustomerClick={handleCustomerClick}
                 />
               </Box>
 
@@ -525,6 +546,7 @@ const CustomersPage = () => {
         onApply={handleApplyFilters}
         sortBy={sortBy}
         sortOrder={sortOrder}
+        currentFilters={filters}
         sortableColumns={[
           { id: "id", label: "Customer ID" },
           { id: "firstName", label: "First Name" },
@@ -538,6 +560,12 @@ const CustomersPage = () => {
         onClose={handleCloseAddModal}
         onSubmit={handleAddCustomer}
         error={addCustomerError}
+      />
+
+      <CustomerDetailsModal
+        open={customerDetailsModalOpen}
+        onClose={handleCloseCustomerDetailsModal}
+        customerId={selectedCustomerId}
       />
     </>
   );

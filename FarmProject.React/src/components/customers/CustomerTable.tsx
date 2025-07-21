@@ -19,6 +19,7 @@ interface CustomerTableProps {
   sortBy: string;
   sortOrder: "asc" | "desc";
   onSort: (field: string) => void;
+  onCustomerClick?: (customerId: number) => void;
 }
 
 const CustomerTable: React.FC<CustomerTableProps> = ({
@@ -27,6 +28,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
   sortBy,
   sortOrder,
   onSort,
+  onCustomerClick,
 }) => {
   const createSortHandler = (property: string) => () => {
     onSort(property);
@@ -125,7 +127,18 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
         </TableHead>
         <TableBody>
           {customers.map((customer) => (
-            <TableRow key={customer.id}>
+            <TableRow
+              key={customer.id}
+              onClick={() => onCustomerClick?.(customer.id)}
+              sx={{
+                cursor: onCustomerClick ? "pointer" : "default",
+                "&:hover": onCustomerClick
+                  ? {
+                      backgroundColor: "rgba(0, 0, 0, 0.04)",
+                    }
+                  : {},
+              }}
+            >
               <TableCell>{customer.id}</TableCell>
               <TableCell>{customer.firstName}</TableCell>
               <TableCell>{customer.lastName}</TableCell>

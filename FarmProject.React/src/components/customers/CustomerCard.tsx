@@ -3,11 +3,34 @@ import { type CustomerData } from "../../utils/customerMappers";
 
 interface CustomerCardProps {
   customer: CustomerData;
+  onCustomerClick?: (customerId: number) => void;
 }
 
-const CustomerCard: React.FC<CustomerCardProps> = ({ customer }) => {
+const CustomerCard: React.FC<CustomerCardProps> = ({
+  customer,
+  onCustomerClick,
+}) => {
+  const handleClick = () => {
+    if (onCustomerClick) {
+      onCustomerClick(customer.id);
+    }
+  };
+
   return (
-    <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+    <Card
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        cursor: onCustomerClick ? "pointer" : "default",
+        "&:hover": onCustomerClick && {
+          boxShadow: 2,
+          transform: "translateY(-2px)",
+          transition: "all 0.2s ease-in-out",
+        },
+      }}
+      onClick={handleClick}
+    >
       <CardContent sx={{ flex: 1 }}>
         <Box
           sx={{

@@ -1,5 +1,9 @@
 import { apiClient } from "../config";
-import type { CustomerResponse, Customer } from "../../types/Customer";
+import type {
+  CustomerResponse,
+  Customer,
+  CustomerWithOrders,
+} from "../../types/Customer";
 
 export interface CustomerFilters {
   firstName?: string;
@@ -45,6 +49,13 @@ export const CustomerService = {
 
     const response = await apiClient.get<CustomerResponse>(
       `/customers?${queryParams.toString()}`
+    );
+    return response.data;
+  },
+
+  getCustomerById: async (customerId: number): Promise<CustomerWithOrders> => {
+    const response = await apiClient.get<CustomerWithOrders>(
+      `/customers/${customerId}`
     );
     return response.data;
   },

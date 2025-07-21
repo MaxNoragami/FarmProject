@@ -49,6 +49,12 @@ interface CustomerFilterDialogProps {
   sortBy: string;
   sortOrder: "asc" | "desc";
   sortableColumns: Array<{ id: string; label: string }>;
+  currentFilters: {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phoneNum?: string;
+  };
 }
 
 const CustomerFilterDialog: React.FC<CustomerFilterDialogProps> = ({
@@ -64,6 +70,7 @@ const CustomerFilterDialog: React.FC<CustomerFilterDialogProps> = ({
   sortBy,
   sortOrder,
   sortableColumns,
+  currentFilters,
 }) => {
   const [tempSortBy, setTempSortBy] = React.useState(sortBy);
   const [tempSortOrder, setTempSortOrder] = React.useState<"asc" | "desc">(
@@ -76,6 +83,25 @@ const CustomerFilterDialog: React.FC<CustomerFilterDialogProps> = ({
       setTempSortOrder(sortOrder);
     }
   }, [open, sortBy, sortOrder]);
+
+  const hasChanges = React.useMemo(() => {
+    const filtersChanged =
+      tempFilters.firstName !== (currentFilters.firstName || "") ||
+      tempFilters.lastName !== (currentFilters.lastName || "") ||
+      tempFilters.email !== (currentFilters.email || "") ||
+      tempFilters.phoneNum !== (currentFilters.phoneNum || "");
+
+    const sortChanged = tempSortBy !== sortBy || tempSortOrder !== sortOrder;
+
+    return filtersChanged || sortChanged;
+  }, [
+    tempFilters,
+    tempSortBy,
+    tempSortOrder,
+    sortBy,
+    sortOrder,
+    currentFilters,
+  ]);
 
   const handleApply = () => {
     onApply({
@@ -101,10 +127,6 @@ const CustomerFilterDialog: React.FC<CustomerFilterDialogProps> = ({
       </DialogTitle>
 
       <DialogContent>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Filters
-        </Typography>
-
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 3 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <TextField
@@ -116,7 +138,8 @@ const CustomerFilterDialog: React.FC<CustomerFilterDialogProps> = ({
                   firstName: e.target.value,
                 })
               }
-              size="small"
+              variant="outlined"
+              fullWidth
               sx={{ flex: 1 }}
             />
             {tempFilters.firstName && (
@@ -136,7 +159,8 @@ const CustomerFilterDialog: React.FC<CustomerFilterDialogProps> = ({
                   lastName: e.target.value,
                 })
               }
-              size="small"
+              variant="outlined"
+              fullWidth
               sx={{ flex: 1 }}
             />
             {tempFilters.lastName && (
@@ -156,7 +180,8 @@ const CustomerFilterDialog: React.FC<CustomerFilterDialogProps> = ({
                   email: e.target.value,
                 })
               }
-              size="small"
+              variant="outlined"
+              fullWidth
               sx={{ flex: 1 }}
             />
             {tempFilters.email && (
@@ -176,7 +201,8 @@ const CustomerFilterDialog: React.FC<CustomerFilterDialogProps> = ({
                   phoneNum: e.target.value,
                 })
               }
-              size="small"
+              variant="outlined"
+              fullWidth
               sx={{ flex: 1 }}
             />
             {tempFilters.phoneNum && (
@@ -186,15 +212,8 @@ const CustomerFilterDialog: React.FC<CustomerFilterDialogProps> = ({
             )}
           </Box>
         </Box>
-
-        <Divider sx={{ my: 2 }} />
-
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Sort
-        </Typography>
-
         <Box sx={{ display: "flex", gap: 2 }}>
-          <FormControl size="small" sx={{ flex: 1 }}>
+          <FormControl fullWidth sx={{ flex: 1 }}>
             <InputLabel>Sort By</InputLabel>
             <Select
               value={tempSortBy}
@@ -209,7 +228,7 @@ const CustomerFilterDialog: React.FC<CustomerFilterDialogProps> = ({
             </Select>
           </FormControl>
 
-          <FormControl size="small" sx={{ flex: 1 }}>
+          <FormControl fullWidth sx={{ flex: 1 }}>
             <InputLabel>Order</InputLabel>
             <Select
               value={tempSortOrder}
@@ -223,13 +242,17 @@ const CustomerFilterDialog: React.FC<CustomerFilterDialogProps> = ({
             </Select>
           </FormControl>
         </Box>
-      </DialogContent>
 
-      <DialogActions>
-        <Button onClick={handleApply} variant="contained">
-          Apply
-        </Button>
-      </DialogActions>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
+          <Button
+            onClick={handleApply}
+            variant="contained"
+            disabled={!hasChanges}
+          >
+            Apply
+          </Button>
+        </Box>
+      </DialogContent>
     </Dialog>
   );
 };
