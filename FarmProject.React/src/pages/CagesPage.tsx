@@ -206,21 +206,25 @@ const CagesPage = () => {
 
   const handleClearNameFilter = () => {
     setFilters((prev) => ({ ...prev, name: undefined }));
+    setTempFilters((prev) => ({ ...prev, name: "" }));
     setPage(0);
   };
 
   const handleClearOffspringTypeFilter = () => {
     setFilters((prev) => ({ ...prev, offspringType: undefined }));
+    setTempFilters((prev) => ({ ...prev, offspringType: "" }));
     setPage(0);
   };
 
   const handleClearOccupiedFilter = () => {
     setFilters((prev) => ({ ...prev, isOccupied: undefined }));
+    setTempFilters((prev) => ({ ...prev, isOccupied: null }));
     setPage(0);
   };
 
   const handleClearSacrificableFilter = () => {
     setFilters((prev) => ({ ...prev, isSacrificable: undefined }));
+    setTempFilters((prev) => ({ ...prev, isSacrificable: null }));
     setPage(0);
   };
 

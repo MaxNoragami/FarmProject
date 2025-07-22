@@ -125,10 +125,10 @@ const CageFilterDialog: React.FC<CageFilterDialogProps> = ({
 
   const hasChanges = React.useMemo(() => {
     const filtersChanged =
-      name !== tempFilters.name ||
-      offspringType !== tempFilters.offspringType ||
-      isOccupied !== tempFilters.isOccupied ||
-      isSacrificable !== tempFilters.isSacrificable;
+      name !== (tempFilters.name || "") ||
+      offspringType !== (tempFilters.offspringType || "") ||
+      isOccupied !== (tempFilters.isOccupied ?? null) ||
+      isSacrificable !== (tempFilters.isSacrificable ?? null);
     const sortChanged =
       localSortBy !== (sortBy || "") || localSortOrder !== (sortOrder || "asc");
     const operatorChanged = localLogicalOperator !== logicalOperator;

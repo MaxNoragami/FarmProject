@@ -23,3 +23,23 @@ export const mapOrdersToData = (orders: Order[]): OrderData[] => {
     }),
   }));
 };
+
+export const mapApiOrderToUI = (apiOrder: any): OrderData => {
+  return {
+    id: apiOrder.id,
+    customerId: apiOrder.customerId,
+    orderStatus: apiOrder.orderStatus,
+    orderDate: apiOrder.orderDate,
+    formattedDate: new Date(apiOrder.orderDate).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+  };
+};
+
+export const mapApiOrdersToUI = (apiOrders: any[]): OrderData[] => {
+  return apiOrders.map(mapApiOrderToUI);
+};

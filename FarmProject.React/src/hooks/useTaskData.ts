@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { TaskService } from "../api/services/taskService";
+import { OrderService } from "../api/services/orderService";
 import { mapApiTasksToUI, type TaskData } from "../utils/taskMappers";
+import { mapApiOrdersToUI, type OrderData } from "../utils/orderMappers";
 
 interface UseTaskDataResult {
   tasks: TaskData[];
+  orders: OrderData[];
   loading: boolean;
   error: string | null;
   totalCount: number;
@@ -26,6 +29,7 @@ interface UseTaskDataOptions {
   filters?: {
     farmTaskType?: number;
     isCompleted?: boolean;
+    orderStatus?: number;
   };
   logicalOperator?: number;
   sort?: string;
@@ -40,6 +44,7 @@ export const useTaskData = ({
   sort = "",
 }: UseTaskDataOptions): UseTaskDataResult => {
   const [tasks, setTasks] = useState<TaskData[]>([]);
+  const [orders, setOrders] = useState<OrderData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
@@ -52,25 +57,43 @@ export const useTaskData = ({
     setError(null);
 
     try {
-      const response = await TaskService.getTasks({
-        pageIndex: pageIndex + 1,
-        pageSize,
-        dueOn,
-        logicalOperator,
-        ...filters,
-        ...(sort ? { sort } : {}),
-      });
+      const [taskResponse, orderResponse] = await Promise.all([
+        TaskService.getTasks({
+          pageIndex: pageIndex + 1,
+          pageSize,
+          dueOn,
+          logicalOperator,
+          farmTaskType: filters.farmTaskType,
+          isCompleted: filters.isCompleted,
+          ...(sort ? { sort } : {}),
+        }),
+        OrderService.getOrders({
+          pageIndex: 1,
+          pageSize: 100,
+          filters: {
+            orderDate: dueOn,
+            ...(filters.orderStatus !== undefined
+              ? { orderStatus: filters.orderStatus }
+              : {}),
+          },
+          logicalOperator: 0,
+        }),
+      ]);
 
-      const uiTasks = mapApiTasksToUI(response.items);
+      const uiTasks = mapApiTasksToUI(taskResponse.items);
+      const uiOrders = mapApiOrdersToUI(orderResponse.items);
+
       setTasks(uiTasks);
-      setTotalPages(response.totalPages);
-      setTotalCount(response.totalPages * pageSize);
-      setHasNextPage(response.hasNextPage);
-      setHasPreviousPage(response.hasPreviousPage);
+      setOrders(uiOrders);
+      setTotalPages(taskResponse.totalPages);
+      setTotalCount(taskResponse.totalPages * pageSize);
+      setHasNextPage(taskResponse.hasNextPage);
+      setHasPreviousPage(taskResponse.hasPreviousPage);
     } catch (err) {
-      console.error("Error fetching tasks:", err);
-      setError("Failed to load tasks. Please try again.");
+      console.error("Error fetching tasks and orders:", err);
+      setError("Failed to load tasks and orders. Please try again.");
       setTasks([]);
+      setOrders([]);
       setTotalCount(0);
       setTotalPages(0);
       setHasNextPage(false);
@@ -130,6 +153,7 @@ export const useTaskData = ({
 
   return {
     tasks,
+    orders,
     loading,
     error,
     totalCount,

@@ -199,11 +199,13 @@ const RabbitsPage = () => {
 
   const handleClearNameFilter = () => {
     setFilters((prev) => ({ ...prev, name: undefined }));
+    setTempFilters((prev) => ({ ...prev, name: "" }));
     setPage(0);
   };
 
   const handleClearStatusFilter = () => {
     setFilters((prev) => ({ ...prev, status: undefined }));
+    setTempFilters((prev) => ({ ...prev, status: "" }));
     setPage(0);
   };
 

@@ -135,21 +135,25 @@ const CustomersPage = () => {
 
   const handleClearFirstNameFilter = () => {
     setFilters((prev) => ({ ...prev, firstName: undefined }));
+    setTempFilters((prev) => ({ ...prev, firstName: "" }));
     setPage(0);
   };
 
   const handleClearLastNameFilter = () => {
     setFilters((prev) => ({ ...prev, lastName: undefined }));
+    setTempFilters((prev) => ({ ...prev, lastName: "" }));
     setPage(0);
   };
 
   const handleClearEmailFilter = () => {
     setFilters((prev) => ({ ...prev, email: undefined }));
+    setTempFilters((prev) => ({ ...prev, email: "" }));
     setPage(0);
   };
 
   const handleClearPhoneNumFilter = () => {
     setFilters((prev) => ({ ...prev, phoneNum: undefined }));
+    setTempFilters((prev) => ({ ...prev, phoneNum: "" }));
     setPage(0);
   };
 

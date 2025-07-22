@@ -131,16 +131,19 @@ const OrdersPage = () => {
 
   const handleClearCustomerIdFilter = () => {
     setFilters((prev) => ({ ...prev, customerId: undefined }));
+    setTempFilters((prev) => ({ ...prev, customerId: "" }));
     setPage(0);
   };
 
   const handleClearOrderStatusFilter = () => {
     setFilters((prev) => ({ ...prev, orderStatus: undefined }));
+    setTempFilters((prev) => ({ ...prev, orderStatus: "" }));
     setPage(0);
   };
 
   const handleClearOrderDateFilter = () => {
     setFilters((prev) => ({ ...prev, orderDate: undefined }));
+    setTempFilters((prev) => ({ ...prev, orderDate: "" }));
     setPage(0);
   };
 
