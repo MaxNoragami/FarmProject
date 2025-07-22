@@ -10,8 +10,10 @@ import Divider from "@mui/material/Divider";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
+import Drawer from "@mui/material/Drawer";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   Assignment,
@@ -20,9 +22,12 @@ import {
   Favorite,
   PeopleAlt,
   Payments,
+  Menu,
+  MenuOpen,
 } from "@mui/icons-material";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import UserAvatar from "./components/common/UserAvatar";
+import * as React from "react";
 
 const drawerWidth = 41;
 
@@ -38,55 +43,52 @@ const AppBar = styled(MuiAppBar)(({ theme }) => ({
   zIndex: theme.zIndex.drawer + 1,
 }));
 
-const Drawer = styled(MuiDrawer)(() => ({
-  width: drawerWidth,
-  flexShrink: 0,
-  whiteSpace: "nowrap",
-  boxSizing: "border-box",
-}));
-
 const BaseLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
+  const navigationItems = [
+    { path: "/tasks", label: "Tasks", icon: <Assignment /> },
+    { path: "/rabbits", label: "Rabbits", icon: <CrueltyFree /> },
+    { path: "/cages", label: "Cages", icon: <Bento /> },
+    { path: "/pairs", label: "Pairs", icon: <Favorite /> },
+    { path: "/customers", label: "Customers", icon: <PeopleAlt /> },
+    { path: "/orders", label: "Orders", icon: <Payments /> },
+  ];
 
   const handleNavigation = (path: string) => {
     navigate(path);
+    setMobileMenuOpen(false);
   };
 
   const getBottomNavValue = () => {
-    switch (location.pathname) {
-      case "/tasks":
-        return 0;
-      case "/rabbits":
-        return 1;
-      case "/cages":
-        return 2;
-      case "/pairs":
-        return 3;
-      case "/customers":
-        return 4;
-      case "/orders":
-        return 5;
-      default:
-        return 1;
+    const index = navigationItems.findIndex(
+      (item) => item.path === location.pathname
+    );
+    if (index !== -1 && index < 3) {
+      return index;
+    } else if (index >= 3) {
+      return 3;
     }
+    return 0;
   };
 
   const handleBottomNavChange = (
     event: React.SyntheticEvent,
     newValue: number
   ) => {
-    const paths = [
-      "/tasks",
-      "/rabbits",
-      "/cages",
-      "/pairs",
-      "/customers",
-      "/orders",
-    ];
-    navigate(paths[newValue]);
+    if (newValue === 3 && navigationItems.length > 4) {
+      setMobileMenuOpen(!mobileMenuOpen);
+    } else if (newValue < 3) {
+      navigate(navigationItems[newValue].path);
+    }
+  };
+
+  const handleMobileMenuClose = () => {
+    setMobileMenuOpen(false);
   };
 
   if (isMobile) {
@@ -142,13 +144,85 @@ const BaseLayout = () => {
             height: 64,
           }}
         >
-          <BottomNavigationAction label="Tasks" icon={<Assignment />} />
-          <BottomNavigationAction label="Rabbits" icon={<CrueltyFree />} />
-          <BottomNavigationAction label="Cages" icon={<Bento />} />
-          <BottomNavigationAction label="Pairs" icon={<Favorite />} />
-          <BottomNavigationAction label="Customers" icon={<PeopleAlt />} />
-          <BottomNavigationAction label="Orders" icon={<Payments />} />
+          {navigationItems.slice(0, 3).map((item, index) => (
+            <BottomNavigationAction
+              key={item.path}
+              label={item.label}
+              icon={item.icon}
+            />
+          ))}
+          {navigationItems.length > 4 && (
+            <BottomNavigationAction
+              label="Menu"
+              icon={mobileMenuOpen ? <MenuOpen /> : <Menu />}
+            />
+          )}
+          {navigationItems.length === 4 && (
+            <BottomNavigationAction
+              label={navigationItems[3].label}
+              icon={navigationItems[3].icon}
+            />
+          )}
         </BottomNavigation>
+
+        {/* Mobile Menu Drawer */}
+        <Drawer
+          anchor="bottom"
+          open={mobileMenuOpen}
+          onClose={handleMobileMenuClose}
+          sx={{
+            zIndex: 1100,
+            "& .MuiDrawer-paper": {
+              borderTopLeftRadius: 16,
+              borderTopRightRadius: 16,
+              maxHeight: "50vh",
+            },
+          }}
+        >
+          <Box sx={{ p: 2 }}>
+            <Typography
+              variant="h6"
+              sx={{ mb: 2, textAlign: "center" }}
+            ></Typography>
+            <List>
+              {navigationItems.slice(3).map((item) => (
+                <ListItem key={item.path} disablePadding>
+                  <ListItemButton
+                    onClick={() => handleNavigation(item.path)}
+                    sx={{
+                      backgroundColor:
+                        location.pathname === item.path
+                          ? "rgba(0, 0, 0, 0.04)"
+                          : "transparent",
+                      borderRadius: 1,
+                      mb: 0.5,
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        color:
+                          location.pathname === item.path
+                            ? "primary.main"
+                            : "grey.600",
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.label}
+                      sx={{
+                        color:
+                          location.pathname === item.path
+                            ? "primary.main"
+                            : "text.primary",
+                      }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        </Drawer>
       </Box>
     );
   }
@@ -164,186 +238,42 @@ const BaseLayout = () => {
           <UserAvatar />
         </Toolbar>
       </AppBar>
-      <Drawer variant="permanent">
+      <MuiDrawer variant="permanent">
         <DrawerHeader />
         <Divider />
         <List>
-          {/* Tasks */}
-          <ListItem key={"tasks"} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                px: 1,
-                justifyContent: "center",
-                backgroundColor:
-                  location.pathname === "/tasks"
-                    ? "rgba(0, 0, 0, 0.04)"
-                    : "transparent",
-              }}
-              onClick={() => handleNavigation("/tasks")}
-            >
-              <ListItemIcon
+          {navigationItems.map((item) => (
+            <ListItem key={item.path} disablePadding sx={{ display: "block" }}>
+              <ListItemButton
                 sx={{
-                  minWidth: 0,
+                  minHeight: 48,
+                  px: 1,
                   justifyContent: "center",
-                  color:
-                    location.pathname === "/tasks"
-                      ? "primary.main"
-                      : "grey.600",
+                  backgroundColor:
+                    location.pathname === item.path
+                      ? "rgba(0, 0, 0, 0.04)"
+                      : "transparent",
                 }}
+                onClick={() => handleNavigation(item.path)}
               >
-                <Assignment />
-              </ListItemIcon>
-            </ListItemButton>
-          </ListItem>
-
-          {/* Rabbits */}
-          <ListItem key={"rabbits"} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                px: 1,
-                justifyContent: "center",
-                backgroundColor:
-                  location.pathname === "/rabbits"
-                    ? "rgba(0, 0, 0, 0.04)"
-                    : "transparent",
-              }}
-              onClick={() => handleNavigation("/rabbits")}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  justifyContent: "center",
-                  color:
-                    location.pathname === "/rabbits"
-                      ? "primary.main"
-                      : "grey.600",
-                }}
-              >
-                <CrueltyFree />
-              </ListItemIcon>
-            </ListItemButton>
-          </ListItem>
-
-          {/* Cages */}
-          <ListItem key={"cages"} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                px: 1,
-                justifyContent: "center",
-                backgroundColor:
-                  location.pathname === "/cages"
-                    ? "rgba(0, 0, 0, 0.04)"
-                    : "transparent",
-              }}
-              onClick={() => handleNavigation("/cages")}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  justifyContent: "center",
-                  color:
-                    location.pathname === "/cages"
-                      ? "primary.main"
-                      : "grey.600",
-                }}
-              >
-                <Bento />
-              </ListItemIcon>
-            </ListItemButton>
-          </ListItem>
-
-          {/* Pairs */}
-          <ListItem key={"pairs"} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                px: 1,
-                justifyContent: "center",
-                backgroundColor:
-                  location.pathname === "/pairs"
-                    ? "rgba(0, 0, 0, 0.04)"
-                    : "transparent",
-              }}
-              onClick={() => handleNavigation("/pairs")}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  justifyContent: "center",
-                  color:
-                    location.pathname === "/pairs"
-                      ? "primary.main"
-                      : "grey.600",
-                }}
-              >
-                <Favorite />
-              </ListItemIcon>
-            </ListItemButton>
-          </ListItem>
-
-          {/* Customers */}
-          <ListItem key={"customers"} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                px: 1,
-                justifyContent: "center",
-                backgroundColor:
-                  location.pathname === "/customers"
-                    ? "rgba(0, 0, 0, 0.04)"
-                    : "transparent",
-              }}
-              onClick={() => handleNavigation("/customers")}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  justifyContent: "center",
-                  color:
-                    location.pathname === "/customers"
-                      ? "primary.main"
-                      : "grey.600",
-                }}
-              >
-                <PeopleAlt />
-              </ListItemIcon>
-            </ListItemButton>
-          </ListItem>
-
-          {/* Orders */}
-          <ListItem key={"orders"} disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              sx={{
-                minHeight: 48,
-                px: 1,
-                justifyContent: "center",
-                backgroundColor:
-                  location.pathname === "/orders"
-                    ? "rgba(0, 0, 0, 0.04)"
-                    : "transparent",
-              }}
-              onClick={() => handleNavigation("/orders")}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  justifyContent: "center",
-                  color:
-                    location.pathname === "/orders"
-                      ? "primary.main"
-                      : "grey.600",
-                }}
-              >
-                <Payments />
-              </ListItemIcon>
-            </ListItemButton>
-          </ListItem>
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    justifyContent: "center",
+                    color:
+                      location.pathname === item.path
+                        ? "primary.main"
+                        : "grey.600",
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+              </ListItemButton>
+            </ListItem>
+          ))}
         </List>
         <Divider />
-      </Drawer>
+      </MuiDrawer>
 
       <Box
         component="main"
