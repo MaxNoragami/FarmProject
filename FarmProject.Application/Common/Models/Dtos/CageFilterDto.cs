@@ -31,10 +31,24 @@ public class CageFilterDto : BaseEntityFilter<Cage>
                         cage.OffspringType == Domain.Constants.OffspringType.None);
 
         if (IsSacrificable.HasValue)
-            expressions.Add(
-                cage => (IsSacrificable.Value)
-                    ? cage.IsSacrificable
-                    : !cage.IsSacrificable);
+        {
+            if (IsSacrificable.Value)
+            {
+                var cutoffDate = DateTime.UtcNow.AddDays(-DomainRules.OffspringSacrificableAgeInDays);
+                expressions.Add(
+                    cage => cage.OffspringCount > 0 && 
+                           cage.BirthDate.HasValue && 
+                           cage.BirthDate.Value <= cutoffDate);
+            }
+            else
+            {
+                var cutoffDate = DateTime.UtcNow.AddDays(-DomainRules.OffspringSacrificableAgeInDays);
+                expressions.Add(
+                    cage => cage.OffspringCount <= 0 || 
+                           !cage.BirthDate.HasValue || 
+                           cage.BirthDate.Value > cutoffDate);
+            }
+        }
 
         if (OffspringType.HasValue)
             expressions.Add(

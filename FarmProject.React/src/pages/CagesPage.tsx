@@ -25,6 +25,7 @@ import { useCageData } from "../hooks/useCageData";
 import { getSortableCageColumns } from "../constants/cageColumns";
 import { offspringTypeStringToEnum } from "../types/OffspringType";
 import { type CageData } from "../utils/cageMappers";
+import { apiClient } from "../api/config";
 
 const CagesPage = () => {
   const theme = useTheme();
@@ -120,20 +121,13 @@ const CagesPage = () => {
     setSacrificeError(null);
   };
 
-  const handleSacrifice = async (cageId: number, count: number) => {
-    setSacrificeError(null);
-    try {
-      await CageService.sacrificeOffspring(cageId, count);
-      setSacrificeModalOpen(false);
-      await refetch();
-    } catch (err: any) {
-      setSacrificeError(
-        err?.response?.data?.message ||
-          err?.message ||
-          "An unexpected error occurred while sacrificing offspring."
-      );
-      throw err;
-    }
+  const handleSacrifice = async (payload: {
+    cageId: number;
+    amount: number;
+    sacrificationReason: number;
+    orderRequestId?: number;
+  }) => {
+    await refetch();
   };
 
   const isCageClickable = (cage: CageData) => {

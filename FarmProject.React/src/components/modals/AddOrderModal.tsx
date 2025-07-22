@@ -226,69 +226,70 @@ const AddOrderModal: React.FC<AddOrderModalProps> = ({
                   borderRadius: 1,
                   height: 180,
                   overflow: "auto",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 2,
                   backgroundColor: "grey.50",
-                  py: 2,
+                  p: 1,
                 }}
               >
                 {orderRequests.map((request, index) => (
                   <Card
                     key={index}
                     sx={{
-                      minWidth: 220,
-                      maxWidth: 260,
-                      mx: "auto",
+                      mb: 1,
                       boxShadow: 1,
                       border: 1,
                       borderColor: "divider",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      position: "relative",
+                      "&:last-child": { mb: 0 },
                     }}
                   >
                     <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
-                      <Box sx={{ textAlign: "center" }}>
-                        <Typography
-                          variant="subtitle2"
-                          color="text.secondary"
-                          sx={{ mb: 0.5 }}
-                        >
-                          Id: {index + 1}
-                        </Typography>
-                        <Typography
-                          variant="body1"
-                          fontWeight="bold"
-                          sx={{ mb: 0.5 }}
-                        >
-                          {request.cageName || `Cage ${request.cageId}`}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ mb: 0.5 }}
-                        >
-                          Offspring Type:{" "}
-                          {getOffspringTypeLabel(request.offspringType ?? 0)}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Amount: {request.amount}
-                        </Typography>
-                      </Box>
-                      <IconButton
-                        edge="end"
-                        onClick={() => handleRemoveOrderRequest(index)}
-                        color="error"
-                        size="small"
-                        sx={{ position: "absolute", top: 8, right: 8 }}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
                       >
-                        <Delete />
-                      </IconButton>
+                        <Box sx={{ flex: 1 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              mb: 0.5,
+                            }}
+                          >
+                            <Typography variant="body2" fontWeight="medium">
+                              Cage Id: {request.cageId}
+                            </Typography>
+                            <Typography variant="body2" fontWeight="medium">
+                              Cage:{" "}
+                              {request.cageName || `Cage ${request.cageId}`}
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <Typography variant="body2" color="text.secondary">
+                              {getOffspringTypeLabel(
+                                request.offspringType ?? 0
+                              )}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              Amount: {request.amount}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <IconButton
+                          onClick={() => handleRemoveOrderRequest(index)}
+                          color="error"
+                          size="small"
+                          sx={{ ml: 2 }}
+                        >
+                          <Delete />
+                        </IconButton>
+                      </Box>
                     </CardContent>
                   </Card>
                 ))}
