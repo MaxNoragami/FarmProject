@@ -59,6 +59,8 @@ public class BirthService(
 
         await _domainEventDispatcher.DispatchEventsAsync([result.Value]);
 
+        await _domainEventDispatcher.DispatchEventsAsync(oldCage.BreedingRabbit!.DomainEvents);
+
         return Result.Success();
     }
 

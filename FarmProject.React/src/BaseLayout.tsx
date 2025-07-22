@@ -283,6 +283,7 @@ const BaseLayout = () => {
           height: "100vh",
           display: "flex",
           flexDirection: "column",
+          ml: `${drawerWidth}px`, 
         }}
       >
         <DrawerHeader />
@@ -293,7 +294,7 @@ const BaseLayout = () => {
             boxShadow: 1,
             flex: 1,
             m: 3,
-            p: 3,
+            p : 3,
             display: "flex",
             flexDirection: "column",
           }}

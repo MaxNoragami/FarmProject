@@ -19,6 +19,7 @@ const pastelColors: Record<string, string> = {
   NestRemoval: "#fff3e0",
   Weaning: "#e8f5e9",
   OffspringSeparation: "#f3e5f5",
+  BreedingStatusUpdate: "#e1f5fe",
 };
 
 const greyedOutColor = "#f5f5f5";

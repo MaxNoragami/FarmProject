@@ -187,6 +187,7 @@ public static class ServiceCollectionExtension
         services.AddScoped<IEventConsumer<BirthEvent>, BirthEventConsumer>();
         services.AddScoped<IEventConsumer<OffspringSeparationEvent>, OffspringSeparationEventConsumer>();
         services.AddScoped<IEventConsumer<SacrificationCreatedEvent>, SacrificationCreatedEventConsumer>();
+        services.AddScoped<IEventConsumer<RecoveryStartedEvent>, RecoveryStartedEventConsumer>();
         services.AddScoped<DomainEventDispatcher>();
 
         return services;

@@ -9,7 +9,8 @@ public class FarmTask(
         string message, 
         DateTime createdOn, 
         DateTime dueOn,
-        int? cageId = null) 
+        int? cageId = null,
+        int? breedingRabbitId = null) 
     : Entity
 {
     public FarmTaskType FarmTaskType { get; private set; } = farmTaskType;
@@ -18,6 +19,7 @@ public class FarmTask(
     public DateTime CreatedOn { get; private set; } = createdOn;
     public DateTime DueOn { get; private set; } = dueOn;
     public int? CageId { get; private set; } = cageId;
+    public int? BreedingRabbitId { get; private set; } = breedingRabbitId;
 
     public Result MarkAsCompleted()
     {

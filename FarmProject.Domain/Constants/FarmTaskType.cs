@@ -5,6 +5,7 @@ public enum FarmTaskType
     NestPreparation,
     NestRemoval,
     Weaning,
-    OffspringSeparation
+    OffspringSeparation,
+    BreedingStatusUpdate
 
 }

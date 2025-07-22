@@ -3,6 +3,7 @@ export const FarmTaskType = {
   NestRemoval: "NestRemoval",
   Weaning: "Weaning",
   OffspringSeparation: "OffspringSeparation",
+  BreedingStatusUpdate: "BreedingStatusUpdate",
 } as const;
 
 export type FarmTaskType = (typeof FarmTaskType)[keyof typeof FarmTaskType];
@@ -19,6 +20,8 @@ export const getFarmTaskTypeColor = (type: FarmTaskType) => {
       return "success";
     case FarmTaskType.OffspringSeparation:
       return "secondary";
+    case FarmTaskType.BreedingStatusUpdate:
+      return "info";
     default:
       return "default";
   }
@@ -34,6 +37,8 @@ export const getFarmTaskTypeLabel = (type: FarmTaskType) => {
       return "Weaning";
     case FarmTaskType.OffspringSeparation:
       return "Offspring Separation";
+    case FarmTaskType.BreedingStatusUpdate:
+      return "Breeding Status Update";
     default:
       return type;
   }
@@ -44,4 +49,5 @@ export const farmTaskTypeStringToEnum: Record<string, number> = {
   NestRemoval: 1,
   Weaning: 2,
   OffspringSeparation: 3,
+  BreedingStatusUpdate: 4,
 };

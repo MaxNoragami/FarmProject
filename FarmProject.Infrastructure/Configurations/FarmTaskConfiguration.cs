@@ -29,5 +29,8 @@ public class FarmTaskConfiguration : IEntityTypeConfiguration<FarmTask>
 
         builder.Property(t => t.CageId)
             .IsRequired(false);
+
+        builder.Property(t => t.BreedingRabbitId)
+            .IsRequired(false);
     }
 }
