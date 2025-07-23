@@ -22,6 +22,8 @@ const mapTaskTypeFromApi = (apiType: number): FarmTaskType => {
       return FarmTaskType.Weaning;
     case 3:
       return FarmTaskType.OffspringSeparation;
+    case 4:
+      return FarmTaskType.BreedingStatusUpdate;
     default:
       return FarmTaskType.NestPreparation;
   }

@@ -39,4 +39,16 @@ public static class CageErrors
 
     public static readonly Error NotSacrificable = new(
         "Cage.NotSacrificable", "Offsprings are not ready to be sacrificed");
+
+    public static readonly Error NoOffspring = new(
+        "Cage.NoOffspring", "Cage has no offspring available");
+
+    public static readonly Error InsufficientOffspring = new(
+        "Cage.InsufficientOffspring", "Not enough available offspring in cage");
+
+    public static readonly Error InvalidReservationCount = new(
+        "Cage.InvalidReservationCount", "Reservation count must be greater than zero");
+
+    public static readonly Error ExceedsReservedAmount = new(
+        "Cage.ExceedsReservedAmount", "Cannot remove more than reserved amount");
 }

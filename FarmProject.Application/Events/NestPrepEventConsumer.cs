@@ -1,5 +1,4 @@
-﻿using FarmProject.Application.FarmTaskService;
-using FarmProject.Domain.Common;
+﻿using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Events;
@@ -7,10 +6,11 @@ using FarmProject.Domain.Models;
 
 namespace FarmProject.Application.Events;
 
-public class NestPrepEventConsumer(IFarmTaskRepository farmTaskRepository)
+public class NestPrepEventConsumer(
+        IUnitOfWork unitOfWork)
     : IEventConsumer<NestPrepEvent>
 {
-    public readonly IFarmTaskRepository _farmTaskRepository = farmTaskRepository;
+    public readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<Result> ConsumeAsync(NestPrepEvent domainEvent)
     {
@@ -23,7 +23,7 @@ public class NestPrepEventConsumer(IFarmTaskRepository farmTaskRepository)
                 dueOn: domainEvent.DueDate
             );
 
-            await _farmTaskRepository.AddAsync(farmTask);
+            await _unitOfWork.FarmTaskRepository.AddAsync(farmTask);
             return Result.Success();
         }
         catch

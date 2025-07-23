@@ -3,6 +3,7 @@ export interface ApiCageDto {
   name: string;
   breedingRabbitId: number | null;
   offspringCount: number;
+  reservedOffspringCount: number;
   offspringType: number;
   birthDate: string | null;
   isSacrificable: boolean;

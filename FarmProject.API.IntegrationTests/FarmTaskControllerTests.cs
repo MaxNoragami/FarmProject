@@ -48,7 +48,7 @@ public class FarmTaskControllerTests
             returnedPairDto.PairingStatus.Should().Be(PairingStatus.Successful);
 
             var endDate = returnedPairDto.EndDate!.Value;
-            var expectedDueDate = endDate.AddMonths(1).AddDays(-3).Date;
+            var expectedDueDate = endDate.AddDays(DomainRules.NestPrepInDays).AddDays(-3).Date;
 
             var filter = new FarmTaskFilterDto { DueOn = expectedDueDate.ToString("yyyy-MM-dd")};
             var farmTaskResult = await farmTaskController.GetPaginatedFarmTasks(filter: filter);
@@ -85,7 +85,7 @@ public class FarmTaskControllerTests
             returnedPairDto.PairingStatus.Should().Be(PairingStatus.Successful);
 
             var endDate = returnedPairDto.EndDate!.Value;
-            var expectedDueDate = endDate.AddMonths(1).AddDays(-3).Date;
+            var expectedDueDate = endDate.AddDays(DomainRules.NestPrepInDays).AddDays(-3).Date;
 
             var farmTaskResult = await farmTaskController.MarkTaskCompleted(1, null);
             var okFarmTaskResult = Assert.IsType<OkObjectResult>(farmTaskResult.Result);
@@ -111,12 +111,20 @@ public class FarmTaskControllerTests
         var breedingRabbitRepository = new BreedingRabbitRepository(dbContext);
         var farmTaskRepository = new FarmTaskRepository(dbContext);
         var pairingRepository = new PairingRepository(dbContext);
+        var customerRepository = new CustomerRepository(dbContext);
+        var orderRepository = new OrderRepository(dbContext);
+        var orderRequestRepository = new OrderRequestRepository(dbContext);
+        var sacrificationRepository = new SacrificationRepository(dbContext);
         var unitOfWork = new UnitOfWork(
             dbContext,
             breedingRabbitRepository,
             pairingRepository,
             farmTaskRepository,
-            cageRepository
+            cageRepository,
+            customerRepository,
+            orderRepository,
+            orderRequestRepository,
+            sacrificationRepository
         );
 
         var services = new ServiceCollection();

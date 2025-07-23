@@ -85,11 +85,49 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("ReservedOffspringCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.HasKey("Id");
 
                     b.HasIndex("BreedingRabbitId");
 
                     b.ToTable("Cages");
+                });
+
+            modelBuilder.Entity("FarmProject.Domain.Models.Customer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("PhoneNum")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("FarmProject.Domain.Models.FarmTask", b =>
@@ -99,6 +137,9 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BreedingRabbitId")
+                        .HasColumnType("int");
 
                     b.Property<int?>("CageId")
                         .HasColumnType("int");
@@ -124,6 +165,68 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                     b.HasKey("Id");
 
                     b.ToTable("FarmTasks");
+                });
+
+            modelBuilder.Entity("FarmProject.Domain.Models.Order", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("OrderStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("FarmProject.Domain.Models.OrderRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CageId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OffspringType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OrderRequestStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SacrificedAmount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CageId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderRequests");
                 });
 
             modelBuilder.Entity("FarmProject.Domain.Models.Pair", b =>
@@ -159,6 +262,41 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                     b.ToTable("Pairs");
                 });
 
+            modelBuilder.Entity("FarmProject.Domain.Models.Sacrification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("BirthDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CageId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OffspringType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("OrderRequestId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SacrificationReason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CageId");
+
+                    b.ToTable("Sacrifications");
+                });
+
             modelBuilder.Entity("FarmProject.Domain.Models.Cage", b =>
                 {
                     b.HasOne("FarmProject.Domain.Models.BreedingRabbit", "BreedingRabbit")
@@ -167,6 +305,32 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("BreedingRabbit");
+                });
+
+            modelBuilder.Entity("FarmProject.Domain.Models.Order", b =>
+                {
+                    b.HasOne("FarmProject.Domain.Models.Customer", null)
+                        .WithMany("Orders")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FarmProject.Domain.Models.OrderRequest", b =>
+                {
+                    b.HasOne("FarmProject.Domain.Models.Cage", "Cage")
+                        .WithMany()
+                        .HasForeignKey("CageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FarmProject.Domain.Models.Order", null)
+                        .WithMany("OrderRequests")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cage");
                 });
 
             modelBuilder.Entity("FarmProject.Domain.Models.Pair", b =>
@@ -178,6 +342,27 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
                         .IsRequired();
 
                     b.Navigation("FemaleRabbit");
+                });
+
+            modelBuilder.Entity("FarmProject.Domain.Models.Sacrification", b =>
+                {
+                    b.HasOne("FarmProject.Domain.Models.Cage", "Cage")
+                        .WithMany()
+                        .HasForeignKey("CageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cage");
+                });
+
+            modelBuilder.Entity("FarmProject.Domain.Models.Customer", b =>
+                {
+                    b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("FarmProject.Domain.Models.Order", b =>
+                {
+                    b.Navigation("OrderRequests");
                 });
 #pragma warning restore 612, 618
         }

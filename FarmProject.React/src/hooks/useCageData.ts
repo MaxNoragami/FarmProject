@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { CageService } from "../api/services/cageService";
 import { mapApiCagesToUI, type CageData } from "../utils/cageMappers";
 
@@ -20,9 +20,11 @@ interface UseCageDataOptions {
     name?: string;
     offspringType?: number;
     isOccupied?: boolean;
+    isSacrificable?: boolean;
   };
   logicalOperator?: number;
   sort?: string;
+  enabled?: boolean;
 }
 
 function normalizeSort(sort?: string): string | undefined {
@@ -40,6 +42,7 @@ export const useCageData = ({
   filters = {},
   logicalOperator = 0,
   sort = "",
+  enabled = true,
 }: UseCageDataOptions): UseCageDataResult => {
   const [cages, setCages] = useState<CageData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -49,7 +52,19 @@ export const useCageData = ({
   const [hasNextPage, setHasNextPage] = useState(false);
   const [hasPreviousPage, setHasPreviousPage] = useState(false);
 
+  const memoizedFilters = useMemo(
+    () => filters,
+    [
+      filters.name,
+      filters.offspringType,
+      filters.isOccupied,
+      filters.isSacrificable,
+    ]
+  );
+
   const fetchCages = useCallback(async () => {
+    if (!enabled) return;
+
     setLoading(true);
     setError(null);
 
@@ -59,7 +74,7 @@ export const useCageData = ({
         pageIndex: pageIndex + 1,
         pageSize,
         logicalOperator,
-        ...filters,
+        ...memoizedFilters,
         ...(normalizedSort ? { sort: normalizedSort } : {}),
       });
 
@@ -80,11 +95,21 @@ export const useCageData = ({
     } finally {
       setLoading(false);
     }
-  }, [pageIndex, pageSize, filters, logicalOperator, sort]);
+  }, [pageIndex, pageSize, memoizedFilters, logicalOperator, sort, enabled]);
 
   useEffect(() => {
-    fetchCages();
-  }, [fetchCages]);
+    if (enabled) {
+      fetchCages();
+    } else {
+      setCages([]);
+      setTotalCount(0);
+      setTotalPages(0);
+      setHasNextPage(false);
+      setHasPreviousPage(false);
+      setLoading(false);
+      setError(null);
+    }
+  }, [enabled, fetchCages]);
 
   return {
     cages,

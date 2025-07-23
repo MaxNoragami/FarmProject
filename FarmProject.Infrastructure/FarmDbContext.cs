@@ -10,6 +10,10 @@ public class FarmDbContext(DbContextOptions<FarmDbContext> options) : DbContext(
     public DbSet<Pair> Pairs { get; set; } = default!;
     public DbSet<FarmTask> FarmTasks { get; set; } = default!;
     public DbSet<Cage> Cages { get; set; } = default!;
+    public DbSet<Customer> Customers { get; set; } = default!;
+    public DbSet<Sacrification> Sacrifications { get; set; } = default!;
+    public DbSet<Order> Orders { get; set; } = default!;
+    public DbSet<OrderRequest> OrderRequests { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

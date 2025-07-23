@@ -95,15 +95,31 @@ const CageCard: React.FC<CageCardProps> = ({
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
             gap: 2,
+            mb: 2,
           }}
         >
           <Box>
             <Typography variant="body2" color="text.secondary">
               AMOUNT
             </Typography>
-            <Typography variant="h6" color="primary.main">
-              {cage.offspringCount}
-            </Typography>
+            {(() => {
+              let amountDisplay;
+              if (cage.isSacrificable) {
+                const available =
+                  cage.offspringCount - cage.reservedOffspringCount;
+                amountDisplay =
+                  available === cage.offspringCount
+                    ? cage.offspringCount
+                    : `${available} / ${cage.offspringCount}`;
+              } else {
+                amountDisplay = cage.offspringCount;
+              }
+              return (
+                <Typography variant="h6" color="primary.main">
+                  {amountDisplay}
+                </Typography>
+              );
+            })()}
           </Box>
           <Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>

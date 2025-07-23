@@ -14,18 +14,18 @@ public class ValidationBirthService(
 
     public Task<Result<BreedingRabbit>> RecordBirth(int breedingRabbitId, int offspringCount)
         => _validationHelper.ValidateAndExecute(
-                new RecordBirthParam(breedingRabbitId, offspringCount),
-                () => _inner.RecordBirth(breedingRabbitId, offspringCount));
+            new RecordBirthParam(breedingRabbitId, offspringCount),
+            () => _inner.RecordBirth(breedingRabbitId, offspringCount));
 
     public Task<Result> SeparateOffspring(int currentCageId, int? otherCageId, int? femaleOffspringCount)
         => _validationHelper.ValidateAndExecute(
-                new SeparateOffspringParam(currentCageId, otherCageId, femaleOffspringCount),
-                () => _inner.SeparateOffspring(currentCageId, otherCageId, femaleOffspringCount));
+            new SeparateOffspringParam(currentCageId, otherCageId, femaleOffspringCount),
+            () => _inner.SeparateOffspring(currentCageId, otherCageId, femaleOffspringCount));
 
     public Task<Result> WeanOffspring(int oldCageId, int newCageId)
         => _validationHelper.ValidateAndExecute(
-                new WeanOffspringParam(oldCageId, newCageId),
-                () => _inner.WeanOffspring(oldCageId, newCageId));
+            new WeanOffspringParam(oldCageId, newCageId),
+            () => _inner.WeanOffspring(oldCageId, newCageId));
 }
 
 public record RecordBirthParam(int breedingRabbitId, int offspringCount);

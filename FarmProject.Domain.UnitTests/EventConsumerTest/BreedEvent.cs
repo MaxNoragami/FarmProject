@@ -1,8 +1,15 @@
-﻿using FarmProject.Application.BreedingRabbitsService;
+﻿using FarmProject.Application;
+using FarmProject.Application.BreedingRabbitsService;
+using FarmProject.Application.CageService;
 using FarmProject.Application.Common.Models;
 using FarmProject.Application.Common.Models.Dtos;
+using FarmProject.Application.CustomerService;
 using FarmProject.Application.Events;
+using FarmProject.Application.FarmTaskService;
+using FarmProject.Application.OrderRequestService;
+using FarmProject.Application.OrderService;
 using FarmProject.Application.PairingService;
+using FarmProject.Application.SacrificationService;
 using FarmProject.Domain.Events;
 using FarmProject.Domain.Models;
 using FarmProject.Domain.Specifications;
@@ -26,7 +33,7 @@ public class BreedEventTest
 
         await breedingRabbitRepository.AddAsync(femaleBreedingRabbit);
 
-        var eventConsumer = new BreedEventConsumer(pairingRepository, breedingRabbitRepository);
+        var eventConsumer = new BreedEventConsumer(new InMemoryUnitOfWork(breedingRabbitRepository, pairingRepository));
         var startDate = DateTime.Now;
         var breedEvent = new BreedEvent()
         {
@@ -49,6 +56,54 @@ public class BreedEventTest
         pairs[0].FemaleRabbit.Should().BeEquivalentTo(femaleBreedingRabbit);
         pairs[0].MaleRabbitId.Should().Be(maleRabbitId);
 
+    }
+}
+
+internal class InMemoryUnitOfWork(
+        IBreedingRabbitRepository breedingRabbitRepository = null,
+        IPairingRepository pairingRepository = null,
+        IFarmTaskRepository farmTaskRepository = null,
+        ICageRepository cageRepository = null,
+        ICustomerRepository customerRepository = null,
+        IOrderRepository orderRepository = null,
+        IOrderRequestRepository orderRequestRepository = null,
+        ISacrificationRepository sacrificationRepository = null) 
+    : IUnitOfWork
+{
+    public IBreedingRabbitRepository BreedingRabbitRepository => breedingRabbitRepository;
+
+    public IPairingRepository PairingRepository => pairingRepository;
+
+    public IFarmTaskRepository FarmTaskRepository => farmTaskRepository;
+
+    public ICageRepository CageRepository => cageRepository;
+
+    public ICustomerRepository CustomerRepository => customerRepository;
+
+    public IOrderRepository OrderRepository => orderRepository;
+
+    public IOrderRequestRepository OrderRequestRepository => orderRequestRepository;
+
+    public ISacrificationRepository SacrificationRepository => sacrificationRepository;
+
+    public Task BeginTransactionAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task CommitTransactionAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task RollbackTransactionAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task SaveAsync()
+    {
+        throw new NotImplementedException();
     }
 }
 

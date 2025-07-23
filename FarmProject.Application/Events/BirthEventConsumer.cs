@@ -1,5 +1,4 @@
-﻿using FarmProject.Application.FarmTaskService;
-using FarmProject.Domain.Common;
+﻿using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Events;
@@ -8,10 +7,10 @@ using FarmProject.Domain.Models;
 namespace FarmProject.Application.Events;
 
 public class BirthEventConsumer(
-        IFarmTaskRepository farmTaskRepository)
+        IUnitOfWork unitOfWork)
     : IEventConsumer<BirthEvent>
 {
-    private readonly IFarmTaskRepository _farmTaskRepository = farmTaskRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<Result> ConsumeAsync(BirthEvent domainEvent)
     {
@@ -22,8 +21,8 @@ public class BirthEventConsumer(
 
             var birthDate = domainEvent.BirthDate;
 
-            var kitsWeaningDate = birthDate.AddDays(30);
-            var removeNestDate = birthDate.AddDays(30);
+            var kitsWeaningDate = birthDate.AddDays(DomainRules.KitsWeaningInDays);
+            var removeNestDate = birthDate.AddDays(DomainRules.RemoveNestInDays);
 
             var kitsWeaningTask = new FarmTask(
                 farmTaskType: FarmTaskType.Weaning,
@@ -40,8 +39,8 @@ public class BirthEventConsumer(
                 dueOn: removeNestDate
             );
 
-            await _farmTaskRepository.AddAsync(removeNestTask);
-            await _farmTaskRepository.AddAsync(kitsWeaningTask);
+            await _unitOfWork.FarmTaskRepository.AddAsync(removeNestTask);
+            await _unitOfWork.FarmTaskRepository.AddAsync(kitsWeaningTask);
 
             return Result.Success();
         }

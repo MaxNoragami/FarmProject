@@ -1,5 +1,4 @@
-﻿using FarmProject.Application.FarmTaskService;
-using FarmProject.Domain.Common;
+﻿using FarmProject.Domain.Common;
 using FarmProject.Domain.Constants;
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Events;
@@ -8,16 +7,16 @@ using FarmProject.Domain.Models;
 namespace FarmProject.Application.Events;
 
 public class OffspringSeparationEventConsumer(
-        IFarmTaskRepository farmTaskRepository)
+        IUnitOfWork unitOfWork)
     : IEventConsumer<OffspringSeparationEvent>
 {
-    private readonly IFarmTaskRepository _farmTaskRepository = farmTaskRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<Result> ConsumeAsync(OffspringSeparationEvent domainEvent)
     {
         try
         {
-            var separationDate = domainEvent.CreatedOn.AddDays(26);
+            var separationDate = domainEvent.CreatedOn.AddDays(DomainRules.OffspringSeparationInDays);
 
             var separateOffspringsTask = new FarmTask(
                 farmTaskType: FarmTaskType.OffspringSeparation,
@@ -27,7 +26,7 @@ public class OffspringSeparationEventConsumer(
                 cageId: domainEvent.NewCageId
             );
 
-            await _farmTaskRepository.AddAsync(separateOffspringsTask);
+            await _unitOfWork.FarmTaskRepository.AddAsync(separateOffspringsTask);
             return Result.Success();
         }
         catch

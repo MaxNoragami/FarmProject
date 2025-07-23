@@ -15,4 +15,7 @@ public static class FarmTaskErrors
 
     public static readonly Error MissingParameter = new(
         "FarmTask.MissingParameter", "One or more parameters are missing");
+
+    public static readonly Error NotRecovering = new(
+        "FarmTask.NotRecovering", "Rabbit is not in recovering status");
 }

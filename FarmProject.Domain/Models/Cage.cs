@@ -9,6 +9,7 @@ public class Cage(string name) : Entity
     public string Name { get; private set; } = name;
     public BreedingRabbit? BreedingRabbit { get; private set; }
     public int OffspringCount { get; private set; } = 0;
+    public int ReservedOffspringCount { get; private set; } = 0;
     public OffspringType OffspringType { get; set; } = OffspringType.None;
     public DateTime? BirthDate { get; private set; }
     public bool IsSacrificable { get; set; } = false;
@@ -65,6 +66,28 @@ public class Cage(string name) : Entity
         return Result.Success();
     }
 
+    public Result ReserveOffspring(int count)
+    {
+        if (count <= 0)
+            return Result.Failure(CageErrors.InvalidReservationCount);
+        if (count > (OffspringCount - ReservedOffspringCount))
+            return Result.Failure(CageErrors.InsufficientOffspring);
+
+        ReservedOffspringCount += count;
+        return Result.Success();
+    }
+
+    public Result RemoveReservedOffspring(int count)
+    {
+        if (count <= 0)
+            return Result.Failure(CageErrors.InvalidReservationCount);
+        if (count > ReservedOffspringCount)
+            return Result.Failure(CageErrors.ExceedsReservedAmount);
+
+        ReservedOffspringCount -= count;
+        return Result.Success();
+    }
+
     public void RecordBirthDate(DateTime birthDate)
     {
         BirthDate = birthDate;
@@ -80,16 +103,16 @@ public class Cage(string name) : Entity
         }
     }
 
-    public void UpdateSacrificableStatus(int sacrificableAgeInDays)
+    public void UpdateSacrificableStatus()
     {
         if (OffspringCount > 0 && BirthDate.HasValue)
         {
             var ageInDays = (DateTime.UtcNow - BirthDate.Value).TotalDays;
-            IsSacrificable = ageInDays >= sacrificableAgeInDays;
+            IsSacrificable = ageInDays >= DomainRules.OffspringSacrificableAgeInDays;
         }
     }
 
-    public Result SacrificeOffspring(int count)
+    public Result ReduceOffspringsForSacrification(int count)
     {
         if (count <= 0)
             return Result.Failure(CageErrors.InvalidSacrificeCount);

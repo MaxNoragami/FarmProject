@@ -318,18 +318,18 @@ const PairsPage = () => {
             mb: 2,
           }}
         >
-          <Skeleton variant="text" width={120} height={32} />
+          <Skeleton variant="text" width={100} height={32} />
           <Skeleton variant="rounded" width={80} height={24} />
         </Box>
 
         <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
           <Box>
-            <Skeleton variant="text" width={60} height={16} />
+            <Skeleton variant="text" width={80} height={16} />
             <Skeleton variant="text" width={40} height={20} />
           </Box>
           <Box>
-            <Skeleton variant="text" width={60} height={16} />
-            <Skeleton variant="text" width={40} height={20} />
+            <Skeleton variant="text" width={70} height={16} />
+            <Skeleton variant="text" width={50} height={20} />
           </Box>
         </Box>
       </Paper>
@@ -347,18 +347,18 @@ const PairsPage = () => {
             mb: 2,
           }}
         >
-          <Skeleton variant="text" width={120} height={32} />
+          <Skeleton variant="text" width={100} height={32} />
           <Skeleton variant="rounded" width={80} height={24} />
         </Box>
 
         <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
           <Box>
-            <Skeleton variant="text" width={60} height={16} />
+            <Skeleton variant="text" width={80} height={16} />
             <Skeleton variant="text" width={40} height={20} />
           </Box>
           <Box>
-            <Skeleton variant="text" width={60} height={16} />
-            <Skeleton variant="text" width={40} height={20} />
+            <Skeleton variant="text" width={70} height={16} />
+            <Skeleton variant="text" width={50} height={20} />
           </Box>
         </Box>
       </Paper>

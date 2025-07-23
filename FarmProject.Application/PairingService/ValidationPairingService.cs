@@ -21,16 +21,16 @@ public class ValidationPairingService(
 
     public Task<Result<PaginatedResult<Pair>>> GetPaginatedPairs(PaginatedRequest<PairFilterDto> request)
         => _validationHelper.ValidateAndExecute(
-                new PaginatedRequestParam<PairFilterDto>(request),
-                () => _inner.GetPaginatedPairs(request));
+            new PaginatedRequestParam<PairFilterDto>(request),
+            () => _inner.GetPaginatedPairs(request));
 
     public Task<Result<Pair>> GetPairById(int pairId)
         => _inner.GetPairById(pairId);
 
     public Task<Result<Pair>> UpdatePairingStatus(int pairId, PairingStatus pairingStatus)
         => _validationHelper.ValidateAndExecute(
-                new UpdatePairingStatusParam(pairId, pairingStatus),
-                () => _inner.UpdatePairingStatus(pairId, pairingStatus));
+            new UpdatePairingStatusParam(pairId, pairingStatus),
+            () => _inner.UpdatePairingStatus(pairId, pairingStatus));
 }
 
 public record UpdatePairingStatusParam(int PairId, PairingStatus PairingStatus);

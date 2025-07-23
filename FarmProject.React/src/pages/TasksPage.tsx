@@ -33,6 +33,11 @@ import ErrorAlert from "../components/common/ErrorAlert";
 import type { TaskFilter } from "../hooks/useTaskFilters";
 import { getSortableTaskColumns } from "../constants/taskColumns";
 import { farmTaskTypeStringToEnum } from "../types/FarmTaskType";
+import OrderTaskCard from "../components/tasks/OrderTaskCard";
+import OrderDetailsModal from "../components/modals/OrderDetailsModal";
+import { orderStatusOptions } from "../types/OrderStatus";
+import type { TaskData } from "../utils/taskMappers";
+import type { OrderData } from "../utils/orderMappers";
 
 const TasksPage = () => {
   const theme = useTheme();
@@ -47,12 +52,15 @@ const TasksPage = () => {
   const [filters, setFilters] = React.useState<{
     taskType?: string;
     isCompleted?: boolean;
-  }>({ isCompleted: false });
+    orderStatus?: string;
+  }>({ isCompleted: false, orderStatus: "0" });
 
   const [tempFilters, setTempFilters] = React.useState<{
     taskType: string;
     isCompleted: boolean | null;
-  }>({ taskType: "", isCompleted: false });
+    orderStatus: string;
+  }>({ taskType: "", isCompleted: false, orderStatus: "0" });
+
   const [tempSortBy, setTempSortBy] = React.useState("taskId");
   const [tempSortOrder, setTempSortOrder] = React.useState<"asc" | "desc">(
     "asc"
@@ -61,6 +69,12 @@ const TasksPage = () => {
   const [sortBy, setSortBy] = React.useState<string>("taskId");
   const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
 
+  const [orderDetailsModalOpen, setOrderDetailsModalOpen] =
+    React.useState(false);
+  const [selectedOrderId, setSelectedOrderId] = React.useState<number | null>(
+    null
+  );
+
   const apiFilters = React.useMemo(() => {
     const converted: any = {};
     if (filters.taskType) {
@@ -68,6 +82,9 @@ const TasksPage = () => {
     }
     if (typeof filters.isCompleted === "boolean") {
       converted.isCompleted = filters.isCompleted;
+    }
+    if (filters.orderStatus && !isNaN(Number(filters.orderStatus))) {
+      converted.orderStatus = Number(filters.orderStatus);
     }
     return converted;
   }, [filters]);
@@ -86,7 +103,7 @@ const TasksPage = () => {
     return sortFieldMap[uiSortField] || uiSortField;
   };
 
-  const { tasks, loading, error, totalCount, refetch, completeTask } =
+  const { tasks, orders, loading, error, totalCount, refetch, completeTask } =
     useTaskData({
       pageIndex: page,
       pageSize: rowsPerPage,
@@ -112,17 +129,37 @@ const TasksPage = () => {
 
   const handleClearTaskTypeFilter = () => {
     setFilters((prev) => ({ ...prev, taskType: undefined }));
+    setTempFilters((prev) => ({ ...prev, taskType: "" }));
     setPage(0);
   };
 
   const handleClearCompletedFilter = () => {
     setFilters((prev) => ({ ...prev, isCompleted: undefined }));
+    setTempFilters((prev) => ({ ...prev, isCompleted: null }));
     setPage(0);
+  };
+
+  const handleClearOrderStatusFilter = () => {
+    setFilters((prev) => ({ ...prev, orderStatus: undefined }));
+    setTempFilters((prev) => ({ ...prev, orderStatus: "" }));
+    setPage(0);
+  };
+
+  const handleOpenOrderDetailsModal = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setOrderDetailsModalOpen(true);
+  };
+
+  const handleCloseOrderDetailsModal = () => {
+    setOrderDetailsModalOpen(false);
+    setSelectedOrderId(null);
   };
 
   const FilterChips = () => {
     const hasFilters =
-      filters.taskType || typeof filters.isCompleted === "boolean";
+      filters.taskType ||
+      typeof filters.isCompleted === "boolean" ||
+      filters.orderStatus;
 
     if (!hasFilters) return null;
 
@@ -179,6 +216,29 @@ const TasksPage = () => {
             }}
           />
         )}
+
+        {filters.orderStatus && (
+          <Chip
+            label={`ORDER STATUS is "${
+              orderStatusOptions.find((o) => o.value === filters.orderStatus)
+                ?.label || filters.orderStatus
+            }"`}
+            onDelete={handleClearOrderStatusFilter}
+            size="small"
+            variant="filled"
+            sx={{
+              backgroundColor: "#e0e0e0",
+              color: "#424242",
+              "& .MuiChip-deleteIcon": {
+                color: "#757575",
+                fontSize: "16px",
+                "&:hover": {
+                  color: "#424242",
+                },
+              },
+            }}
+          />
+        )}
       </Box>
     );
   };
@@ -189,7 +249,11 @@ const TasksPage = () => {
       sortBy: newSortBy,
       sortOrder: newSortOrder,
     }: {
-      filters: { taskType: string; isCompleted: boolean | null };
+      filters: {
+        taskType: string;
+        isCompleted: boolean | null;
+        orderStatus: string;
+      };
       sortBy: string;
       sortOrder: "asc" | "desc";
     }) => {
@@ -198,6 +262,8 @@ const TasksPage = () => {
         newFilters.taskType = filters.taskType.trim();
       if (filters.isCompleted !== null)
         newFilters.isCompleted = filters.isCompleted;
+      if (filters.orderStatus.trim())
+        newFilters.orderStatus = filters.orderStatus.trim();
 
       setFilters(newFilters);
       setSortBy(newSortBy || "taskId");
@@ -212,12 +278,25 @@ const TasksPage = () => {
     setTempFilters({
       taskType: filters.taskType || "",
       isCompleted:
-        filters.isCompleted !== undefined ? filters.isCompleted : false,
+        filters.isCompleted !== undefined ? filters.isCompleted : null,
+      orderStatus: filters.orderStatus || "",
     });
     setTempSortBy(String(sortBy));
     setTempSortOrder(sortOrder);
     setFilterDialogOpen(true);
   };
+
+  const allItems = React.useMemo(() => {
+    const taskItems = tasks.map((task) => ({
+      type: "task" as const,
+      data: task,
+    }));
+    const orderItems = orders.map((order) => ({
+      type: "order" as const,
+      data: order,
+    }));
+    return [...taskItems, ...orderItems];
+  }, [tasks, orders]);
 
   const visibleTasks = React.useMemo(() => {
     return tasks;
@@ -385,6 +464,13 @@ const TasksPage = () => {
                             />
                           </Box>
 
+                          <Skeleton
+                            variant="text"
+                            width="100%"
+                            height={40}
+                            sx={{ mb: 2 }}
+                          />
+
                           <Box
                             sx={{
                               display: "grid",
@@ -393,23 +479,35 @@ const TasksPage = () => {
                             }}
                           >
                             <Box>
-                              <Skeleton variant="text" width={60} height={16} />
-                              <Skeleton variant="text" width={40} height={20} />
+                              <Skeleton variant="text" width={70} height={16} />
+                              <Skeleton variant="text" width={90} height={20} />
                             </Box>
                             <Box>
-                              <Skeleton variant="text" width={60} height={16} />
-                              <Skeleton variant="text" width={40} height={20} />
+                              <Skeleton variant="text" width={50} height={16} />
+                              <Skeleton variant="text" width={80} height={20} />
                             </Box>
                           </Box>
                         </Paper>
                       </Grid>
                     ))
-                  : visibleTasks.map((task) => (
-                      <Grid size={{ xs: 12, sm: 6 }} key={task.id}>
-                        <TaskCard
-                          task={task}
-                          onCompleteTask={handleCompleteTask}
-                        />
+                  : allItems.map((item, index) => (
+                      <Grid
+                        size={{ xs: 12, sm: 6 }}
+                        key={`${item.type}-${item.data.id}`}
+                      >
+                        {item.type === "task" ? (
+                          <TaskCard
+                            task={item.data}
+                            onCompleteTask={handleCompleteTask}
+                          />
+                        ) : (
+                          <OrderTaskCard
+                            order={item.data}
+                            onClick={() =>
+                              handleOpenOrderDetailsModal(item.data.id)
+                            }
+                          />
+                        )}
                       </Grid>
                     ))}
               </Grid>
@@ -546,6 +644,13 @@ const TasksPage = () => {
                             />
                           </Box>
 
+                          <Skeleton
+                            variant="text"
+                            width="100%"
+                            height={40}
+                            sx={{ mb: 2 }}
+                          />
+
                           <Box
                             sx={{
                               display: "grid",
@@ -554,26 +659,35 @@ const TasksPage = () => {
                             }}
                           >
                             <Box>
-                              <Skeleton variant="text" width={60} height={16} />
-                              <Skeleton variant="text" width={40} height={20} />
+                              <Skeleton variant="text" width={70} height={16} />
+                              <Skeleton variant="text" width={90} height={20} />
                             </Box>
                             <Box>
-                              <Skeleton variant="text" width={60} height={16} />
-                              <Skeleton variant="text" width={40} height={20} />
+                              <Skeleton variant="text" width={50} height={16} />
+                              <Skeleton variant="text" width={80} height={20} />
                             </Box>
                           </Box>
                         </Paper>
                       </Grid>
                     ))
-                  : visibleTasks.map((task) => (
+                  : allItems.map((item, index) => (
                       <Grid
                         size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
-                        key={task.id}
+                        key={`${item.type}-${item.data.id}`}
                       >
-                        <TaskCard
-                          task={task}
-                          onCompleteTask={handleCompleteTask}
-                        />
+                        {item.type === "task" ? (
+                          <TaskCard
+                            task={item.data}
+                            onCompleteTask={handleCompleteTask}
+                          />
+                        ) : (
+                          <OrderTaskCard
+                            order={item.data}
+                            onClick={() =>
+                              handleOpenOrderDetailsModal(item.data.id)
+                            }
+                          />
+                        )}
                       </Grid>
                     ))}
               </Grid>
@@ -608,10 +722,19 @@ const TasksPage = () => {
         onClearCompleted={() =>
           setTempFilters((f) => ({ ...f, isCompleted: null }))
         }
+        onClearOrderStatus={() =>
+          setTempFilters((f) => ({ ...f, orderStatus: "" }))
+        }
         onApply={handleApplyFiltersAndSort}
         sortBy={tempSortBy}
         sortOrder={tempSortOrder}
         sortableColumns={getSortableTaskColumns()}
+      />
+
+      <OrderDetailsModal
+        open={orderDetailsModalOpen}
+        onClose={handleCloseOrderDetailsModal}
+        orderId={selectedOrderId}
       />
     </LocalizationProvider>
   );

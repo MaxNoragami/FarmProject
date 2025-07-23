@@ -169,15 +169,23 @@ public class CageControllerTests
         var breedingRabbitRepository = new BreedingRabbitRepository(dbContext);
         var farmTaskRepository = new FarmTaskRepository(dbContext);
         var pairingRepository = new PairingRepository(dbContext);
+        var customerRepository = new CustomerRepository(dbContext);
+        var orderRepository = new OrderRepository(dbContext);
+        var orderRequestRepository = new OrderRequestRepository(dbContext);
+        var sacrificationRepository = new SacrificationRepository(dbContext);
         var unitOfWork = new UnitOfWork(
             dbContext,
             breedingRabbitRepository,
             pairingRepository,
             farmTaskRepository,
-            cageRepository
+            cageRepository,
+            customerRepository,
+            orderRepository,
+            orderRequestRepository,
+            sacrificationRepository
         );
 
-        var cageService = new CageService(unitOfWork, 60);
+        var cageService = new CageService(unitOfWork);
         var controller = new CageController(cageService);
 
         return (controller, factory);

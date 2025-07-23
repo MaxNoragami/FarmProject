@@ -70,10 +70,10 @@ const FilterDialog: React.FC<FilterDialogProps> = ({
     }
   }, [open, tempFilters, sortBy, sortOrder, logicalOperator]);
 
-  // Check if any changes have been made
   const hasChanges = React.useMemo(() => {
     const filtersChanged =
-      name !== tempFilters.name || status !== tempFilters.status;
+      name !== (tempFilters.name || "") ||
+      status !== (tempFilters.status || "");
     const sortChanged =
       localSortBy !== (sortBy || "") || localSortOrder !== (sortOrder || "asc");
     const operatorChanged = localLogicalOperator !== logicalOperator;

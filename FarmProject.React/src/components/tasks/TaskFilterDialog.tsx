@@ -19,6 +19,7 @@ import {
   farmTaskTypeOptions,
   getFarmTaskTypeLabel,
 } from "../../types/FarmTaskType";
+import { orderStatusOptions } from "../../types/OrderStatus";
 
 interface TaskFilterDialogProps {
   open: boolean;
@@ -26,15 +27,22 @@ interface TaskFilterDialogProps {
   tempFilters: {
     taskType: string;
     isCompleted: boolean | null;
+    orderStatus: string;
   };
   onTempFiltersChange: (filters: {
     taskType: string;
     isCompleted: boolean | null;
+    orderStatus: string;
   }) => void;
   onClearTaskType: () => void;
   onClearCompleted: () => void;
+  onClearOrderStatus: () => void;
   onApply: (params: {
-    filters: { taskType: string; isCompleted: boolean | null };
+    filters: {
+      taskType: string;
+      isCompleted: boolean | null;
+      orderStatus: string;
+    };
     sortBy: string;
     sortOrder: "asc" | "desc";
   }) => void;
@@ -50,6 +58,7 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
   onTempFiltersChange,
   onClearTaskType,
   onClearCompleted,
+  onClearOrderStatus,
   onApply,
   sortBy,
   sortOrder,
@@ -85,7 +94,9 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
     localSortBy !== (sortBy || "") || localSortOrder !== (sortOrder || "asc");
   const filtersChanged =
     localFilters.taskType !== (tempFilters.taskType || "") ||
-    localFilters.isCompleted !== (tempFilters.isCompleted ?? null);
+    localFilters.isCompleted !== (tempFilters.isCompleted ?? null) ||
+    localFilters.orderStatus !== tempFilters.orderStatus;
+
   const canApply = sortChanged || filtersChanged;
 
   const handleApply = () => {
@@ -149,6 +160,39 @@ const TaskFilterDialog: React.FC<TaskFilterDialogProps> = ({
               {farmTaskTypeOptions.map((type) => (
                 <MenuItem key={type} value={type}>
                   {getFarmTaskTypeLabel(type)}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth>
+            <InputLabel>Order Status</InputLabel>
+            <Select
+              value={localFilters.orderStatus}
+              onChange={(e) =>
+                setLocalFilters({
+                  ...localFilters,
+                  orderStatus: e.target.value,
+                })
+              }
+              label="Order Status"
+              endAdornment={
+                localFilters.orderStatus && (
+                  <IconButton
+                    onClick={() => {
+                      setLocalFilters({ ...localFilters, orderStatus: "" });
+                    }}
+                    size="small"
+                    sx={{ mr: 2 }}
+                  >
+                    <Clear />
+                  </IconButton>
+                )
+              }
+            >
+              {orderStatusOptions.map((status) => (
+                <MenuItem key={status.value} value={status.value}>
+                  {status.label}
                 </MenuItem>
               ))}
             </Select>

@@ -5,13 +5,13 @@
 namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
 {
     /// <inheritdoc />
-    public partial class UpdateFarmTask : Migration
+    public partial class UpdateConfigForFarmTask : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<int>(
-                name: "CageId",
+                name: "BreedingRabbitId",
                 table: "FarmTasks",
                 type: "int",
                 nullable: true);
@@ -21,7 +21,7 @@ namespace FarmProject.Infrastructure.Migrations.Migrations.Domain
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "CageId",
+                name: "BreedingRabbitId",
                 table: "FarmTasks");
         }
     }

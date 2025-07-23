@@ -199,11 +199,13 @@ const RabbitsPage = () => {
 
   const handleClearNameFilter = () => {
     setFilters((prev) => ({ ...prev, name: undefined }));
+    setTempFilters((prev) => ({ ...prev, name: "" }));
     setPage(0);
   };
 
   const handleClearStatusFilter = () => {
     setFilters((prev) => ({ ...prev, status: undefined }));
+    setTempFilters((prev) => ({ ...prev, status: "" }));
     setPage(0);
   };
 
@@ -376,7 +378,7 @@ const RabbitsPage = () => {
                             }}
                           >
                             <Box>
-                              <Skeleton variant="text" width={60} height={16} />
+                              <Skeleton variant="text" width={70} height={16} />
                               <Skeleton variant="text" width={40} height={20} />
                             </Box>
                             <Box>

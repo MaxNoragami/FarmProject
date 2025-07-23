@@ -13,6 +13,8 @@ public class Pair : Entity
     public DateTime? EndDate { get; private set; }
     public PairingStatus PairingStatus { get; set; }
 
+    private Pair() { }
+
     public Pair(int maleRabbitId, BreedingRabbit femaleRabbit, DateTime startDate)
     {
         MaleRabbitId = maleRabbitId;
@@ -22,8 +24,6 @@ public class Pair : Entity
         PairingStatus = PairingStatus.Active;
     }
 
-    private Pair() { }
-
     public Result CreateNestPrepTask()
     {
         if (PairingStatus != PairingStatus.Successful)
@@ -32,7 +32,7 @@ public class Pair : Entity
         if (EndDate == null)
             return Result.Failure<FarmTask>(PairErrors.NoEndDate);
 
-        var dueDate = EndDate.Value.AddMonths(1).AddDays(-3);
+        var dueDate = EndDate.Value.AddDays(DomainRules.NestPrepInDays).AddDays(-3);
 
         var message = $"Prepare nest in cage #{FemaleRabbit.CageId} for rabbit #{FemaleRabbit.Id}";
 

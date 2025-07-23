@@ -58,6 +58,12 @@ public class BirthDomainService
         newCage.OffspringType = OffspringType.Mixed;
         motherCage.BreedingRabbit.BreedingStatus = BreedingStatus.Recovering;
 
+        motherCage.BreedingRabbit.AddDomainEvent(new RecoveryStartedEvent()
+        {
+            BreedingRabbitId = motherCage.BreedingRabbit.Id,
+            RecoveryStartDate = weanDate
+        });
+
         var offspringSeparationEvent = new OffspringSeparationEvent
         {
             NewCageId = newCage.Id,

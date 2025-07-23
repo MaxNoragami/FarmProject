@@ -6,6 +6,7 @@ export interface CageData {
   name: string;
   rabbitId: number | null;
   offspringCount: number;
+  reservedOffspringCount: number;
   offspringType: OffspringType;
   birthDate: Date | null;
   isSacrificable: boolean;
@@ -32,6 +33,7 @@ export const mapApiCageToUI = (apiCage: ApiCageDto): CageData => {
     name: apiCage.name,
     rabbitId: apiCage.breedingRabbitId,
     offspringCount: apiCage.offspringCount,
+    reservedOffspringCount: apiCage.reservedOffspringCount,
     offspringType: mapOffspringTypeFromApi(apiCage.offspringType),
     birthDate: apiCage.birthDate ? new Date(apiCage.birthDate) : null,
     isSacrificable: apiCage.isSacrificable || false,

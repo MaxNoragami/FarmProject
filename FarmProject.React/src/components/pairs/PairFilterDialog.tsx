@@ -82,9 +82,9 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
 
   const hasChanges = React.useMemo(() => {
     const filtersChanged =
-      status !== tempFilters.status ||
-      femaleRabbitId !== tempFilters.femaleRabbitId ||
-      maleRabbitId !== tempFilters.maleRabbitId;
+      status !== (tempFilters.status || "") ||
+      femaleRabbitId !== (tempFilters.femaleRabbitId || "") ||
+      maleRabbitId !== (tempFilters.maleRabbitId || "");
     const sortChanged =
       localSortBy !== (sortBy || "") || localSortOrder !== (sortOrder || "asc");
     const operatorChanged = localLogicalOperator !== logicalOperator;
@@ -104,7 +104,7 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
   ]);
 
   const validateNumericField = (value: string): string | null => {
-    if (!value.trim()) return null; // Empty is valid
+    if (!value.trim()) return null;
 
     const num = Number(value);
     if (isNaN(num) || !Number.isInteger(num) || num <= 0) {
@@ -116,13 +116,11 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
   const handleApply = () => {
     const newErrors: { femaleRabbitId?: string; maleRabbitId?: string } = {};
 
-    // Validate female rabbit ID
     const femaleError = validateNumericField(femaleRabbitId);
     if (femaleError) {
       newErrors.femaleRabbitId = femaleError;
     }
 
-    // Validate male rabbit ID
     const maleError = validateNumericField(maleRabbitId);
     if (maleError) {
       newErrors.maleRabbitId = maleError;
@@ -130,7 +128,6 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
 
     setErrors(newErrors);
 
-    // Only proceed if no errors
     if (Object.keys(newErrors).length === 0) {
       onApply({
         filters: { status, femaleRabbitId, maleRabbitId },
@@ -141,7 +138,6 @@ const PairFilterDialog: React.FC<PairFilterDialogProps> = ({
     }
   };
 
-  // Clear errors when values change
   const handleFemaleRabbitIdChange = (value: string) => {
     setFemaleRabbitId(value);
     if (errors.femaleRabbitId) {

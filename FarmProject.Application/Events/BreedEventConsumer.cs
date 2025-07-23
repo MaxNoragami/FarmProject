@@ -1,22 +1,19 @@
-﻿using FarmProject.Application.BreedingRabbitsService;
-using FarmProject.Application.PairingService;
-using FarmProject.Domain.Common;
+﻿using FarmProject.Domain.Common;
 using FarmProject.Domain.Errors;
 using FarmProject.Domain.Events;
 using FarmProject.Domain.Models;
 
 namespace FarmProject.Application.Events;
 
-public class BreedEventConsumer(IPairingRepository pairingRepository, 
-        IBreedingRabbitRepository breedingRabbitRepository) 
+public class BreedEventConsumer( 
+        IUnitOfWork unitOfWork) 
     : IEventConsumer<BreedEvent>
 {
-    private readonly IPairingRepository _pairingRepository = pairingRepository;
-    private readonly IBreedingRabbitRepository _breedingRabbitRepository = breedingRabbitRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<Result> ConsumeAsync(BreedEvent domainEvent)
     {
-        var breedingRabbit = await _breedingRabbitRepository
+        var breedingRabbit = await _unitOfWork.BreedingRabbitRepository
             .GetByIdAsync(domainEvent.BreedingRabbitIds[0]);
         if (breedingRabbit == null)
             return Result.Failure(ConsumerErrors.BreedingRabbitNotFound);
@@ -26,7 +23,7 @@ public class BreedEventConsumer(IPairingRepository pairingRepository,
         try
         {
             var pair = new Pair(maleRabbitId, breedingRabbit, domainEvent.StartDate);
-            await _pairingRepository.AddAsync(pair);
+            await _unitOfWork.PairingRepository.AddAsync(pair);
             return Result.Success();
         }
         catch

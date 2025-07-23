@@ -25,6 +25,7 @@ import { useCageData } from "../hooks/useCageData";
 import { getSortableCageColumns } from "../constants/cageColumns";
 import { offspringTypeStringToEnum } from "../types/OffspringType";
 import { type CageData } from "../utils/cageMappers";
+import { apiClient } from "../api/config";
 
 const CagesPage = () => {
   const theme = useTheme();
@@ -120,20 +121,13 @@ const CagesPage = () => {
     setSacrificeError(null);
   };
 
-  const handleSacrifice = async (cageId: number, count: number) => {
-    setSacrificeError(null);
-    try {
-      await CageService.sacrificeOffspring(cageId, count);
-      setSacrificeModalOpen(false);
-      await refetch();
-    } catch (err: any) {
-      setSacrificeError(
-        err?.response?.data?.message ||
-          err?.message ||
-          "An unexpected error occurred while sacrificing offspring."
-      );
-      throw err;
-    }
+  const handleSacrifice = async (payload: {
+    cageId: number;
+    amount: number;
+    sacrificationReason: number;
+    orderRequestId?: number;
+  }) => {
+    await refetch();
   };
 
   const isCageClickable = (cage: CageData) => {
@@ -212,21 +206,25 @@ const CagesPage = () => {
 
   const handleClearNameFilter = () => {
     setFilters((prev) => ({ ...prev, name: undefined }));
+    setTempFilters((prev) => ({ ...prev, name: "" }));
     setPage(0);
   };
 
   const handleClearOffspringTypeFilter = () => {
     setFilters((prev) => ({ ...prev, offspringType: undefined }));
+    setTempFilters((prev) => ({ ...prev, offspringType: "" }));
     setPage(0);
   };
 
   const handleClearOccupiedFilter = () => {
     setFilters((prev) => ({ ...prev, isOccupied: undefined }));
+    setTempFilters((prev) => ({ ...prev, isOccupied: null }));
     setPage(0);
   };
 
   const handleClearSacrificableFilter = () => {
     setFilters((prev) => ({ ...prev, isSacrificable: undefined }));
+    setTempFilters((prev) => ({ ...prev, isSacrificable: null }));
     setPage(0);
   };
 

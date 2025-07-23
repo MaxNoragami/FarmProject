@@ -8,6 +8,7 @@ public class ViewCageDto
     public string Name { get; set; }
     public int? BreedingRabbitId { get; set; }
     public int OffspringCount { get; set; } = 0;
+    public int ReservedOffspringCount { get; set; } = 0;
     public OffspringType OffspringType { get; set; }
     public DateTime? BirthDate { get; set; }
     public bool IsSacrificable { get; set; } = false;

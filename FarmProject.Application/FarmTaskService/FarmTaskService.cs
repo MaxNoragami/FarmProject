@@ -54,6 +54,7 @@ public class FarmTaskService(
         {
             FarmTaskType.Weaning => await HandleWeaningCompletion(requestTask, completeTaskData),
             FarmTaskType.OffspringSeparation => await HandleOffspringSeparationCompletion(requestTask, completeTaskData),
+            FarmTaskType.BreedingStatusUpdate => await HandleBreedingStatusUpdateCompletion(requestTask),
             _ => Result.Success()
         };
 
@@ -90,5 +91,24 @@ public class FarmTaskService(
             completeTaskData.OtherCageId,
             completeTaskData.FemaleOffspringCount
         );
+    }
+    private async Task<Result> HandleBreedingStatusUpdateCompletion(FarmTask farmTask)
+    {
+        if (!farmTask.BreedingRabbitId.HasValue)
+            return Result.Failure(FarmTaskErrors.MissingParameter);
+
+        var breedingRabbit = await _unitOfWork.BreedingRabbitRepository.GetByIdAsync(farmTask.BreedingRabbitId.Value);
+
+        if (breedingRabbit == null)
+            return Result.Failure(BreedingRabbitErrors.NotFound);
+
+        if (breedingRabbit.BreedingStatus != BreedingStatus.Recovering)
+            return Result.Failure(FarmTaskErrors.NotRecovering);
+
+        breedingRabbit.BreedingStatus = BreedingStatus.Available;
+
+        await _unitOfWork.BreedingRabbitRepository.UpdateAsync(breedingRabbit);
+
+        return Result.Success();
     }
 }
